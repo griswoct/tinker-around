@@ -31,11 +31,11 @@ Sub Initialize()
             If Range("G2:O10").Cells(i, j).Value <> "" Then     'Initial matrix has a value
                 n = Range("G2:O10").Cells(i, j).Value
                 Range("G12:O20").Cells(i, j).Value = n    'Copy initial value to solution matrix
-				Range("G12:O20").Cells(i, j).Font.Bold = True
+		Range("G12:O20").Cells(i, j).Font.Bold = True
                 Range("F13").Offset(9 * i, j).Cells(n, 1).Value = n  'Copy initial value to working matrix
-				Range("F13").Offset(9 * i, j).Cells(n, 1).Font.Bold = True
-				Range("F13").Offset(9 * i, j).Select
-				ActiveCell.Range("A1:A9")Interior.ColorIndex = 5
+		Range("F13").Offset(9 * i, j).Cells(n, 1).Font.Bold = True
+		Range("F13").Offset(9 * i, j).Select
+		ActiveCell.Range("A1:A9")Interior.ColorIndex = 5
             Else
                 'Populate working matrix options
                 For n = 1 To 9

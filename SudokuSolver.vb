@@ -45,3 +45,31 @@ Sub Initialize()
         Next j
     Next i
 End Sub
+
+Sub SimpleElimination()
+    Dim i, j, k, l, n As Integer
+    For i = 1 To 9      'Remove n (initial values) from each row of working matrix
+        For j = 1 To 9
+            If Range("G12:O20").Cells(i, j).Value <> "" Then    'Solution cell is not empty
+                n = Range("G12:O20").Cells(i, j).Value      'Solution cell's value
+                For k = 1 To 9      'Iterate through columns in the row
+                    If k <> j Then      'Ignore solution cell
+                        Range("F13").Offset(9 * i, k).Cells(n, 1) = ""      'Delete n as an option
+                    End If
+                Next k
+            End If
+        Next j
+    Next i
+    For j = 1 To 9      'Remove n (initial values) from each rcolumn of working matrix
+        For i = 1 To 9
+            If Range("G12:O20").Cells(i, j).Value <> "" Then    'Solution cell is not empty
+                n = Range("G12:O20").Cells(i, j).Value      'Solution cell's value
+                For k = 1 To 9      'Iterate through rows in the column
+                    If k <> i Then      'Ignore solution cell
+                        Range("F13").Offset(9 * k, j).Cells(n, 1) = ""      'Delete n as an option
+                    End If
+                Next k
+            End If
+        Next i
+    Next j
+End Sub

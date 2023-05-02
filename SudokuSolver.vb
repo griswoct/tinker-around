@@ -11,7 +11,7 @@ Sub Solve()
 	Dim blanks, z, max As Integer
 	Call Clear
 	Call Initialize
-	blanks = 81
+	blanks = 81		'81 squares in a traditional Sudoku grid
 	max = 10		'Max number of itterations
 	z = 0
 	Do While blanks > 0
@@ -118,4 +118,28 @@ Sub SimpleElimination()     'Remove n as an option if it is already present in t
         Loop
     i = i + 3
     Loop
+End Sub
+
+Sub OnlyOption()        'If solution cell is empty, but only one option remains, fill in the solution cell.
+    Dim i, j, k, n As Integer
+    For i = 1 To 9
+        For j = 1 To 9
+            If Range("G12:O20").Cells(i, j).Value = "" Then     'Solution cell is empty
+                n = 0
+                For k = 1 To 9      'Itterate through options
+                    If Range("F13").Offset(9 * i, j).Cells(k) <> "" Then    'Option value exists
+                        If n > 0 Then		'Possible value already found
+                            GoTo MultipleOptions		'Multiple options, move to next cell
+                        End If
+                        n = k		'Save possible value
+                    End If
+                Next k
+                If n > 0 Then
+                    Range("G12:O20").Cells(i, j).Value = Range("F13").Offset(9 * i, j).Cells(n).Value      'Only on option, assign solution
+                    Range("G12:O20").Cells(i, j).Font.Italic = True
+                End If
+            End If
+MultipleOptions:
+        Next j
+    Next i
 End Sub

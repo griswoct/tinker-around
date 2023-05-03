@@ -5,6 +5,9 @@
 '
 'Written by: Caleb Griswold
 
+'NOTE: INITIAL SUDOKU PUZZLE MUST BE PLACED IN RANGE: G2:O10
+	'SOLUTION WILL APPEAR IN RANGE G12:O20
+
 Option Explicit
 
 Sub Solve()
@@ -12,25 +15,26 @@ Sub Solve()
 	Call Clear
 	Call Initialize
 	blanks = 81		'81 squares in a traditional Sudoku grid
-	max = 10		'Max number of itterations
+	max = 9		'Max number of itterations
 	z = 0
 	Do While blanks > 0
 		Call SimpleElimination
 		Call OnlyOption
 		Call aPlaceForEverything
 		blanks = NumBlanks
+		Range("Q19").Value = blanks
 		If z > max Then		'Abort after max itterations
-			GoTo SomethingWrong
+			GoTo MaxItterations
 		End If
 		z = z + 1
+		Range("Q20").Value = z		'Record number of itterations
 	Loop
 	If NumBlanks = 0 Then
-		MsgBox "Done!"
+		MsgBox "Solved!"
 	End If
 	Exit Sub
-SomethingWrong:
-	MsgBox "An error occured!"
-	Call Clear
+MaxItterations:
+	MsgBox "Maximum number of itterations reached:" & max
 End Sub
 
 Sub Clear()     'Delete all values from the solution and working matricies, and reset formating.
@@ -44,6 +48,8 @@ Sub Clear()     'Delete all values from the solution and working matricies, and 
         .TintAndShade = 0
         .PatternTintAndShade = 0
     End With
+	Range("Q19").Value = 0		'Number of blanks in solution
+	Range("Q20").Value = 0		'Number of itterations
 End Sub
 
 Sub Initialize()        'Copy initial values to the solution matrix, and populate the working matrix.

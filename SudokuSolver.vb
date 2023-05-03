@@ -143,3 +143,54 @@ MultipleOptions:
         Next j
     Next i
 End Sub
+
+Sub aPlaceForEverything()       'Each number 1-9 must fit somewhere. If only one spot is available, fill it in.
+    Dim i, j, k, n, x As Integer
+    For n = 1 To 9
+        For i = 0 To 8      'Itterate through rows
+            x = 0       'Number of spots n could be in row i
+            For j = 1 To 9      'Itterate through columns in row
+                If Range("G22:O102").Cells(i * 9 + n, j) <> "" Then   'If possible value listed in working matrix
+                    x = x + 1       'k number of spots n could be located in the row
+                    If x > 1 Then       'If more than one location is possible, move on to next row
+                        GoTo MultipleSpotR
+                    End If
+                    k = j		'Save column
+                End If
+            Next j
+            If x = 1 And Range("G12:O20").Cells(i + 1, k) = "" Then       'Only 1 spot n could be located in row i, and solution cell is blank
+                Range("G12:O20").Cells(i + 1, k) = n        'Fill in solution
+                Range("G12:O20").Cells(i + 1, k).Font.Italic = True
+                For x = 1 To 9      'Delete other options from working matrix for this cell
+                    If x <> n Then
+                        Range("G22:O102").Cells(i * 9 + x, k).Value = ""
+                    End If
+                Next x
+            End If
+MultipleSpotR:
+        Next i
+        For j = 1 To 9      'Itterate through columns
+            x = 0       'Number of spots n could be in column j
+            For i = 0 To 8      'Itterate through rows in column
+                If Range("G22:O102").Cells(i * 9 + n, j) <> "" Then   'If possible value listed in working matrix
+                    x = x + 1       'k number of spots n could be located in the column
+                    If x > 1 Then       'If more than one location is possible, move on to next row
+                        GoTo MultipleSpotC
+                    End If
+                    k = i		'Save row
+                End If
+            Next i
+            If x = 1 And Range("G12:O20").Cells(k + 1, j) = "" Then       'Only 1 spot n could be located in row i, and solution cell is blank
+                Range("G12:O20").Cells(k + 1, j) = n        'Fill in solution
+                Range("G12:O20").Cells(k + 1, j).Font.Italic = True
+                For x = 1 To 9      'Delete other options from working matrix for this cell
+                    If x <> n Then
+                        Range("G22:O102").Cells(k * 9 + x, j).Value = ""
+                    End If
+                Next x
+            End If
+MultipleSpotC:
+        Next j
+    Next n
+End Sub
+

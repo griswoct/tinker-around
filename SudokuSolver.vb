@@ -200,3 +200,50 @@ MultipleSpotC:
     Next n
 End Sub
 
+Function NumBlanks() As Integer
+    Dim i, j, k As Integer
+    NumBlanks = 0
+    For i = 1 To 9
+        For j = 1 To 9
+            If Range("G12:O20").Cells(i, j).Value = "" Then        'The cell is blank
+                NumBlanks = NumBlanks + 1
+            Else        'Cell is not blank, check for duplicate values
+                For k = 1 To 9     'Itterate through row
+                    If j <> k Then      'Don't check the original cell
+                        If Range("G12:O20").Cells(i, j).Value <> "" Then
+                            If Range("G12:O20").Cells(i, j).Value = Range("G12:O20").Cells(i, k).Value Then     'Duplicate value in same row!
+                                GoTo ErrorHandler
+                            End If
+                        End If
+                    End If
+                Next k
+            End If
+        Next j
+    Next i
+    For j = 1 To 9
+        For i = 1 To 9
+            If Range("G12:O20").Cells(i, j).Value <> "" Then        ''Cell is not blank, check for duplicate values
+                For k = 1 To 9     'Itterate through column
+                    If i <> k Then      'Don't check the original cell
+                        If Range("G12:O20").Cells(i, j).Value = Range("G12:O20").Cells(k, j).Value Then     'Duplicate value in same column!
+                            GoTo ErrorHandler
+                        End If
+                    End If
+                Next k
+            End If
+        Next i
+    Next j
+Exit Function
+ErrorHandler:
+    MsgBox "Duplicate values found in the same row or column!"
+    NumBlanks = 99       'There 81 squares in a Sudoku puzzle
+End Function
+
+Sub ErrorCheck()
+	Dim blanks As Integer
+	blanks = NumBlanks()
+	If blanks = 0 Then
+		MsgBox "Solved!"
+	End If
+End Sub
+

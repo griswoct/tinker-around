@@ -3,7 +3,7 @@
 * Sorting algorithm
 * ~~Guessing game~~
 * Timer
-* Autofill approved TRs
+* ~~Autofill approved TRs~~ (work)
 * Scan new TRs and advise
 * Create TR meeting invite
 * Scan TR revisions and summarize

@@ -24,3 +24,4 @@
   * Factor density through inertia to drag ratio
   * Initial velocity or freefall start
   * Start with 2-D, but written for future 3-D
+* ~~Prime factorization~~

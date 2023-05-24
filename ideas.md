@@ -25,3 +25,9 @@
   * Initial velocity or freefall start
   * Start with 2-D, but written for future 3-D
 * ~~Prime factorization~~
+* Scrolling banner output in the terminal:
+  >B..B  BBBB  B...  B...  .BB.
+  >B..B  B...  B...  B...  B..B
+  >BBBB  BBB.  B...  B...  B..B
+  >B..B  B...  B...  B...  B..B
+  >B..B  BBBB  BBBB  BBBB  .BB.

@@ -31,3 +31,6 @@
   >BBBB  BBB.  B...  B...  B..B
   >B..B  B...  B...  B...  B..B
   >B..B  BBBB  BBBB  BBBB  .BB.
+* Play checkers
+* Sun position prediction (based on location and date)
+  * *Add orbital and rotational periods for planet

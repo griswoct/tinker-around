@@ -34,3 +34,9 @@
 * Play checkers
 * Sun position prediction (based on location and date)
   * *Add orbital and rotational periods for planet*
+  * Need to account for:
+    * Solar noon drift
+    * Orbital progression
+    * Axial wobble
+    * Leap year
+    * Standard: axial tilt, orbit, rotation, location, datetime

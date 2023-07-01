@@ -18,6 +18,7 @@
 * Printer program
 * 3-D printer program
 * CNC machine program
+* Clothes folding robot
 * Trajectory tracking (triangulation?)
   * Calculate friction losses
   * Accept/calculate different g values

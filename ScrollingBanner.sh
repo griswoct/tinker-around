@@ -5,23 +5,25 @@
 #PURPOSE: DISPLAY SCROLLING BANNER IN THE TERMINAL
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2023-07-05
+#UPDATED: 2023-07-07
 #
-WinWidth=80	#Terminal window width
-Size=5	#High and width of display letter in characters
-FillChar='#'	#Possible options: 8, @, #, $, &, B, E, W, M, H, X
-Spacing=2	#Number of spaces between the letters
-PadSize=$(($Size+$Spacing))
-BannerText='Example'	#Text to display
-Remainder=''	#For filling in partial letter at the end
+WinWidth=80	#Banner display width
+Size=5	#High and width of banner letter in characters
 i=0	#Loop counter
 j=0	#Loop counter
 k=0	#Loop counter
 n=0	#Letter number index
 p=0	#Partial letter index
+Spacing=2	#Number of spaces between the letters
+PadSize=$(($Size+$Spacing))
+FillChar='#'	#Possible options: #, @, $, &, 8, B, E, W, M, H, X
+BannerText='Example text'	#Text to display
+temp=''	#Temporary string variable
+Remainder=()	#For filling in partial letter at the end
+Output=()	#Output strings to display banner
 
 read -p "What text do you want to display" $BannerText	#Get text to display
-
+tput sc	#Save cursor position
 $i=0
 while [ $i -lt $Size ]	#Populate banner line by line
 do
@@ -31,48 +33,67 @@ do
 	do
 		if [ $(($WinWidth - $j)) -ge $PadSize ]
 		then
-			#Add line $i of letter $BannerText[$n] to OutputLine$i
+			$temp=whats_my_line	#Get line $i of letter $BannerText[$n] as $temp
+			$Output[$i]="$Output[$i]$temp"
 			$j=$(($j+$Size))
 			$k=0
 			while [ $k -lt $Spacing ]	#Add whitespace between letters
 			do
-				#Add ' ' to OutputLine$i
+				$OutputLine[$i]+=' '
 				(($k++))
 				(($j++))
 			done
 			(($n++))
 		else
-			#Get $i line of letter $bannerText[$n] as $Remainder$i
-			while [ $k -lt $Spacing ]	#Add whitespace between letters
+			$Remainder[$i]=whats_my_line	#Get $i line of letter $bannerText[$n] as $Remainder[$i]
+			while [ $k -lt $Spacing ]	#Add whitespace to Remainder
 			do
-				#Add ' ' to $Remainder$i
+				$Remainder[$i]+=' '
 				(($k++))
 			done
 			$p=0
-			while [ $j -lt $WinWidth ]
+			while [ $j -lt $WinWidth ]	#Add characters from ramaining banner letter until full display width
 			do
-				#Add $Remainder[$p] to the end of $OutputLine$i
+				$Output[$i]+=$Remainder[$p]
 				(($p+))
 				(($j++))
 			done
 		fi
 	done
-	#Echo OutputLine$i '/n'
+	echo $OutputLine[$i]+='\n'
 	(($i++))
 done
-
-#Return to begining of the banner
+sleep 1
+tput rc	#Return to saved cursor position (begining of the banner)
 $i=0
 while [ $i -lt $Size ]	#Increment banner to the left line by line
 do
-	#Remove first character of OutputLine$i
 	if [ $p -gt $PadSize ]
 	then
-		#load in the next letter
-		#Create new $Remainder$i
-	else
-	#Add $Remainder[$p] to $OutputLine$i
-	#Echo OutputLine$i '/n'
+		if [ $i = 0 ]
+		then
+			(($n++))
+			$p=0
+		fi
+		$Remainder[$i]=whats_my_line	#Get $i line of letter $BannerText[$n] as $Remainder[$i]
+		while [ $k -lt $Spacing ]	#Add whitespace to Remainder
+		do
+			$Remainder[$i]+=' '
+			(($k++))
+		done
+	fi
+	$Output[$i]="${Output[$i]:1}"	#Remove first character of $Output[$i]
+	$Output[$i]+=$Remainder[$p]	#Add next character the end of $Output[$i]
+	echo $Output[$i]+='\n'
 	(($i++))
 done
 (($p++))
+sleep 0.2
+
+whats_my_line () {
+	echo "Inside the whats_my_line function"
+	#Find correct letter
+	#Check if size is correct
+	#Get line $i of banner letter
+	#return values
+}

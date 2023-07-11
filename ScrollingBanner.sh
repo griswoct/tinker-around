@@ -10,17 +10,17 @@
 Width=80	#Banner display width
 Length=0	#Number of letters in banner message
 Size=5	#High and width of banner letter in characters
-i=0	#Loop counter
+i=0	#Banner display line
 j=0	#Loop counter
 k=0	#Loop counter
-n=0	#Letter number index
-p=0	#Partial letter index
-Spacing=2	#Number of spaces between the letters
+n=0	#Working banner letter index
+p=0	#Partial letter character index
+Spacing=2	#Number of spaces between banner letters
 PadSize=$(($Size+$Spacing))
-FillChar='#'	#Possible options: #, @, $, &, 8, B, E, W, M, H, X
+C1='#'	#Fill character, possible options: #, @, $, &, 8, B, E, W, M, H, X
+C0=' '	#Empty character, possible options: ' ', _, -, .
 BannerText='Jed G'	#Text to display
-temp=''	#Temporary string variable
-Remainder=()	#For filling in partial letter at the end
+Remainder=()	#Working banner end letter
 Output=()	#Output strings to display banner
 
 read -p "What text do you want to display" $BannerText	#Get text to display
@@ -37,7 +37,8 @@ do
 		then
 			$temp=''
 			whats_my_line	#Get line $i of letter $BannerText[$n]
-			$Output[$i]="$Output[$i]$temp"
+			$Remainder[$i]=$?
+			$Output[$i]="$Output[$i]$Remainder[$i]"
 			$j=$(($j+$Size))
 			$k=0
 			while [ $k -lt $Spacing ]	#Add whitespace between letters
@@ -51,6 +52,7 @@ do
 			$Remainder[$i]=''
 			whats_my_line	#Get $i line of letter $bannerText[$n]
 			$Remainder[$i]=$?
+			$k=0
 			while [ $k -lt $Spacing ]	#Add whitespace to Remainder
 			do
 				$Remainder[$i]+=' '
@@ -59,7 +61,7 @@ do
 			$p=0
 			while [ $j -lt $Width ]	#Add characters from ramaining banner letter until full display width
 			do
-				$Output[$i]+=$Remainder[$p]
+				$Output[$i]+=${Remainder[$i]:$p:1}
 				(($p+))
 				(($j++))
 			done
@@ -92,7 +94,7 @@ do
 			done
 		fi
 		$Output[$i]="${Output[$i]:1}"	#Remove first character of $Output[$i]
-		$Output[$i]+=$Remainder[$p]	#Add next character the end of $Output[$i]
+		$Output[$i]+=${Remainder[$i]:$p:1}	#Add next character the end of $Output[$i]
 		echo $Output[$i]+='\n'
 		(($i++))
 	done
@@ -101,9 +103,32 @@ do
 done
 
 whats_my_line () {
-	echo "Inside the whats_my_line function"
-	#Find correct letter
-	#Check if size is correct
-	#Get line $i of banner letter
-	#return values
+	local list=()
+	local h=5
+	local w=5
+	case $BannerText[$n] in	#Find correct letter
+		*)	#Character not recognized, display blank space
+			$h=5
+			$w=5
+			$list=(false false false false false false false false false false false false false false false false false false false false false false false false false)	#Display a 5x5 space
+	esac
+	if [ $Size -ne $h ]
+	then
+		echo "ERROR: SIZE MISMATCH"
+		exit
+	fi
+	local a=$(($w * $i))
+	local b=0
+	local str=''
+	while [ $b -lt $Size ]	#Get line $i of banner letter
+	do
+		if [ $list[$(($a + $b)) ]
+		then
+			$str+=$C1
+		else
+			$str+=$C0
+		fi
+		(($b++))
+	done
+	return $str
 }

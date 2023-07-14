@@ -66,7 +66,7 @@ do
 			done
 		fi
 	done
-	echo '$OutputLine[$i]\n'
+	echo ${Output[$i]} #$'\n'
 	((i++))
 done
 sleep 1
@@ -93,7 +93,7 @@ do
 		fi
 		Output[$i]=${Output[$i]:1}	#Remove first character of $Output[$i]
 		Output[$i]+=${Remainder[$i]:$p:1}	#Add next character the end of $Output[$i]
-		echo $Output[$i]
+		echo ${Output[$i]} #$'\n'
 		((i++))
 	done
 	((p++))

@@ -26,12 +26,7 @@
   * Initial velocity or freefall start
   * Start with 2-D, but written for future 3-D
 * ~~Prime factorization~~ [PowerShell]
-* Scrolling banner output in the terminal: (Bash)
-  >B..B..BBBB..B.....B......BB.
-  >B..B..B.....B.....B.....B..B
-  >BBBB..BBB...B.....B.....B..B
-  >B..B..B.....B.....B.....B..B
-  >B..B..BBBB..BBBB..BBBB...BB.
+* ~~Scrolling banner output in the terminal~~ [Bash]
 * Play checkers
 * Sun position prediction based on location and datetime [Python?]
   * *Add orbital and rotational periods for planet*
@@ -45,4 +40,15 @@
   * Customizable bad word list
 * Word scramble solver
   * Need dictionary file
-  Smart guessing with vowel and consonant placement
+  * Smart guessing with vowel and consonant placement
+***
+# Languages of interest:
+* Python
+* JavaScript
+* C++
+* Rust
+* Bash
+* PowerShell
+* Swift
+* SQL
+* VBA

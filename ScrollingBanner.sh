@@ -196,7 +196,7 @@ whats_my_line () {
 			str+=$C0
 			((b++))
 		done
-	Remainder[$i]=$str
+	Remainder[i]=$str
 }
 
 read -p $'What text do you want to display?\n' BannerText	#Get text to display
@@ -231,25 +231,39 @@ do
 	((i++))
 done
 sleep 1
-while [ $n -lt $Length ]
+
+#i=0						#for testing
+#while [ $i -lt $Size ]	#for testing
+#do						#for testing
+#	echo ${Output[$i]}	#for testing
+#	((i++))				#for testing
+#done					#for testing
+#sleep 1					#for testing
+
+while [ $n -lt $Length ]	#Increment through the banner text
 do
 	tput rc	#Return to saved cursor position (begining of the banner)
+	if [ $p -ge $PadSize ]	#Completed banner letter, load next banner letter
+	then
+		((n++))	#Increment to the next banner letter
+		i=0
+		while [ $i -lt $Size ]	#Load next banner letter line by line
+		do
+			Remainder[$i]=''
+			whats_my_line	#Get $i line of letter $BannerText[$n]
+			#echo "Ramainder" $i $Remainder[$i]	#for testing
+			((i++))
+		done
+		p=0	#Reset remainder position
+		#sleep 1	#for testing
+	fi
 	i=0
 	while [ $i -lt $Size ]	#Increment banner to the left line by line
 	do
-		if [ $p -gt $PadSize ]
-		then
-			if [ $i = 0 ]
-			then
-				(($n++))
-				$p=0
-			fi
-			Remainder[$i]=''
-			whats_my_line	#Get $i line of letter $BannerText[$n]
-		fi
 		Output[$i]=${Output[$i]:1}	#Remove first character of $Output[$i]
 		Output[$i]+=${Remainder[$i]:$p:1}	#Add next character the end of $Output[$i]
-		echo $Output[$i]
+		echo ${Output[$i]}
+		#sleep 1	#for testing
 		((i++))
 	done
 	((p++))

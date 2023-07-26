@@ -1,12 +1,13 @@
 'SUDOKU SOLVER
 '
-'This program is an exercise in better understanding of VBA for Excel.
-'The purpose of the program is to solve a Sudoku puzzle in Excel with a macro.
+'PURPOSE: SOLVE A SUDOKU PUZZLE IN EXCEL WITH A MACRO
+'LICENSE: THE UNLICENSE
+'AUTHOR: CALEB GRISWOLD
+'UPDATED: 2023-07-26
 '
-'Written by: Caleb Griswold
-
-'NOTE: INITIAL SUDOKU PUZZLE MUST BE PLACED IN RANGE: G2:O10
-	'SOLUTION WILL APPEAR IN RANGE G12:O20
+'This program is an exercise in better understanding of VBA for Excel.
+'NOTE:	INITIAL SUDOKU PUZZLE MUST BE PLACED IN RANGE: G2:O10
+'		SOLUTION WILL APPEAR IN RANGE G12:O20
 
 Option Explicit
 
@@ -20,6 +21,7 @@ Sub Solve()
 	Do While blanks > 0
 		Call SimpleElimination
 		Call OnlyOption
+		Call SimpleElimination
 		Call aPlaceForEverything
 		blanks = NumBlanks
 		Range("Q19").Value = blanks
@@ -74,7 +76,7 @@ Sub Initialize()        'Copy initial values to the solution matrix, and populat
 	Range("A1").Select
 End Sub
 
-Sub SimpleElimination()     'Remove n as an option if it is already present in the row/column/section.
+Sub SimpleElimination()     'Remove n as an option if it is already present in the row/column/section of the solution matrix
     Dim i, j, k, l, n As Integer
     For i = 1 To 9      'If n is in the solution matrix, remove n as an option elsewhere in the row
         For j = 1 To 9
@@ -179,7 +181,7 @@ MultipleSpotR:
             x = 0       'Number of spots n could be in column j
             For i = 0 To 8      'Itterate through rows in column
                 If Range("G22:O102").Cells(i * 9 + n, j) <> "" Then   'If possible value listed in working matrix
-                    x = x + 1       'k number of spots n could be located in the column
+                    x = x + 1       'x number of spots n could be located in the column
                     If x > 1 Then       'If more than one location is possible, move on to next row
                         GoTo MultipleSpotC
                     End If
@@ -197,6 +199,40 @@ MultipleSpotR:
             End If
 MultipleSpotC:
         Next j
+		Dim g, h, l As Integer
+		g = 0
+		Do While g < 9	'Itterate through subsection (rows)
+			h = 0
+			Do While h < 9	'Itterate through subsection (columns)
+				x = 0	'Number of spots n could be in subsection (g, h)
+				For i = 0 To 2	'Itterate through subrows
+					For j = 1 To 3	'Itterate through subcolumns
+						If Range("G22:O102").Cells(9 * g + 9 * i + n, h + j) <> "" Then   'If possible value listed in working matrix
+							x = x + 1	'x number of spots n could be located in subsection
+							If x > 1 Then	'If more than one subcell is possible, move to next section
+								GoTo MultipleSpotS
+							Else
+								k = i	'Save subrow
+								l = j	'Save subcolumn
+							End If
+						End If
+					Next j
+				Next i
+				If x = 1 And Range("G12:O20").Cells(g + k + 1, h + l) = "" Then	'Only 1 spot n could be located in row i, and solution cell is blank
+					Range("G12:O20").Cells(g + k + 1, h + l) = n	'Fill in solution
+					Range("G12:O20").Cells(g + k + 1, h + l).Font.Italic = True	'Italic SOLUTION
+					'Range("G12:O20").Cells(g + k + 1, h + l).Font.Color = RGB(255, 0, 0)	'For testing
+					For x = 1 To 9      'Delete other options from working matrix for this cell
+						If x <> n Then
+							Range("G22:O102").Cells(9 * g + 9 * k + x, h + l).Value = ""
+						End If
+					Next x
+				End If
+MultipleSpotS:
+				h = h + 3
+			Loop
+			g = g + 3
+		Loop
     Next n
 End Sub
 
@@ -238,12 +274,3 @@ ErrorHandler:
     MsgBox "Duplicate values found in the same row or column!"
     NumBlanks = 99       'There 81 squares in a Sudoku puzzle
 End Function
-
-Sub ErrorCheck()
-	Dim blanks As Integer
-	blanks = NumBlanks()
-	If blanks = 0 Then
-		MsgBox "Solved!"
-	End If
-End Sub
-

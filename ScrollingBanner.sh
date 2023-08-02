@@ -5,7 +5,7 @@
 #PURPOSE: DISPLAY SCROLLING BANNER IN THE TERMINAL
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2023-07-14
+#UPDATED: 2023-08-02
 #
 # Ideads: infinite scroll back to back, infinite scroll clear between
 #
@@ -20,7 +20,8 @@ Spacing=2	#Number of spaces between banner letters
 PadSize=$(($Size+$Spacing))
 C1='#'	#Fill character, possible options: #, @, $, &, 8, B, E, W, M, H, X
 C0='.'	#Empty character, possible options: _, -, .
-BannerText='Example Text'	#Text to display
+loop=true	#true to loop banner message
+BannerText=$(date '+%A %B %d %Y')	#Text to display (Today's date default)
 Remainder=()	#Working banner end letter
 Output=()	#Output strings to display banner
 
@@ -200,6 +201,10 @@ whats_my_line () {
 }
 
 read -p $'What text do you want to display?\n' BannerText	#Get text to display
+if [ $loop = true ]
+then
+	BannerText+=' ## '	#Buffer bewteen looped text
+fi
 Length=${#BannerText}
 tput sc	#Save cursor position
 i=0
@@ -232,20 +237,16 @@ do
 done
 sleep 1
 
-#i=0						#for testing
-#while [ $i -lt $Size ]	#for testing
-#do						#for testing
-#	echo ${Output[$i]}	#for testing
-#	((i++))				#for testing
-#done					#for testing
-#sleep 1					#for testing
-
 while [ $n -lt $Length ]	#Increment through the banner text
 do
 	tput rc	#Return to saved cursor position (begining of the banner)
 	if [ $p -ge $PadSize ]	#Completed banner letter, load next banner letter
 	then
 		((n++))	#Increment to the next banner letter
+		if [ $n -eq $Length -a $loop = true ]
+		then
+			n=0
+		fi
 		i=0
 		while [ $i -lt $Size ]	#Load next banner letter line by line
 		do

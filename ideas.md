@@ -53,7 +53,7 @@
 * SQL
 * VBA
 
-##Technologies of interest:
+## Technologies of interest:
 * Ansible
 * Docker
 * Hypervisors

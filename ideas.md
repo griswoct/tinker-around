@@ -42,7 +42,7 @@
   * Need dictionary file
   * Smart guessing with vowel and consonant placement
 ***
-# Languages of interest:
+## Languages of interest:
 * Python
 * JavaScript
 * C++
@@ -52,3 +52,9 @@
 * Swift
 * SQL
 * VBA
+
+##Technologies of interest:
+* Ansible
+* Docker
+* Hypervisors
+* Hashing and encryption algorithms

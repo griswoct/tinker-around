@@ -41,6 +41,12 @@
 * Word scramble solver
   * Need dictionary file
   * Smart guessing with vowel and consonant placement
+* Neural network trained to identify specific symbols or letters [Python]
+  * License plate scanner
+  * "Read" pages of text
+    * Book reading robot?
+  * Recognize flags
+  * Recognize brand logos
 ***
 ## Languages of interest:
 * Python
@@ -58,3 +64,4 @@
 * Docker
 * Hypervisors
 * Hashing and encryption algorithms
+* Neural Networks? Could I write or at least run a basic one?

@@ -167,6 +167,57 @@ whats_my_line () {
 			w=5
 			list=(true true true true true false false false true false false false true false false false true false false false true true true true true)
 			;;
+		0)
+			h=5
+			w=5
+			list=(false true true true false true false false true true true false true false true true true false false true false true true true false
+ )
+			;;
+		1)
+			h=5
+			w=5
+			list=(false true true false false false false true false false false false true false false false false true false false false true true true false)
+			;;
+		2)
+			h=5
+			w=5
+			list=(false true true true false true false false false true false false false true false false true false false false true true true true true)
+			;;
+		3)
+			h=5
+			w=5
+			list=(true true true true false false false false false true false true true true false false false false false true true true true true false)
+			;;
+		4)
+			h=5
+			w=5
+			list=(true false false true false true false false true false true true true true true false false false true false false false false true false)
+			;;
+		5)
+			h=5
+			w=5
+			list=(true true true true true true false false false false true true true true false false false false false true true true true true false)
+			;;
+		6)
+			h=5
+			w=5
+			list=(false false true false false false true false false false true false true true false true false false false true false true true true false)
+			;;
+		7)
+			h=5
+			w=5
+			list=(true true true true true false false false true false false false true false false false true false false false true false false false false)
+			;;
+		8)
+			h=5
+			w=5
+			list=(false true true true false true false false false true false true true true false true false false false true false true true true false)
+			;;
+		9)
+			h=5
+			w=5
+			list=(false true true true false true false false false true false true true true false false false true false false false true false false false)
+			;;
 		*)	#Character not recognized, display block
 			h=5
 			w=5

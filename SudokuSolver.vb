@@ -3,7 +3,7 @@
 'PURPOSE: SOLVE A SUDOKU PUZZLE IN EXCEL WITH A MACRO
 'LICENSE: THE UNLICENSE
 'AUTHOR: CALEB GRISWOLD
-'UPDATED: 2023-08-11
+'UPDATED: 2023-08-14
 '
 'This program is an exercise in better understanding of VBA for Excel.
 'NOTE:  INITIAL SUDOKU PUZZLE MUST BE PLACED IN RANGE: G2:O10
@@ -14,34 +14,34 @@
 Option Explicit
 
 Sub Solve()
-	Dim blanks, z, max As Integer
-	Call Clear
-	Call Initialize
-	blanks = 81     '81 squares in a traditional Sudoku grid
-	max = 9     'Max number of itterations
-	z = 0
-	Do While blanks > 0
-		Call SimpleElimination      'Remove n as an option if it is already in the solution for that row, column, or subsection
-		Call OnlyOption     'Scan each cell and fill in the solution if only one option remains
-		Call SimpleElimination      'Not needed if clean up is added to OnlyOption
-		Call aPlaceForEverything        'If only one location possible for n, fill in the solution
-		Call TicTacToe      'If the only locations for n in a submatrix are in the same row/column, remove n option elsewhere in the row/column
-		Call OnlyOption     'Scan each cell and fill in the solution if only one option remains
-		Call TwoPair    'Finds pairs of possible solutions in common pairs of cells, and eliminates all other options
-		blanks = NumBlanks
-		Range("Q19").Value = blanks
-		If z > max Then     'Abort after max itterations
-			GoTo MaxItterations
-		End If
-		z = z + 1
-		Range("Q20").Value = z      'Record number of itterations
-	Loop
-	If NumBlanks = 0 Then
-		MsgBox "Solved!"
-	End If
-	Exit Sub
-MaxItterations:
-	MsgBox "Maximum number of itterations reached:" & max + 1
+    Dim blanks, z, max As Integer
+    Call Clear
+    Call Initialize
+    blanks = 81     '81 squares in a traditional Sudoku grid
+    max = 9     'Max number of itterations
+    z = 0
+    Do While blanks > 0 And blanks < 82 And z < max     '81 inditates an empty puzzle, 99 indicates an error, 0 indicates solved
+        Call SimpleElimination      'Remove n as an option if it is already in the solution for that row, column, or subsection
+        Call OnlyOption     'Scan each cell and fill in the solution if only one option remains
+        Call SimpleElimination      'Not needed if clean up is added to OnlyOption
+        Call aPlaceForEverything        'If only one location possible for n, fill in the solution
+        Call TicTacToe      'If the only locations for n in a submatrix are in the same row/column, remove n option elsewhere in the row/column
+        Call OnlyOption     'Scan each cell and fill in the solution if only one option remains
+        Call TwoPair    'Finds pairs of possible solutions in common pairs of cells, and eliminates all other options
+        blanks = NumBlanks
+        Range("Q21").Value = blanks
+        z = z + 1
+        Range("Q22").Value = z      'Record number of itterations
+    Loop
+    If blanks = 0 Then
+        MsgBox "Solved!", vbInformation
+    ElseIf blanks = 81 Then
+        MsgBox "This puzzle is blank", vbInformation
+    ElseIf z = max Then
+        MsgBox "Maximum number of itterations reached:" & max + 1, vbExclamation
+    Else
+        MsgBox "An error has occured, vbCritical"
+    End If
 End Sub
 
 Sub Clear()     'Delete all values from the solution and working matricies, and reset formating.
@@ -58,8 +58,8 @@ Sub Clear()     'Delete all values from the solution and working matricies, and 
         .PatternTintAndShade = 0
         End With
 	Range("G22:O102").ClearContents		'Working matrix
-    Range("Q19").Value = 0      'Number of blanks in solution
-    Range("Q20").Value = 0      'Number of itterations
+    Range("Q21").Value = 0      'Number of blanks in solution
+    Range("Q22").Value = 0      'Number of itterations
 End Sub
 
 Sub Initialize()        'Copy initial values to the solution matrix, and populate the working matrix.
@@ -184,7 +184,11 @@ Sub aPlaceForEverything()       'Each number 1-9 must fit somewhere. If only one
                         Range("G22:O102").Cells(i * 9 + x, k).Value = ""
                     End If
                 Next x
-                'Remove n elsewhere in column k
+				For x = 0 To 8	'Delete other options from working matrix for column k
+					If x <> k Then
+						Range("G22:O102").Cells(x * 9 + n, j).Value = ""
+					End If
+				Next x
             End If
 MultipleSpotR:
         Next i
@@ -207,7 +211,11 @@ MultipleSpotR:
                         Range("G22:O102").Cells(k * 9 + x, j).Value = ""
                     End If
                 Next x
-                'Remove n elsewhere in row k
+                For x = 1 To 9	'Delete other options from working matrix for row k
+					If x <> k Then
+						Range("G22:O102").Cells(i * 9 + n, x).Value = ""
+					End If
+				Next x
             End If
 MultipleSpotC:
         Next j
@@ -279,7 +287,7 @@ Sub TicTacToe()     'If 1 to 3 possible locations remain for n in a subsection, 
                     End If
                     If l1 = l2 And l2 = l3 Then 'All possible locations for n within the subsection are in the same column
                         For i = 0 To 8  'Delete n as an option elsewhere in the column h + l
-                            If i = g + k1 Or i = g + k2 Or i = k3 Then      'Possible solution locations
+                            If i = g + k1 Or i = g + k2 Or i = g + k3 Then      'Possible solution locations
                             Else
                                 Range("G22:O102").Cells(9 * i + n, h + l1).Value = ""
                             End If

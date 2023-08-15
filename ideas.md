@@ -1,34 +1,34 @@
 # Ideas:
 
 * Sorting algorithm
-* ~~Guessing game~~ [VBA]
+* ~~Guessing game~~ (VBA)
 * Timer
-* ~~Autofill approved TRs (work)~~ [VBA]
+* ~~Autofill approved TRs (work) (VBA)~~
 * Scan new TRs and advise (work)
 * Create TR meeting invite (work)
 * Scan TR revisions and summarize (work)
-* Pull data from the web (temp/ticker?)
+* Pull temp or ticker data from the web (JavaScript)
 * Fork overload
 * Dead switch
 * Bluring/unbluring algorithm
-* ~~Sudoku solver~~ [VBA]
-* Spaghettification (generate obfuscation)
+* ~~Sudoku solver (VBA)~~
+* Spaghettification/obfuscation
 * Yellowstone Permutation:
   * [Numberphile: Yellowstone Permutation](https://www.youtube.com/watch?v=DUaqiM1bGX4)
 * Printer program
 * 3-D printer program
 * CNC machine program
 * Clothes folding robot
-* Trajectory tracking (triangulation?)
+* Trajectory tracking through triangulation
   * Calculate friction losses
   * Accept/calculate different g values
   * Factor density through inertia to drag ratio
   * Initial velocity or freefall start
   * Start with 2-D, but written for future 3-D
-* ~~Prime factorization~~ [PowerShell]
-* ~~Scrolling banner output in the terminal~~ [Bash]
+* ~~Prime factorization (PowerShell)~~
+* ~~Scrolling banner output in the terminal (Bash)~~
 * Play checkers
-* Sun position prediction based on location and datetime [Python?]
+* Sun position prediction based on location and datetime (Python?)
   * *Add orbital and rotational periods for planet*
   * Need to account for:
     * Solar noon drift
@@ -36,17 +36,18 @@
     * Axial wobble
     * Leap year
     * Standard: axial tilt, orbit, rotation, location, datetime
-* Generate word find [VBA]
+* Generate word find (VBA)
   * Customizable bad word list
 * Word scramble solver
   * Need dictionary file
   * Smart guessing with vowel and consonant placement
-* Neural network trained to identify specific symbols or letters [Python]
+* Neural network trained to identify specific symbols or letters (Python)
   * License plate scanner
   * "Read" pages of text
     * Book reading robot?
   * Recognize flags
   * Recognize brand logos
+  * Find patterns from habits
 ***
 ## Languages of interest:
 * Python
@@ -64,4 +65,5 @@
 * Docker
 * Hypervisors
 * Hashing and encryption algorithms
-* Neural Networks? Could I write or at least run a basic one?
+* Neural Networks
+  * [Neural Networks playlist](https://www.youtube.com/watch?v=aircAruvnKk&list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi)

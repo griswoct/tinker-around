@@ -10,3 +10,19 @@
 #Sub dictionaries?
 #Object or relationsl database?
 #Order by popularity, try nouns first
+
+#Dictionary database (json?)
+  #Word
+  #Sorted word (letters arranged alphabetically)
+  #Length
+  #Popularity
+  #Part of Speech
+
+#Solver:
+  #Sort letters alphabetically
+  #Count letters
+  #Dictionary search:
+    #If length = [length]:
+      #Check nouns by popularity
+      #Check Adjectives by popularity
+      #Continue other parts of speech

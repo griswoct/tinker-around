@@ -13,11 +13,11 @@
 
 const n = [1, 2, 3];	//Solution array
 const u = n;	//Already used numbers
-const p = [2];	//List of prime numbers
+const p = [2, 3];	//List of prime numbers
 const pf0 = [1];	//Prime factorization of current term option
 const pf1 = [1];	//Prime factorization of previous term (back 1)
 const pf2 = [1];	//Prime factorization of term before last (back 2)
-const numTerms = 10;	//number of terms to calculate
+const numTerms = 5;	//number of terms to calculate
 let min = u[u.length - 1] + 1;	//Smallest unused integer
 let x = 4;	//Guess for next term
 let i = 3;	//Array index
@@ -25,24 +25,24 @@ let i = 3;	//Array index
 i = n.length;
 min = smallestUnused(1)
 x = min;
-for (let h = 0; h < numTerms; h++) {
+while (i < numTerms) {	//Find the first numTerms terms
 	pf1 = primeFactors(n[i-1]);
 	pf0 = primeFactors(x);
 	while (commonFactor(pf0, pf1) == true) {	//Find an unused integer that does not have a common factor with the previous term
 		x = smallestUnused(x);
 		pf0 = primeFactors(x);
 	}
-	pf2 = primeFactor(n[i-2])
-	If (commonFactor(pf0, pf2) == true) {	//x has a common term with the term before last
+	pf2 = primeFactors(n[i-2])
+	if (commonFactor(pf0, pf2) == true) {	//x has a common term with the term before last
 		n[i] = x;
 		add2u(x);	//added x to the array u, in sorted order
-		If (x == min) {	//Smallest available integer was the next term
-			min = smallestUnused(min);		//New smallest unused integer
-		x = min;
 		i++;
-		} else {
-		x = smallestUnused(x);
+		if (x == min) {	//Smallest available integer was the next term
+			min = smallestUnused(min);		//New smallest unused integer
 		}
+		x = min;
+	} else {
+		x = smallestUnused(x);	//x does not have a common factor with the term before last, try the next unused integer
 	}
 }
 alert(n);
@@ -61,7 +61,7 @@ function smallestUnused(m){ //finds the smallest unused integer greater than m
 	let l = u.length;
 	let y = u[j];
 	while (j < l) {	//index j must stay within array u
-		if (u[j+1] == y + 1) {	//all intergers through j+1 used
+		if (u[j] == y) {	//all intergers through j used
 			j++;
 			y++;
 		} else {	//found unused integer
@@ -69,30 +69,30 @@ function smallestUnused(m){ //finds the smallest unused integer greater than m
 			break;
 		}
 	}
-	retrun y;	//smallest unused integer greater than m
+	return y;	//smallest unused integer greater than m
 }
 
 function primeFactors(m) {	//Find the prime factors of p
 	const factors = [];	//Prime factors
-	let j = 0;	//Index
-	if (m == 1) {
-		factors[0] = 1;
-		return factors;
-	} else if (m == 2) {
-		factors[0] = 2;
+	let j = 0;	//Primes index
+	let k = 0; 	//Factors index
+	if (m < 4) {	//Integers less than four are primes
+		factors[k] = m;
 		return factors;
 	} else {
-		//need to check largest prime number in array p
-			//If the lasrgest prime is too small, find another prime
+		if (p[p.length - 1] < m) {	//Largest prime in array p is less than m
+			generatePrimes(m);	//Get all primes less than m
+		}
 		while (m > 1) {	//Itterate through primes
 			if (m % p[j] == 0) {	//p[j] is a prime factor
-				factors.push(p[j]);
+				factors[k] = (p[j]);	//Add p[j] to factors
+				k++;	//Next factor
 				m /= p[j];
 				if (m == 1) {	//All prime factors found
 					return factors;
 				}
 			} else {	//p[j] is not a factor
-				if (m / p[j] < p[j])) {	//No more primes, exceeded square root
+				if (m / p[j] < p[j]) {	//No more primes, exceeded square root
 					factors.push(m);	//Last prime factor is m
 					return factors;
 				} else {
@@ -105,17 +105,17 @@ function primeFactors(m) {	//Find the prime factors of p
 }
 
 function generatePrimes(limit) {	//Generate additional prime numbers up to m
-	let m = p[p.length - 1] + 1;	//Start at last prime + 1
+	let m = p[p.length - 1] + 2;	//Start checking at next odd after last prime
 	let j = 0;
 	while (m < limit) {	//Find primes up to limit
 		if (m % p[j] == 0) {	//m is not prime
-			m++;	//Next m
+			m += 2;	//Next odd m (2 is the only even prime
 			j = 0;
 		} else {	//m might be prime
 			j++;	//Next prime
 			if (j == p.length) {	//New Prime
 				p.push(m);
-				m++;
+				m += 2;
 				j = 0;
 			}
 		}

@@ -13,8 +13,9 @@
 
 const n = [1, 2, 3];	//Solution array
 const u = [1, 2, 3];	//Already used numbers
-const pf1 = [1];	//Prime factorization 1
-const pf2 = [1];	//Prime factorization 2
+const pf0 = [1];	//Prime factorization of current term option
+const pf = [1];	//Prime factorization of previous term (back 1)
+const pf2 = [1];	//Prime factorization of term before last (back 2)
 const numTerms = 10;	//number of terms to calculate
 let min = 4;	//Smallest unused integer
 let x = 4;	//Guess for next term
@@ -22,27 +23,28 @@ let i = 3;	//Array index
 
 i = n.length;
 min = smallestUnused(1)
-x = min
+x = min;
 for (let h = 0; h < numTerms; h++) {
-	pf1 = primeFactors(n[i-1])
-	pf2 = primeFactors(x)
-	while (commonFactor() == true) {	//Find an unused integer that does not have a common factor with the previous term
-		x = smallestUnused(x)
-		pf2 = primeFactors(x)
+	pf1 = primeFactors(n[i-1]);
+	pf0 = primeFactors(x);
+	while (commonFactor(pf0, pf1) == true) {	//Find an unused integer that does not have a common factor with the previous term
+		x = smallestUnused(x);
+		pf0 = primeFactors(x);
 	}
-	pf1 = primeFactor(n[i-2])
-	If (commonFactor() == true) {	//x has a common term with the term before last
-		n[i] = x
-		add2u(x)		//added x to the array u, in sorted order
-		If (x == min)	{	//Smallest available integer was the next term
-			min = smallestUnused(min)		//New smallest unused integer
-		x = min
-		i++
+	pf2 = primeFactor(n[i-2])
+	If (commonFactor(pf0, pf2) == true) {	//x has a common term with the term before last
+		n[i] = x;
+		add2u(x);	//added x to the array u, in sorted order
+		If (x == min) {	//Smallest available integer was the next term
+			min = smallestUnused(min);		//New smallest unused integer
+		x = min;
+		i++;
 		} else {
-		x = smallestUnused(x)
+		x = smallestUnused(x);
 		}
 	}
 }
+alert(n);
 
 function smallestUnused(m){ //finds the smallest unused integer greater than m
 	let j = m - 1;
@@ -70,7 +72,9 @@ function smallestUnused(m){ //finds the smallest unused integer greater than m
 }
 
 function primeFactors(p) {	//Find the prime factors of p
-	//PLACEHOLDER
+	//const factors = [];
+	//
+	//return factors;
 }
 
 function add2u(m) {	//Adds n to the list of used integers (array u)
@@ -78,14 +82,14 @@ function add2u(m) {	//Adds n to the list of used integers (array u)
 	u.sort(function(a, b){return a - b});	//sort array u by numberic value
 }
 
-function commonFactor() {	//return true if two arrays share a common term
+function commonFactor(primes1, primes2) {	//return true if two arrays share a common term
 	let j = 0;
 	let k = 0;
-	while ((j < pf1.length) && (k < pf2.length)) {	//array indexes must be within the lengths of the arrays
-		if (pf1[j] == pf2[k]) {	//found a common factor
+	while ((j < primes1.length) && (k < primes2.length)) {	//array indexes must be within the lengths of the arrays
+		if (primes1[j] == primes2[k]) {	//found a common factor
 			return true;
 		} else {	//adjust j or k
-			if (pf1[j] < pf2[k]) {	//pf1 and pf2 must but in numerical order
+			if (primes1[j] < primes2[k]) {	//pf1 and pf2 must but in numerical order
 				j++;
 			} else {
 				k++;

@@ -12,12 +12,13 @@
 //New term must have a common factor with the term before last
 
 const n = [1, 2, 3];	//Solution array
-const u = [1, 2, 3];	//Already used numbers
+const u = n;	//Already used numbers
+const p = [2];	//List of prime numbers
 const pf0 = [1];	//Prime factorization of current term option
-const pf = [1];	//Prime factorization of previous term (back 1)
+const pf1 = [1];	//Prime factorization of previous term (back 1)
 const pf2 = [1];	//Prime factorization of term before last (back 2)
 const numTerms = 10;	//number of terms to calculate
-let min = 4;	//Smallest unused integer
+let min = u[u.length - 1] + 1;	//Smallest unused integer
 let x = 4;	//Guess for next term
 let i = 3;	//Array index
 
@@ -71,10 +72,54 @@ function smallestUnused(m){ //finds the smallest unused integer greater than m
 	retrun y;	//smallest unused integer greater than m
 }
 
-function primeFactors(p) {	//Find the prime factors of p
-	//const factors = [];
-	//
-	//return factors;
+function primeFactors(m) {	//Find the prime factors of p
+	const factors = [];	//Prime factors
+	let j = 0;	//Index
+	if (m == 1) {
+		factors[0] = 1;
+		return factors;
+	} else if (m == 2) {
+		factors[0] = 2;
+		return factors;
+	} else {
+		//need to check largest prime number in array p
+			//If the lasrgest prime is too small, find another prime
+		while (m > 1) {	//Itterate through primes
+			if (m % p[j] == 0) {	//p[j] is a prime factor
+				factors.push(p[j]);
+				m /= p[j];
+				if (m == 1) {	//All prime factors found
+					return factors;
+				}
+			} else {	//p[j] is not a factor
+				if (m / p[j] < p[j])) {	//No more primes, exceeded square root
+					factors.push(m);	//Last prime factor is m
+					return factors;
+				} else {
+					j++;	//Next prime
+				}
+			}
+		}
+	}
+	return factors;
+}
+
+function generatePrimes(limit) {	//Generate additional prime numbers up to m
+	let m = p[p.length - 1] + 1;	//Start at last prime + 1
+	let j = 0;
+	while (m < limit) {	//Find primes up to limit
+		if (m % p[j] == 0) {	//m is not prime
+			m++;	//Next m
+			j = 0;
+		} else {	//m might be prime
+			j++;	//Next prime
+			if (j == p.length) {	//New Prime
+				p.push(m);
+				m++;
+				j = 0;
+			}
+		}
+	}
 }
 
 function add2u(m) {	//Adds n to the list of used integers (array u)
@@ -82,14 +127,14 @@ function add2u(m) {	//Adds n to the list of used integers (array u)
 	u.sort(function(a, b){return a - b});	//sort array u by numberic value
 }
 
-function commonFactor(primes1, primes2) {	//return true if two arrays share a common term
+function commonFactor(factors1, factors2) {	//return true if two arrays share a common term
 	let j = 0;
 	let k = 0;
-	while ((j < primes1.length) && (k < primes2.length)) {	//array indexes must be within the lengths of the arrays
-		if (primes1[j] == primes2[k]) {	//found a common factor
+	while ((j < factors1.length) && (k < factors2.length)) {	//array indexes must be within the lengths of the arrays
+		if (factors1[j] == factors2[k]) {	//found a common factor
 			return true;
 		} else {	//adjust j or k
-			if (primes1[j] < primes2[k]) {	//pf1 and pf2 must but in numerical order
+			if (factors1[j] < factors2[k]) {	//pf1 and pf2 must but in numerical order
 				j++;
 			} else {
 				k++;

@@ -11,25 +11,29 @@
 #Object or relationsl database?
 #Order by popularity, try nouns first
 
-#Dictionary database (csv, json, or pickle):  #csv and json are portable, pickle is native
-  #Word
-  #Sorted word (letters arranged alphabetically)
+#Dictionary database (csv file):
+  #Rank (popularity)
   #Length
-  #Popularity
+  #Sorted word (letters arranged alphabetically)
+  #Word
   #Part of Speech
 
 #Dictionary build:
-  #Create *.csv file in Excel as a starting point
-  #Import with pandas as working dictionary
+  #Import word list from textfile in order of popularity
+  #Assign rank sequentially through the list
+  #Add length of word
+  #Add sorted (alphabetical) form
   #Read nouns.md
   #For each noun:
     #Find in working dictionary
     #Assign part-of-speech (PoS) = noun
     #If noun[i] not in working dictionary
       #Add noun at end of working dictionary
+      #Include rank, length, sorted
   #For first n number of words without PoS:
     #Prompt user input for PoS
     #OR API call to dictionary?
+  #Save dictionary in csv form with pandas
 
 #Solver:
   #Sort letters alphabetically
@@ -39,3 +43,6 @@
       #Check nouns by popularity
       #Check Adjectives by popularity
       #Continue other parts of speech
+  #If no word is found:
+    #Prompt user for answer
+    #Add to dictionary

@@ -3,7 +3,7 @@
 //PURPOSE: Output a series of numbers following the yellowstone purmutation
 //LICENSE: THE UNLICENSE
 //AUTHOR: CALEB GRISWOLD
-//UPDATED: 2023-08-26
+//UPDATED: 2023-08-27
 //
 //YELLOWSTONE PERMUTATION:
 //No terms are repeated
@@ -12,21 +12,21 @@
 //New term must have a common factor with the term before last
 
 const n = [1, 2, 3];	//Solution array
-const u = n;	//Already used numbers
+const u = [1, 2, 3];	//Already used numbers
 const p = [2, 3];	//List of prime numbers
-const pf0 = [1];	//Prime factorization of current term option
-const pf1 = [1];	//Prime factorization of previous term (back 1)
-const pf2 = [1];	//Prime factorization of term before last (back 2)
-const numTerms = 5;	//number of terms to calculate
+var pf0 = [1];	//Prime factorization of current term option
+var pf1 = [1];	//Prime factorization of previous term (back 1)
+var pf2 = [1];	//Prime factorization of term before last (back 2)
+const numTerms = 24;	//number of terms to calculate
 let min = u[u.length - 1] + 1;	//Smallest unused integer
 let x = 4;	//Guess for next term
 let i = 3;	//Array index
 
 i = n.length;
-min = smallestUnused(1)
+min = smallestUnused(3)
 x = min;
+pf1 = primeFactors(n[i-1]);
 while (i < numTerms) {	//Find the first numTerms terms
-	pf1 = primeFactors(n[i-1]);
 	pf0 = primeFactors(x);
 	while (commonFactor(pf0, pf1) == true) {	//Find an unused integer that does not have a common factor with the previous term
 		x = smallestUnused(x);
@@ -34,11 +34,13 @@ while (i < numTerms) {	//Find the first numTerms terms
 	}
 	pf2 = primeFactors(n[i-2])
 	if (commonFactor(pf0, pf2) == true) {	//x has a common term with the term before last
-		n[i] = x;
+		n[i] = x;	//Next term found!
 		add2u(x);	//added x to the array u, in sorted order
 		i++;
+		pf2 = pf1;	//Prime factors term shift: term n-1 becomes term n-2
+		pf1 = pf0;	////Prime factors term shift: term n becomes term n-1
 		if (x == min) {	//Smallest available integer was the next term
-			min = smallestUnused(min);		//New smallest unused integer
+			min = smallestUnused(3);		//New smallest unused integer
 		}
 		x = min;
 	} else {
@@ -48,26 +50,27 @@ while (i < numTerms) {	//Find the first numTerms terms
 alert(n);
 
 function smallestUnused(m){ //finds the smallest unused integer greater than m
-	let j = m - 1;
-	if (u[j] != m) {	//there are missing integers before m, work backwards to m
-		while (u[j] > m) {
-			if (u[j] != j + 1) {	//previous integers still missing
-				j--;	//work backwards
-			} else {
-				break;
-			}
-		}
-	}
+	let j = m;
+	let y = 0;
 	let l = u.length;
-	let y = u[j];
-	while (j < l) {	//index j must stay within array u
-		if (u[j] == y) {	//all intergers through j used
-			j++;
-			y++;
-		} else {	//found unused integer
-			y++;	//y is the first option
+	if (j >= l) {
+		j = l - 1;	//Index last used number
+		
+	}
+	while (u[j] > m) {
+		if (u[j] != j + 1) {	//previous integers still missing
+			j--;	//work backwards
+		} else {
 			break;
 		}
+	}
+	y = u[j] + 1;
+	while (y <= m) {	//y must be at least m
+		y++;
+	}
+	while (y == u[j+1]) {	//m is in a block of used numbers
+		y++;
+		j++;
 	}
 	return y;	//smallest unused integer greater than m
 }
@@ -81,16 +84,13 @@ function primeFactors(m) {	//Find the prime factors of p
 		return factors;
 	} else {
 		if (p[p.length - 1] < m) {	//Largest prime in array p is less than m
-			generatePrimes(m);	//Get all primes less than m
+			generatePrimes(m);	//Get all primes through m
 		}
 		while (m > 1) {	//Itterate through primes
 			if (m % p[j] == 0) {	//p[j] is a prime factor
 				factors[k] = (p[j]);	//Add p[j] to factors
 				k++;	//Next factor
 				m /= p[j];
-				if (m == 1) {	//All prime factors found
-					return factors;
-				}
 			} else {	//p[j] is not a factor
 				if (m / p[j] < p[j]) {	//No more primes, exceeded square root
 					factors.push(m);	//Last prime factor is m
@@ -104,12 +104,12 @@ function primeFactors(m) {	//Find the prime factors of p
 	return factors;
 }
 
-function generatePrimes(limit) {	//Generate additional prime numbers up to m
+function generatePrimes(limit) {	//Generate additional prime numbers up to limit
 	let m = p[p.length - 1] + 2;	//Start checking at next odd after last prime
 	let j = 0;
-	while (m < limit) {	//Find primes up to limit
+	while (m <= limit + 1) {	//Find primes up through limit
 		if (m % p[j] == 0) {	//m is not prime
-			m += 2;	//Next odd m (2 is the only even prime
+			m += 2;	//Next odd m (2 is the only even prime)
 			j = 0;
 		} else {	//m might be prime
 			j++;	//Next prime

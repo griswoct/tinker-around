@@ -1,5 +1,4 @@
 #scramble words to provide material
-#need common english words, likely nouns
 #Word Attributes:
   #Length
   #First letter
@@ -7,9 +6,6 @@
   #Common or uncommon
   #Repeated letters
   #Subject (common: animals, seasonal, wedding, baby, sports, religion, geography, literature, food)
-#Sub dictionaries?
-#Object or relationsl database?
-#Order by popularity, try nouns first
 
 #Dictionary database (csv file):
   #Rank (popularity)
@@ -34,6 +30,11 @@
     #Prompt user input for PoS
     #OR API call to dictionary?
   #Save dictionary in csv form with pandas
+
+import pandas
+df = pandas.read_csv("google-10000-english-usa-no-swears.txt", names="word")
+n = 3
+print("Word ", n, " is: ", df[n])
 
 #Solver:
   #Sort letters alphabetically

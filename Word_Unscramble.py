@@ -32,10 +32,15 @@
   #Save dictionary in csv form with pandas
 
 import pandas
-df = pandas.read_csv("google-10000-english-usa-no-swears.txt")
-n = 93
-#df[1] = df[0].str.len()
-print("Word ", n, " is: ", df.iloc[0, 0])
+df = pandas.read_csv("words.csv")
+n = 37
+print("Word ", n, " is: ", df.loc[n].at['Word'])
+i = 0
+sort = []
+while i < 99:
+	sort.append(''.join(sorted(df.loc[i].at['Word'])))
+	i += 1
+print('Sorted word  ', n, ' is ', sort[n])
 
 #Solver:
   #Sort letters alphabetically

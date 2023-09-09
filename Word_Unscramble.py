@@ -33,14 +33,16 @@
 
 import pandas
 df = pandas.read_csv("words.csv")
-n = 37
+n = input('Pick a number')
 print("Word ", n, " is: ", df.loc[n].at['Word'])
 i = 0
 sort = []
-while i < 99:
-	sort.append(''.join(sorted(df.loc[i].at['Word'])))
+while i < 9884:
+	sort.append(''.join(sorted(str(df.loc[i].at['Word']))))
 	i += 1
-print('Sorted word  ', n, ' is ', sort[n])
+print('Sorted word ', n, ' is ', sort[n])
+df['Sort'] = sort
+print('Sorted word ', n, ' is ', df.loc[n].at['Sort'])
 
 #Solver:
   #Sort letters alphabetically

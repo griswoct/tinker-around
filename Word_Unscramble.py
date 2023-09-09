@@ -41,8 +41,8 @@ while i < 9884:
 	sort.append(''.join(sorted(str(df.loc[i].at['Word']))))
 	i += 1
 print('Sorted word ', n, ' is ', sort[n])
-df['Sort'] = sort
-#df['Sort'] = ''.join(sorted(str(df.Word)))
+#df['Sort'] = sort
+df['Sort'] = ''.join(sorted(str(df.Word)))
 print('Sorted word ', n, ' is ', df.loc[n].at['Sort'])
 
 #Solver:
@@ -56,3 +56,7 @@ print('Sorted word ', n, ' is ', df.loc[n].at['Sort'])
   #If no word is found:
     #Prompt user for answer
     #Add to dictionary
+
+letters = input("Please enter the scrambled letters:")
+letters = ''.join(sorted(letters))
+print("Sorted letters: ", letters)

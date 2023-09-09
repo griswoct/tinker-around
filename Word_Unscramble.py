@@ -33,7 +33,7 @@
 
 import pandas
 df = pandas.read_csv("words.csv")
-n = input('Pick a number')
+n = int(input('Pick a number: '))
 print("Word ", n, " is: ", df.loc[n].at['Word'])
 i = 0
 sort = []
@@ -42,6 +42,7 @@ while i < 9884:
 	i += 1
 print('Sorted word ', n, ' is ', sort[n])
 df['Sort'] = sort
+#df['Sort'] = ''.join(sorted(str(df.Word)))
 print('Sorted word ', n, ' is ', df.loc[n].at['Sort'])
 
 #Solver:

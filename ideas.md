@@ -4,17 +4,14 @@
 * ~~Guessing game~~ (VBA)
 * Timer
 * ~~Autofill approved TRs (work) (VBA)~~
-* Scan new TRs and advise (work)
-* Create TR meeting invite (work)
-* Scan TR revisions and summarize (work)
 * Pull temp or ticker data from the web (JavaScript)
 * Fork overload
 * Dead switch
 * Bluring/unbluring algorithm
 * ~~Sudoku solver (VBA)~~
 * Spaghettification/obfuscation
-* Yellowstone Permutation:
-  * [Numberphile: Yellowstone Permutation](https://www.youtube.com/watch?v=DUaqiM1bGX4)
+* ~~Yellowstone Permutation:~~
+  * ~~[Numberphile: Yellowstone Permutation](https://www.youtube.com/watch?v=DUaqiM1bGX4)~~
 * Printer program
 * 3-D printer program
 * CNC machine program
@@ -27,6 +24,8 @@
   * Start with 2-D, but written for future 3-D
 * ~~Prime factorization (PowerShell)~~
 * ~~Scrolling banner output in the terminal (Bash)~~
+* Play Tic-Tac-Toe
+* Play [Super Tic-Tac-Toe](https://www.youtube.com/watch?v=_Na3a1ZrX7c)
 * Play checkers
 * Sun position prediction based on location and datetime (Python?)
   * *Add orbital and rotational periods for planet*
@@ -40,7 +39,7 @@
   * Customizable bad word list
 * Word scramble solver
   * Need dictionary file
-  * Smart guessing with vowel and consonant placement
+  * Sort letters alphabetically and compare to dictionary entries of appropriate length
 * Neural network trained to identify specific symbols or letters (Python)
   * License plate scanner
   * "Read" pages of text

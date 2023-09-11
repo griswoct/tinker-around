@@ -33,17 +33,17 @@
 
 import pandas
 df = pandas.read_csv("words.csv")
-n = int(input('Pick a number: '))
-print("Word ", n, " is: ", df.loc[n].at['Word'])
+#n = int(input('Pick a number: '))
+#print("Word ", n, " is: ", df.loc[n].at['Word'])  #for testing
 i = 0
 sort = []
 while i < 9884:
 	sort.append(''.join(sorted(str(df.loc[i].at['Word']))))
 	i += 1
-print('Sorted word ', n, ' is ', sort[n])
-#df['Sort'] = sort
-df['Sort'] = ''.join(sorted(str(df.Word)))
-print('Sorted word ', n, ' is ', df.loc[n].at['Sort'])
+#print('Sorted word ', n, ' is ', sort[n])  #for testing
+df['Sort'] = sort
+#df['Sort'] = ''.join(sorted(str(df.Word)))
+#print('Sorted word ', n, ' is ', df.loc[n].at['Sort'])  #for testing
 
 #Solver:
   #Sort letters alphabetically
@@ -60,3 +60,12 @@ print('Sorted word ', n, ' is ', df.loc[n].at['Sort'])
 letters = input("Please enter the scrambled letters:")
 letters = ''.join(sorted(letters))
 print("Sorted letters: ", letters)
+match = False
+j = 0
+while j < 9884:
+  if letters == sort[j]:
+    print('Found match: ', df.loc[j].at['Word'])
+    match = True
+  j += 1
+if match == False:
+  print('No match found')

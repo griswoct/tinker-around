@@ -40,6 +40,9 @@
 * Word scramble solver
   * Need dictionary file
   * Sort letters alphabetically and compare to dictionary entries of appropriate length
+* Pseudo-word generator
+  * Vowel consonant placement
+  * Letter frequency and pairing
 * Neural network trained to identify specific symbols or letters (Python)
   * License plate scanner
   * "Read" pages of text

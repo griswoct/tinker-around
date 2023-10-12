@@ -32,6 +32,8 @@
   #Save dictionary in csv form with pandas
 
 import pandas
+#if dictionary.csv exists:
+  #read dixtionary.csv as df
 df = pandas.read_csv("words.csv")
 #n = int(input('Pick a number: '))
 #print("Word ", n, " is: ", df.loc[n].at['Word'])  #for testing

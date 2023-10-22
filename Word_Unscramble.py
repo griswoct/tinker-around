@@ -34,15 +34,14 @@
 import pandas
 #if dictionary.csv exists:
   #read dixtionary.csv as df
+#else:
 df = pandas.read_csv("words.csv")
-#n = int(input('Pick a number: '))
-#print("Word ", n, " is: ", df.loc[n].at['Word'])  #for testing
+#save dictionary.cav
 i = 0
 sort = []
 while i < 9884:
 	sort.append(''.join(sorted(str(df.loc[i].at['Word']))))
 	i += 1
-#print('Sorted word ', n, ' is ', sort[n])  #for testing
 df['Sort'] = sort
 #df['Sort'] = ''.join(sorted(str(df.Word)))
 #print('Sorted word ', n, ' is ', df.loc[n].at['Sort'])  #for testing
@@ -71,3 +70,6 @@ while j < 9884:
   j += 1
 if match == False:
   print('No match found')
+  prompt = input('Add to dictionary? (Y/N)')
+  if prompt == 'Y' or 'yes' or 'YES' or 'Yes':
+    #Add to dictionary

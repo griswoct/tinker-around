@@ -50,6 +50,10 @@
   * Recognize flags
   * Recognize brand logos
   * Find patterns from habits
+* Route finder (map navigation)
+  * Intersection nodes
+  * Distance or time based
+  * Random trip mode (random road selection at each intersection)
 ***
 ## Languages of interest:
 * Python

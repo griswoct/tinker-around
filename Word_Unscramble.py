@@ -39,14 +39,14 @@ else:
 	df = pandas.read_csv('words.csv')
 i = 0
 sort = []
-while i < 9884:
+while i < len(df):
 	sort.append(''.join(sorted(str(df.loc[i].at['Word']))))
 	i += 1
 df['Sort'] = sort
 #df['Sort'] = ''.join(sorted(str(df.Word)))
 #print('Sorted word ', n, ' is ', df.loc[n].at['Sort'])  #for testing
 if os.path.exists('dictionary.csv') == False:
-	df.to_csv('dictionary.csv', sep=',')
+	df.to_csv('dictionary.csv', sep=',', index=False)
 
 #Solver:
   #Sort letters alphabetically
@@ -74,7 +74,8 @@ if match == False:
 	print('No match found')
 	prompt = input('Add to dictionary? (Y/N)')
 	if prompt == 'Y' or 'yes' or 'YES' or 'Yes':
-		word = input('What word do the letters', letters, 'make? >')
-    		df.loc[len(df)] = [len(df)+1, word, letters]	#Add line to dataframe
-		df.to_csv('dictionary.csv', sep=',')
+		print('What word do the letters', letters, 'make?')
+		word = input('>:')
+		df.loc[len(df)] = [len(df)+1, word, len(letters), letters]  #Add line to dataframe
+		df.to_csv('dictionary.csv', sep=',', index=False)
 print('Exiting Word_Unscramble.py')

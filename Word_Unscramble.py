@@ -65,7 +65,7 @@ letters = ''.join(sorted(letters))
 #print("Sorted letters: ", letters)	#for testing
 match = False
 j = 0
-while j < 9884:
+while j < len(df):
 	if letters == sort[j]:
 		print('Found match: ', df.loc[j].at['Word'])
 		match = True

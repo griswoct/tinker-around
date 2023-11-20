@@ -3,6 +3,7 @@
 #output list of letters and number 0-25 (for 5x5 letters)
 #use these values for first attempt at ASCII Art generator
 
+density=0
 char=' '
 	case $char in	#Find correct letter
 		' ')
@@ -197,3 +198,11 @@ char=' '
 			list=(true true true true true true true true true true true true true true true true true true true true true true true true true )	#Display a 5x5 block
 			;;
 	esac
+	while [ $i -lt 25 ]	#Get line $i of banner letter
+	do
+		if [ ${list[$i]} == true ]
+		then
+			density+=1
+		fi
+		((i++))
+	done

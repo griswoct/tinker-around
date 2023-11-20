@@ -4,8 +4,14 @@
 #use these values for first attempt at ASCII Art generator
 
 density=0
-char=' '
-	case $char in	#Find correct letter
+letters=['A','B','C']
+read -p 'Which letters do you want to find the density of? ' letters
+length=${#letters}
+list=()
+while [ $i < $length ]
+do
+	$density=0
+	case ${letters:$i:1} in
 		' ')
 			h=5
 			w=5
@@ -198,11 +204,15 @@ char=' '
 			list=(true true true true true true true true true true true true true true true true true true true true true true true true true )	#Display a 5x5 block
 			;;
 	esac
-	while [ $i -lt 25 ]	#Get line $i of banner letter
+	while [ $j -lt 25 ]	#Get line $i of banner letter
 	do
-		if [ ${list[$i]} == true ]
+		if [ ${list[$j]} == true ]
 		then
 			density+=1
 		fi
-		((i++))
+		((j++))
 	done
+	density=$((4*density))
+ 	echo "Density of " ${letters:$i:1} ": " $density
+ 	((i++))
+done

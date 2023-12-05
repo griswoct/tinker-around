@@ -26,7 +26,8 @@
 * ~~Scrolling banner output in the terminal (Bash)~~
 * Play Tic-Tac-Toe
 * Play [Super Tic-Tac-Toe](https://www.youtube.com/watch?v=_Na3a1ZrX7c)
-* Play checkers
+* Play Checkers
+* Move Chess pieces in legal moves - use official Chess notation for input
 * Sun position prediction based on location and datetime (Python?)
   * *Add orbital and rotational periods for planet*
   * Need to account for:

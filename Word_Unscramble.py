@@ -14,19 +14,10 @@
   #Word
   #Part of Speech
 
-#Dictionary build:
-  #Import word list from textfile in order of popularity
-  #Assign rank sequentially through the list
-  #Add length of word
-  #Add sorted (alphabetical) form
-  #Read nouns.md
-  #For each noun:
-    #Find in working dictionary
-    #Assign part-of-speech (PoS) = noun
-    #If noun[i] not in working dictionary
-      #Add noun at end of working dictionary
-      #Include rank, length, sorted
-  #For first n number of words without PoS:
+#For each noun in nouns.md:
+  #Find in working dictionary
+  #Assign part-of-speech (PoS) = noun
+#Part of Speech:
     #Prompt user input for PoS
     #OR API call to dictionary?
   #Save dictionary in csv form with pandas
@@ -47,18 +38,6 @@ df['Sort'] = sort
 #print('Sorted word ', n, ' is ', df.loc[n].at['Sort'])  #for testing
 if os.path.exists('dictionary.csv') == False:
 	df.to_csv('dictionary.csv', sep=',', index=False)
-
-#Solver:
-  #Sort letters alphabetically
-  #Count letters
-  #Dictionary search:
-    #If length = [length]:
-      #Check nouns by popularity
-      #Check Adjectives by popularity
-      #Continue other parts of speech
-  #If no word is found:
-    #Prompt user for answer
-    #Add to dictionary
 
 letters = input('Please enter the scrambled letters: ')
 letters = ''.join(sorted(letters))

@@ -2,12 +2,19 @@ Sub Rec()
 Dim i As Integer
 Dim EoB As Date
 Dim OpenBell As Date
+Dim Time0, Time1
 OpenBell = TimeValue("08:30:00")
 EoB = TimeValue("15:00:00")
 For i = 0 To 40
         While Time < OpenBell
             'MsgBox "It is before " & OpenBell
-            Application.Wait Now + TimeValue("00:10:00")
+            'Application.Wait Now + TimeValue("00:10:00")
+            Time0 = Time
+            Time1 = Time + TimeValue("0:10:00")
+            Do Until Time0 >= Time1
+                DoEvents
+                Time0 = Time
+            Loop
         Wend
         Rows("3:3").Select
         Selection.Insert Shift:=xlDown, CopyOrigin:=xlFormatFromLeftOrAbove
@@ -28,6 +35,12 @@ For i = 0 To 40
             MsgBox "Closed for the day"
             Exit For
         End If
-        Application.Wait Now + TimeValue("00:10:00")
+        'Application.Wait Now + TimeValue("00:10:00")
+        Time0 = Time
+        Time1 = Time + TimeValue("0:10:00")
+            Do Until Time0 >= Time1
+                DoEvents
+                Time0 = Time
+            Loop
     Next
 End Sub

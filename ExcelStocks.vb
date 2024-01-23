@@ -1,46 +1,39 @@
+Option Explicit
+
 Sub Rec()
-Dim i As Integer
-Dim EoB As Date
-Dim OpenBell As Date
-Dim Time0, Time1
-OpenBell = TimeValue("08:30:00")
-EoB = TimeValue("15:00:00")
-For i = 0 To 40
-        While Time < OpenBell
-            'MsgBox "It is before " & OpenBell
-            'Application.Wait Now + TimeValue("00:10:00")
-            Time0 = Time
-            Time1 = Time + TimeValue("0:10:00")
-            Do Until Time0 >= Time1
-                DoEvents
-                Time0 = Time
-            Loop
-        Wend
-        Rows("3:3").Select
-        Selection.Insert Shift:=xlDown, CopyOrigin:=xlFormatFromLeftOrAbove
-        Range("C2:CH2").Select
-        Selection.Copy
-        Range("C3").Select
-        Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks _
-            :=False, Transpose:=False
-        Range("A3").Value = Date
-        Range("B3").Value = Time
-        Rows("4:4").Select
-        Selection.Copy
-        Rows("3:3").Select
-        Selection.PasteSpecial Paste:=xlPasteFormats, Operation:=xlNone, _
-            SkipBlanks:=False, Transpose:=False
-        Application.CutCopyMode = False
-        If Time > EoB Then  'Market closed
-            MsgBox "Closed for the day"
-            Exit For
+    Dim i As Integer
+    Dim OpenBell, EoB As Date
+    Dim Time0, Time1
+    OpenBell = TimeValue("08:25:00AM")
+    EoB = TimeValue("03:05:00PM")
+    'For i = 0 To 48 'Record every 10min for up to 8hrs
+        If Time < OpenBell Then
+            Application.OnTime Now + TimeValue("00:10:00"), "Sheet2.Rec"
+            MsgBox "Market not yet open"
+        Else
+            If Time > EoB Then  'Market closed
+                MsgBox "Closed for the day"
+            Else
+                Call SaveData
+                Application.OnTime Now + TimeValue("00:10:00"), "Sheet2.Rec"
+            End If
         End If
-        'Application.Wait Now + TimeValue("00:10:00")
-        Time0 = Time
-        Time1 = Time + TimeValue("0:10:00")
-            Do Until Time0 >= Time1
-                DoEvents
-                Time0 = Time
-            Loop
-    Next
+    'Next
+End Sub
+
+Sub SaveData()
+    Rows("3:3").Select
+    Selection.Insert Shift:=xlDown, CopyOrigin:=xlFormatFromLeftOrAbove
+    Range("C2:CZ2").Select
+    Selection.Copy
+    Range("C3").Select
+    Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
+    Range("A3").Value = Date
+    Range("B3").Value = Time
+    Rows("4:4").Select
+    Selection.Copy
+    Rows("3:3").Select
+    Selection.PasteSpecial Paste:=xlPasteFormats, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
+    Application.CutCopyMode = False
+    ActiveWorkbook.Save
 End Sub

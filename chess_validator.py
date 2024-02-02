@@ -1,16 +1,22 @@
-#get board arrangement or start with fresh starting position
+#CHESS VALIDATOR
+#PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
+#LICENSE: THE UNLICENSE
+#AUTHOR: CALEB GRISWOLD
+#UPDATED: 2024-02-02
+#
 #accepts algebraic notation to move pieces
 #validates of a piece can:
     #move in that way
     #no piece is in the way
     #not capturing your own piece or opponents King
     #dosen't put your King in check
-#Additional ideas:
+#ideas:
     #Heat map of which squares on the boad are controlled by which player
     #How many attackers and defenders are there on each piece
     #Identify checkmate
 
 #IMPORT STATEMENTS
+#import
 
 #VARIABLES (GLOBAL)
 TeamWhite = True    #Playing as white? (Boolean)
@@ -26,10 +32,13 @@ pieces = ['K','k','Q','q','R','r','N','n','B','b','P','p']    #Valid chess piece
 #FUNCTIONS
 #Display Chess Board on Terminal Screen
 def ShowBoard():
+    i = 0    #Board position
     while i < 64:    #Display board
         print(board[i:i+8])
         i += 8
 
+#MAIN BODY
+#Get Chess Board Setup
 fen = input("Enter D for default starting position, or board configuration in FEN notation")
 if fen == 'D' or fen == 'd':
     fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"    #Chess starting position
@@ -57,19 +66,32 @@ while j < 64:    #Populate board array from FEN string
         board.append(fen[i])
         i += 1
         j += 1
-#Validate board setup
-    #if not 1 king each, throw an error (each color should have exactly 1 King)
-    #if not 64 squares accounted for, throw an error (invalid configuration)
-    #if more than 8 pawns on either side, throw error (too many pawns)
-i = 0   #Board position
+#Validate Chess Board Setup
+if board.length() != 64:
+    print("Error: incomplete board configuration")    #Board array should have 64 elements
+for i in pieces:
+    i = 0
+    for j in board:
+        if i == j:
+            k += 1
+    if k > 8:
+        print("Error: excessive number of ", i)
+    elif i == 'p' and k > 8:
+        print("Error: more than eight black Pawns")
+    elif i == 'P' and k > 8:
+        print("Error: more than eight white Pawns")
+    elif i == 'k' and k != 1:
+        print("Error: there should be exactly 1 black King")
+    elif i == 'K' and k != 1:
+        print("Error: there should be exactly 1 white King")
 ShowBoard()
+#Get Color Being Played
 q = input ("Are you playing White (W) or Black (B)? ")
-if q == 'W' or q == 'w':
-    TeamWhite = True
-    move = input("White to move (in algebraic notation): ")
-elif q == 'B' or q == 'b':
+if q == 'B' or q == 'b':
     TeamWhite = False
-    move = input("Black to move (in algebraic notation): ")
+    move = input("Black to move (enter algebraic notation): ")
+else:
+    move = input("White to move (enter algebraic notation): ")
 #validate algebraic notation
     #parse here...
 #get first character of move, and validate piece exists:
@@ -82,6 +104,7 @@ elif q == 'B' or q == 'b':
 #if count < 1, throuw error (piece does not exist)
 #if count = 1, save start location
 #get last two characters of move, validate that end square is on the board(a1 to h8)
-#if the third to last character of the move is 'x', verify an oponents piece is sitting on that square
+#if the third to last character of the move is 'x', verify an oponents piece is sitting on that square (but not their King)
+#else verify the destination does not have a piece on it
 #validate move path against piece type
 #if not a Knight, validate clear path (no pieces in the way)

@@ -67,7 +67,7 @@ while j < 64:    #Populate board array from FEN string
         i += 1
         j += 1
 #Validate Chess Board Setup
-if board.length() != 64:
+if len.(board) != 64:
     print("Error: incomplete board configuration")    #Board array should have 64 elements
 for i in pieces:
     i = 0

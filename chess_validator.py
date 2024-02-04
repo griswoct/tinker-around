@@ -98,11 +98,22 @@ else:
 if move[-1] == '+' or move [-1] == '#':
     check = True
     destination = move[-3:-2]
+elif move[-1] == '0' or move[-1] == 'o' or move[-1] == 'O': #Castle
+    if len(move) < 5: #King side
+        if TeamWhite:
+            destination = 'g1'
+        else:
+            destination = 'g8'
+    else: #Queen side
+        if TeamWhite:
+            destination = 'd1'
+        else:
+            destination = 'd8'
 else:
     destination = move[-2:]
 if move[1] == 'x':
     capture = True
-if move[0] == 'K' or move[0] == 'k':
+if move[0] == 'K' or move[0] == 'k' or move[0] == '0' or move[0] == 'O' or move[0] == 'o':
     piece = 'K'
 elif move[0] == 'Q' or move[0] == 'q':
     piece = 'Q'
@@ -117,7 +128,7 @@ elif move[0] == 'a' or move[0] == 'b' or move[0] == 'c' or move[0] == 'd' or mov
 else:
     print("Error: could not parse move notation")
 #Verify destination is on the board
-#get first character of move, and validate piece exists:
+#count number of that piece:
     #if first character is K or o, skip counting pieces
         #count = 1
     #if first character is a, b, c, d, e, f, or g:

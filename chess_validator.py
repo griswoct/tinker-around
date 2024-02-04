@@ -2,7 +2,7 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-02-02
+#UPDATED: 2024-02-03
 #
 #accepts algebraic notation to move pieces
 #validates of a piece can:
@@ -19,6 +19,8 @@
 #import
 
 #VARIABLES (GLOBAL)
+capture = False
+check = False
 TeamWhite = True    #Playing as white? (Boolean)
 i = 0    #Integer index
 j = 0    #Integer index
@@ -92,8 +94,29 @@ if q == 'B' or q == 'b':
     move = input("Black to move (enter algebraic notation): ")
 else:
     move = input("White to move (enter algebraic notation): ")
-#validate algebraic notation
-    #parse here...
+#Parse Move
+if move[-1] == '+' or move [-1] == '#':
+    check = True
+    destination = move[-3:-2]
+else:
+    destination = move[-2:]
+if move[1] == 'x':
+    capture = True
+if move[0] == 'K' or move[0] == 'k':
+    piece = 'K'
+elif move[0] == 'Q' or move[0] == 'q':
+    piece = 'Q'
+elif move[0] == 'R' or move[0] == 'r':
+    piece = 'R'
+elif move[0] == 'N' or move[0] == 'n':
+    piece = 'N'
+elif move[0] == 'B' and move[1].isdigit() == False:
+    piece = 'B'
+elif move[0] == 'a' or move[0] == 'b' or move[0] == 'c' or move[0] == 'd' or move[0] == 'e' or move[0] == 'f' or move[0] == 'g' or move[0] == 'h' or move[0] == 'P' or move[0] == 'p':
+    piece ='P'
+else:
+    print("Error: could not parse move notation")
+#Verify destination is on the board
 #get first character of move, and validate piece exists:
     #if first character is K or o, skip counting pieces
         #count = 1

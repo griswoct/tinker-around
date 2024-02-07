@@ -32,8 +32,8 @@ move = 'e4'    #Chess move in algebraic notation
 square = 'e4'    #Selected square on the board (algebraic notation)
 board = []    #Chess board configuration
 pieces = ['K','k','Q','q','R','r','N','n','B','b','P','p']    #Valid chess pieces list
-xblack = ['q','r','b','n','p']    #Capturable black pieces (no King)
-xwhite = ['Q','R','N','B','P']    #Capturable white pieces (no King)
+xblack = ['q','r','b','n','p']    #Capturable black pieces list (no King)
+xwhite = ['Q','R','N','B','P']    #Capturable white pieces list (no King)
 
 #FUNCTIONS
 #Display Chess Board on Terminal Screen
@@ -44,7 +44,7 @@ def ShowBoard():
         i += 8
 
 #Convert Algebraic Notated Square to Board Index Number
-def BoardIndex(sq)
+def BoardIndex(sq):
     if len(sq) != 2:    #Board location should be 2 characters in algebraic notation
         return 64    #Invalid index indicating error
     else:
@@ -76,12 +76,11 @@ def ValidCapture(p):
     if white:
         if p in xblack:
             if not capture:
-                if check:
-                    move = #Add 'x' at move[-4]
-                else:
-                    move = #Add 'x' at move[-3]
-                print("Changing move to: ", move)
-            return True
+                correct = piece + 'x' + move[1:]
+                print("Changing move to: ", correct)
+            else:
+                correct = move
+            return correct
         else:    #A non-capturable piece is already on the square
             if p == 'k':
                 print("You cannot capture the King")
@@ -93,12 +92,11 @@ def ValidCapture(p):
     else:
         if p in xwhite:
             if not capture:
-                if check:
-                    move = #Add 'x' at move[-4]
-                else:
-                    move = #Add 'x' at move[-3]
-                print("Changing move to: ", move)
-            return True
+                correct = piece + 'x' + move[1:]
+                print("Changing move to: ", correct)
+            else:
+                correct = move
+            return correct
         else:    #A non-capturable piece is already on the square
             if p == 'K':
                 print("You cannot capture the King")
@@ -204,18 +202,17 @@ b = int(BoardIndex(square))
 if b == 64:    #Indicates error
     print("Error: ", square, " not found on board")
 #Validate Capture
-if board[b] != ' ':
-    if ValidCapture(board[b]):
-        capture = True
-    else:
+if board[b] != ' ': #A piece already occupies that square
+    move = ValidCapture(board[b])
+    if move == False:
         print("Error: invalid capture")
 
 #count number of that piece:
-    #if first character is K or o, skip counting pieces
+    #if piece == 'K', skip counting
         #count = 1
-    #if first character is a, b, c, d, e, f, or g:
+    #if piece == 'P':
         #count number of pawns of that color in that file
-    #if first character is R, N, B, or Q:
+    #if piece is R, N, B, or Q:
         #count number of that piece and color are on the board
 #if count < 1, throuw error (piece does not exist)
 #if count = 1, save start location

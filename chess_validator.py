@@ -2,9 +2,8 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-02-06
+#UPDATED: 2024-02-08
 #
-#accepts algebraic notation to move pieces
 #validates of a piece can:
     #move in that way
     #no piece is in the way
@@ -21,13 +20,13 @@
 #VARIABLES (GLOBAL)
 capture = False
 check = False
+good = False    #Boolean to control loops
 white = True    #Playing as white? (Boolean)
 a = 52    #Board index starting location
 b = 36    #Board index ending location
 i = 0    #Integer index
 j = 0    #Integer index
 k = 0    #Integer index
-fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"    #Board configuration in FEN
 move = 'e4'    #Chess move in algebraic notation
 square = 'e4'    #Selected square on the board (algebraic notation)
 board = []    #Chess board configuration
@@ -36,6 +35,70 @@ xblack = ['q','r','b','n','p']    #Capturable black pieces list (no King)
 xwhite = ['Q','R','N','B','P']    #Capturable white pieces list (no King)
 
 #FUNCTIONS
+#Get Chess Board Setup
+def GetBoard():
+    fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"    #Default starting position
+    fen = input("Enter D for default starting position, or board configuration in FEN notation: ")
+    if fen == 'D' or fen == 'd':
+        fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"    #Chess starting position
+    i = 0    #Position in fen array
+    j = 0    #Board position
+    while j < 64 and i < len(fen):    #Populate board array from FEN string
+        if fen[i] == '/':    #Next rank
+            if j % 8 != 0:    # '/' character encountered midway through a rank
+                print("Error: unexpected / in the board configuration:")
+                print(fen)
+                break
+            else:
+                i += 1    #Ignore and go to to next character
+        elif fen[i].isdigit() == True:
+            if int(fen[i]) > 8:    #More than 8 empty squares in a rank isn't posible in normal chess
+                print("Error: extra empty squares in the board configuration:")
+                print(fen)
+                break
+            else:
+                k = 0    #Number of empty squares added to rank
+                while k < int(fen[i]):    #Add specified number of empty squares to board array
+                    board.append(' ')
+                    k += 1
+                    j += 1
+                i += 1    #Go to next character after adding empty squares
+        elif fen[i] in pieces:    #Checks if character indicates valid chess piece
+            board.append(fen[i])
+            i += 1
+            j += 1
+        else:
+            print("Error: ", fen[i], " is not a recognized piece.")
+            break
+    return board
+
+#Validate Chess Board Configuration
+def ValidBoard(board):
+    if len(board) != 64:
+        print("Error: incomplete board")    #Board array should have 64 elements
+        return False
+    for i in pieces:
+        k = 0
+        for j in board:
+            if i == j:
+                k += 1
+        if k > 9:
+            print("Error: excessive number of ", i)
+            return False
+        elif i == 'p' and k > 8:
+            print("Error: more than 8 black Pawns")
+            return False
+        elif i == 'P' and k > 8:
+            print("Error: more than 8 white Pawns")
+            return False
+        elif i == 'k' and k != 1:
+            print("Error: there should be exactly 1 black King. Found ", k)
+            return False
+        elif i == 'K' and k != 1:
+            print("Error: there should be exactly 1 white King. Found ", k)
+        else:
+            return True
+
 #Display Chess Board on Terminal Screen
 def ShowBoard():
     i = 0    #Board position
@@ -47,7 +110,9 @@ def ShowBoard():
 def BoardIndex(sq):
     if len(sq) != 2:    #Board location should be 2 characters in algebraic notation
         return 64    #Invalid index indicating error
-    else:
+    elif not sq[1].isdigit: #Second digit in location should be a number
+        return 64
+    elif int(sq[1]) != 0 and int(sq[1]) != 9: #Rank 1-8
         if sq[0] == 'a' or sq[0] == 'A':
             i = (8 - int(sq[1])) * 8
         elif sq[0] == 'b' or sq[0] == 'B':
@@ -65,7 +130,7 @@ def BoardIndex(sq):
         elif sq[0] == 'h' or sq[0] == 'H':
             i = (8 - int(sq[1])) * 8 + 7
         else:
-            i = 64
+            return 64
         if i < 0 or i > 63:
             return 64    #Invalid index indicating error
         else:
@@ -107,55 +172,13 @@ def ValidCapture(p):
             return False
 
 #MAIN BODY
-#Get Chess Board Setup
-fen = input("Enter D for default starting position, or board configuration in FEN notation")
-if fen == 'D' or fen == 'd':
-    fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"    #Chess starting position
-i = 0    #Position in fen array
-j = 0    #Board position
-while j < 64:    #Populate board array from FEN string
-    if fen[i] == '/':    #Next rank
-        if j % 8 != 0:    # '/' character encountered midway through a rank
-            print("Error: unexpected / in the board configuration")
-            print(fen)
-            break
-        else:
-            i += 1    #Ignore and go to to next character
-    elif fen[i].isdigit() == True:
-        if int(fen[i]) > 8:    #More than 8 empty squares in a rank isn't posible in normal chess
-            print("Error: extra empty squares in the board configuration")
-            print(fen)
-            break
-        else:
-            k = 0    #Number of empty squares added to rank
-            while k < int(fen[i]):    #Add specified number of empty squares to board array
-                board.append(' ')
-                k += 1
-                j += 1
-            i += 1    #Go to next character after adding empty squares
-    elif fen[i] in pieces:    #Checks if character indicates valid chess piece
-        board.append(fen[i])
-        i += 1
-        j += 1
-#Validate Chess Board Setup
-if len(board) != 64:
-    print("Error: incomplete board configuration")    #Board array should have 64 elements
-    ShowBoard()
-for i in pieces:
-    i = 0
-    for j in board:
-        if i == j:
-            k += 1
-    if k > 8:
-        print("Error: excessive number of ", i)
-    elif i == 'p' and k > 8:
-        print("Error: more than 8 black Pawns")
-    elif i == 'P' and k > 8:
-        print("Error: more than 8 white Pawns")
-    elif i == 'k' and k != 1:
-        print("Error: there should be exactly 1 black King. Found ", k)
-    elif i == 'K' and k != 1:
-        print("Error: there should be exactly 1 white King. Found ", k)
+#Get Board Configuration
+board = GetBoard()
+good = ValidBoard(board)
+while not good:
+    print("Sorry, that board configuration is not recognised. Please Try again.")
+    board = GetBoard()
+    good = ValidBoard(board)
 ShowBoard()
 #Get Color Being Played
 q = input ("Are you playing White (W) or Black (B)? ")

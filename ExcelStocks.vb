@@ -4,21 +4,19 @@ Sub Rec()
     Dim i As Integer
     Dim OpenBell, EoB As Date
     Dim Time0, Time1
-    OpenBell = TimeValue("08:25:00AM")
-    EoB = TimeValue("03:05:00PM")
-    'For i = 0 To 48 'Record every 10min for up to 8hrs
-        If Time < OpenBell Then
-            Application.OnTime Now + TimeValue("00:10:00"), "Sheet2.Rec"
+    OpenBell = TimeValue("08:30:00AM ")
+    EoB = TimeValue("03:00:59PM")
+        If Time < OpenBell Then 'Market closed
+            Application.OnTime OpenBell, "TickTrack.xlsm!Sheet2.Rec"   'Try again at the opening bell
             MsgBox "Market not yet open"
         Else
             If Time > EoB Then  'Market closed
                 MsgBox "Closed for the day"
             Else
                 Call SaveData
-                Application.OnTime Now + TimeValue("00:10:00"), "Sheet2.Rec"
+                Application.OnTime Now + TimeValue("00:09:58"), "TickTrack.xlsm!Sheet2.Rec"
             End If
         End If
-    'Next
 End Sub
 
 Sub SaveData()

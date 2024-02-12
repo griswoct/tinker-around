@@ -2,13 +2,13 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-02-08
+#UPDATED: 2024-02-12
 #
 #validates of a piece can:
     #move in that way
     #no piece is in the way
     #dosen't put your King in check
-#ideas:
+#More Ideas:
     #Heat map of which squares on the boad are controlled by which player
     #How many attackers and defenders are there on each piece
     #Identify checkmate
@@ -18,8 +18,8 @@
 #import
 
 #VARIABLES (GLOBAL)
-capture = False
-check = False
+capture = False #Indicates a piece is being captured
+check = False   #King is in Check
 good = False    #Boolean to control loops
 white = True    #Playing as white? (Boolean)
 a = 52    #Board index starting location
@@ -27,7 +27,11 @@ b = 36    #Board index ending location
 i = 0    #Integer index
 j = 0    #Integer index
 k = 0    #Integer index
+fileA = [0,8,16,24,32,40,48,56] #Board indexes for A-file (edge of board)
+fileH = [7,15,23,31,39,47,55,63]    #Board indexes for H-file (edge of board)
+locations = [0,0,0,0,0,0,0,0,0,0]   #Number and locations of pieces
 move = 'e4'    #Chess move in algebraic notation
+piece = 'P' #Letter indicating piece (capitalization indicates color)
 square = 'e4'    #Selected square on the board (algebraic notation)
 board = []    #Chess board configuration
 pieces = ['K','k','Q','q','R','r','N','n','B','b','P','p']    #Valid chess pieces list
@@ -171,27 +175,17 @@ def ValidCapture(p):
                 print("Something went wrong. ", p, " is on ", square)
             return False
 
-#Count how many of piece p is on the board
+#Find the Number and Locations of Pieces "p"
 def FindPieces(p):
-    if not white:
-        if p == 'K':
-            p = 'k'
-        elif p == 'Q':
-            p == 'q'
-        elif p == 'R':
-            p = 'r'
-        elif p == 'N':
-            p = 'n'
-        elif p == 'B':
-            p = 'b'
-        else:
-            p = 'p'
-    for i in board:
+    loc = [0,0,0,0,0,0,0,0,0,0]   #Count and up to 9 locations
+    c = 0
+    i = 0
+    while i < 64:
         if board[i] == p:
             c += 1
             loc[0] = c
             loc[c] = i
-    #If pawn?
+        i += 1
     return loc
 
 #MAIN BODY
@@ -230,17 +224,34 @@ else:
 if move[1] == 'x' or move[1] == 'X':
     capture = True
 if move[0] == 'K' or move[0] == 'k' or move[0] == '0' or move[0] == 'O' or move[0] == 'o':
-    piece = 'K'
+    if white:
+        piece = 'K'
+    else: piece = 'k'
 elif move[0] == 'Q' or move[0] == 'q':
-    piece = 'Q'
+    if white:
+        piece = 'Q'
+    else:
+        piece = 'q'
 elif move[0] == 'R' or move[0] == 'r':
-    piece = 'R'
+    if white:
+        piece = 'R'
+    else:
+        piece = 'r'
 elif move[0] == 'N' or move[0] == 'n':
-    piece = 'N'
+    if white:
+        piece = 'N'
+    else:
+        piece = 'n'
 elif move[0] == 'B' and move[1].isdigit() == False:
-    piece = 'B'
+    if white:
+        piece = 'B'
+    else:
+        piece = 'b'
 elif move[0] == 'a' or move[0] == 'b' or move[0] == 'c' or move[0] == 'd' or move[0] == 'e' or move[0] == 'f' or move[0] == 'g' or move[0] == 'h' or move[0] == 'P' or move[0] == 'p':
-    piece ='P'
+    if white:
+        piece ='P'
+    else:
+        piece = 'p'
 else:
     print("Error: could not parse move notation: ", move)
 #Validate Selected Square
@@ -252,13 +263,16 @@ if board[b] != ' ': #A piece already occupies that square
     move = ValidCapture(board[b])
     if move == False:
         print("Error: invalid capture")
-
-locations = FindPieces(piece) #count number of that piece in that color
-    #if piece == 'P':
-        #count number of pawns of that color in that file
-    #if piece is R, N, B, or Q:
-        #count number of that piece and color are on the board
-#if count < 1, throuw error (piece does not exist)
-#if count = 1, save start location
-#validate move path against piece type
+#Find the number and locations of possible moving pieces
+locations = FindPieces(piece) #Count number of that piece
+if locations[0] == 0:   #No piece found
+    print("Error: n", piece, "found on the board")
+else:   #Check movement range for all possible pieces
+    i = 1
+    while i < 9:    #Up to 9 pieces of the same type and color (all Pawns promoted)
+        #Can piece move to b from location[i]?
+        #If a valid piece has already been found, prompt user for starting location
+        i += 1
 #if not a Knight, validate clear path (no pieces in the way)
+#if king is in check after moving, invalid move "[move] leaves your king in check"
+    #Need to check ever opponent piece, except the King (xblack or xwhite)

@@ -171,6 +171,26 @@ def ValidCapture(p):
                 print("Something went wrong. ", p, " is on ", square)
             return False
 
+#Count how many of piece p is on the board
+def HowMany(p):
+    if not white:
+        if p == 'K':
+            p = 'k'
+        elif p == 'Q':
+            p == 'q'
+        elif p == 'R':
+            p = 'r'
+        elif p == 'N':
+            p = 'n'
+        elif p == 'B':
+            p = 'b'
+        else:
+            p = 'p'
+    for p in board:
+        c += 1
+    #If pawn?
+    return c
+
 #MAIN BODY
 #Get Board Configuration
 board = GetBoard()
@@ -230,9 +250,7 @@ if board[b] != ' ': #A piece already occupies that square
     if move == False:
         print("Error: invalid capture")
 
-#count number of that piece:
-    #if piece == 'K', skip counting
-        #count = 1
+n = HowMany(piece) #count number of that piece in that color
     #if piece == 'P':
         #count number of pawns of that color in that file
     #if piece is R, N, B, or Q:

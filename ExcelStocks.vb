@@ -6,6 +6,7 @@ Sub Rec()
     Dim Time0, Time1
     OpenBell = TimeValue("08:30:00AM ")
     EoB = TimeValue("03:00:59PM")
+    Workbooks("TickTrack.xlsm").Activate
         If Time < OpenBell Then 'Market closed
             Application.OnTime OpenBell, "TickTrack.xlsm!Sheet2.Rec"   'Try again at the opening bell
             MsgBox "Market not yet open"
@@ -14,7 +15,7 @@ Sub Rec()
                 MsgBox "Closed for the day"
             Else
                 Call SaveData
-                Application.OnTime Now + TimeValue("00:09:58"), "TickTrack.xlsm!Sheet2.Rec"
+                Application.OnTime Now + TimeValue("00:09:59"), "TickTrack.xlsm!Sheet2.Rec"
             End If
         End If
 End Sub

@@ -2,7 +2,7 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-02-12
+#UPDATED: 2024-02-14
 #
 #validates of a piece can:
     #move in that way
@@ -177,7 +177,7 @@ def ValidCapture(p):
 
 #Find the Number and Locations of Pieces "p"
 def FindPieces(p):
-    loc = [0,0,0,0,0,0,0,0,0,0]   #Count and up to 9 locations
+    loc = [0,64,64,64,64,64,64,64,64,64]   #Count and up to 9 locations, 64 is off the board
     c = 0
     i = 0
     while i < 64:
@@ -269,10 +269,35 @@ if locations[0] == 0:   #No piece found
     print("Error: n", piece, "found on the board")
 else:   #Check movement range for all possible pieces
     i = 1
-    while i < 9:    #Up to 9 pieces of the same type and color (all Pawns promoted)
-        #Can piece move to b from location[i]?
+    while i <= locations[0]:    #location[0] indicates the number of pieces found, locations[1:9] are the locations
+        if locations[i] == 64:  #invalid location, end of possible locations
+            break
+        else:
+            good = ValidPath(piece, a, b)  #Can piece move to b from location[i]?
+            j += 1
         #If a valid piece has already been found, prompt user for starting location
         i += 1
+    
+    i = 1   #First location at locations[1]
+    j = 0
+    while i <= locations[0]:    #locations[0] indicates the number of pieces found
+        if locations[i] == 64:  #Invalid board index
+            break
+        elif j > 1: #More than one piece can move to square b
+            break
+        else:
+            good = ValidPath(piece, locations[i], b)    #piece on locations[i] can move to square b
+            if good:
+                j += 1
+                a = i   #save starting location
+                good = False
+            i += 1
+    if j > 1:
+        #Need input
+    elif j == 0:
+        #Error, can't move there
+    else:
+        #Move piece board[a] to board[b]
 #if not a Knight, validate clear path (no pieces in the way)
 #if king is in check after moving, invalid move "[move] leaves your king in check"
     #Need to check ever opponent piece, except the King (xblack or xwhite)

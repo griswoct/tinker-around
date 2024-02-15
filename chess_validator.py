@@ -2,7 +2,7 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-02-14
+#UPDATED: 2024-02-15
 #
 #validates of a piece can:
     #move in that way
@@ -188,6 +188,38 @@ def FindPieces(p):
         i += 1
     return loc
 
+#Find which locations 'loc' can be a starting points for piece 'p' to get to square 'end'
+def WhichPiece(p, loc, end):
+    i = 1   #First location at locations[1]
+    j = 0
+    good = False
+    while i <= loc[0]:    #locations[0] indicates the number of pieces found
+        if loc[i] == 64:  #Invalid board index
+            break
+        elif j > 1: #More than one piece can move to square b
+            break
+        else:
+            good = ValidPath(p, loc[i], end)    #piece on locations[i] can move to square b
+            if good:
+                j += 1
+                start = loc[i]   #save starting location
+                good = False
+        i += 1
+    if j > 1:
+        start = input("Multiple pieces can make that move. Please enter the location of the intended piece: ")
+        start = BoardIndex(start)
+        #Check a is in locations, check a to b is a valid move for piece
+        return start
+    elif j == 0:
+        print("Error: could not find a", p, "that can move to", square)
+        return 64
+    else:
+        return start
+
+#Checks if a piece can move from origin to destination in a single move
+def ValidPath(type, origin, destination):
+    return True
+
 #MAIN BODY
 #Get Board Configuration
 board = GetBoard()
@@ -268,36 +300,10 @@ locations = FindPieces(piece) #Count number of that piece
 if locations[0] == 0:   #No piece found
     print("Error: n", piece, "found on the board")
 else:   #Check movement range for all possible pieces
-    i = 1
-    while i <= locations[0]:    #location[0] indicates the number of pieces found, locations[1:9] are the locations
-        if locations[i] == 64:  #invalid location, end of possible locations
-            break
-        else:
-            good = ValidPath(piece, a, b)  #Can piece move to b from location[i]?
-            j += 1
-        #If a valid piece has already been found, prompt user for starting location
-        i += 1
-    
-    i = 1   #First location at locations[1]
-    j = 0
-    while i <= locations[0]:    #locations[0] indicates the number of pieces found
-        if locations[i] == 64:  #Invalid board index
-            break
-        elif j > 1: #More than one piece can move to square b
-            break
-        else:
-            good = ValidPath(piece, locations[i], b)    #piece on locations[i] can move to square b
-            if good:
-                j += 1
-                a = i   #save starting location
-                good = False
-            i += 1
-    if j > 1:
-        #Need input
-    elif j == 0:
-        #Error, can't move there
-    else:
-        #Move piece board[a] to board[b]
-#if not a Knight, validate clear path (no pieces in the way)
+    a = WhichPiece(piece, locations, b)
+OldBoard = board    #Save previous version of board (still need to verify no check)
+board[a] = ' '  #Starting square is now empty
+board[b] = piece    #Piece is now in the new location
+ShowBoard()
 #if king is in check after moving, invalid move "[move] leaves your king in check"
     #Need to check ever opponent piece, except the King (xblack or xwhite)

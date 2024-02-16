@@ -2,7 +2,7 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-02-15
+#UPDATED: 2024-02-16
 #
 #validates of a piece can:
     #move in that way
@@ -34,6 +34,7 @@ move = 'e4'    #Chess move in algebraic notation
 piece = 'P' #Letter indicating piece (capitalization indicates color)
 square = 'e4'    #Selected square on the board (algebraic notation)
 board = []    #Chess board configuration
+board_old = []
 pieces = ['K','k','Q','q','R','r','N','n','B','b','P','p']    #Valid chess pieces list
 xblack = ['q','r','b','n','p']    #Capturable black pieces list (no King)
 xwhite = ['Q','R','N','B','P']    #Capturable white pieces list (no King)
@@ -104,10 +105,10 @@ def ValidBoard(board):
             return True
 
 #Display Chess Board on Terminal Screen
-def ShowBoard():
+def ShowBoard(brd):
     i = 0    #Board position
     while i < 64:    #Display board
-        print(board[i:i+8])
+        print(brd[i:i+8])
         i += 8
 
 #Convert Algebraic Notated Square to Board Index Number
@@ -145,7 +146,10 @@ def ValidCapture(p):
     if white:
         if p in xblack:
             if not capture:
-                correct = piece + 'x' + move[1:]
+                if p == 'P' or p == 'p':
+                    correct = piece + 'x' + move
+                else:
+                    correct = piece + 'x' + move[1:]
                 print("Changing move to: ", correct)
             else:
                 correct = move
@@ -218,7 +222,98 @@ def WhichPiece(p, loc, end):
 
 #Checks if a piece can move from origin to destination in a single move
 def ValidPath(type, origin, destination):
-    return True
+    if type == 'P' or type == 'p':
+        reach = PawnMoves(origin)
+    else:
+        print("Error: couldn't determine possible moves for", type, "on", origin)
+    if destination in reach:
+        return True
+    else:
+        return False
+
+#Returns the squares a Pawn can move to
+def PawnMoves(home):
+    path = []
+    if white:
+        if home < 8:    #back rank
+            print("Error: unpromoted Pawn")
+            return [64]   #No valid moves
+        x = home
+        while x < 64:   #exit if off the board
+            x -= 8
+            if board[x] == ' ':
+                path.append(x)
+            else:
+                x = 64
+            if x < 40:  #more than 1 step from starting position
+                x = 64
+        x = home - 7
+        if board[x] in xblack:
+            path.append(x)
+        x = home - 9
+        if board[x] in xblack:
+            path.append(x)
+    else:   #black
+        if home > 56:    #back rank
+            print("Error: unpromoted Pawn")
+            return [64]   #No valid moves
+        x = home
+        while x < 64:   #exit if off the board
+            x += 8
+            if board[x] == ' ':
+                path.append(x)
+            else:
+                x = 64
+            if x > 23:  #more than 1 step from starting position
+                x = 64
+        x = home + 7
+        if board[x] in xblack:
+            path.append(x)
+        x = home + 9
+        if board[x] in xblack:
+            path.append(x)
+    return path
+
+#Promote Pawn On Back Rank
+def PromotePawn():
+    if white:
+        p = 'Q' #Default promotion
+        options = xwhite
+        options.remove('P')    #Possible promotions
+        if b > 7:
+            return 'P'  #Pawn cannot be promoted
+        print("The Pawn on", square, "is ready to be promoted!")
+        p = input("Enter new piece: ")
+        if p in options:
+            return p
+        elif p == 'r':  #Chose Rook, wrong case
+            return 'R'
+        elif p == 'b':  #Chose Bishop, wrong case
+            return 'B'
+        elif p == 'n':  #Chose Night, wrong case
+            return 'N'
+        else:   #defaults to Queen (also catches 'q')
+            print("Promoted", square, "to Queen")
+            return 'Q'
+    else:   #black
+        p = 'q' #Default promotion
+        options = xblack
+        options.remove('p')    #Possible promotions
+        if b < 56:
+            return 'p'  #Pawn cannot be promoted
+        print("The Pawn on", square, "is ready to be promoted!")
+        p = input("Enter new piece: ")
+        if p in options:
+            return p
+        elif p == 'R':  #Chose Rook, wrong case
+            return 'r'
+        elif p == 'B':  #Chose Bishop, wrong case
+            return 'b'
+        elif p == 'N':  #Chose Night, wrong case
+            return 'n'
+        else:   #defaults to Queen (also catches 'Q')
+            print("Promoted", square, "to Queen")
+            return 'q'
 
 #MAIN BODY
 #Get Board Configuration
@@ -228,7 +323,7 @@ while not good:
     print("Sorry, that board configuration is not recognised. Please Try again.")
     board = GetBoard()
     good = ValidBoard(board)
-ShowBoard()
+ShowBoard(board)
 #Get Color Being Played
 q = input ("Are you playing White (W) or Black (B)? ")
 if q == 'B' or q == 'b':    #Black selected
@@ -298,12 +393,16 @@ if board[b] != ' ': #A piece already occupies that square
 #Find the number and locations of possible moving pieces
 locations = FindPieces(piece) #Count number of that piece
 if locations[0] == 0:   #No piece found
-    print("Error: n", piece, "found on the board")
+    print("Error: no", piece, "found on the board")
 else:   #Check movement range for all possible pieces
     a = WhichPiece(piece, locations, b)
-OldBoard = board    #Save previous version of board (still need to verify no check)
-board[a] = ' '  #Starting square is now empty
-board[b] = piece    #Piece is now in the new location
-ShowBoard()
-#if king is in check after moving, invalid move "[move] leaves your king in check"
-    #Need to check ever opponent piece, except the King (xblack or xwhite)
+if piece == 'P' and b < 8 or piece == 'p' and b > 55:   #"and" is evaluated before "or" in a multiple conditional statement
+    piece = PromotePawn()
+if a < 64:
+    ShowBoard(board)
+    board_new = board    #Save previous version of board (still need to verify no check)
+    board_new[a] = ' '  #Starting square is now empty
+    board_new[b] = piece    #Piece is now in the new location
+    ShowBoard(board_new) #For testing
+    #if king is in check after moving, invalid move "[move] leaves your king in check"
+        #Need to check every opponent piece, except the King (xblack or xwhite)

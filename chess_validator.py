@@ -247,12 +247,14 @@ def PawnMoves(home):
                 x = 64
             if x < 40:  #more than 1 step from starting position
                 x = 64
-        x = home - 7
-        if board[x] in xblack:
-            path.append(x)
-        x = home - 9
-        if board[x] in xblack:
-            path.append(x)
+        if home not in fileH:   #connot move right from file h
+            x = home - 7    #forward right
+            if board[x] in xblack:
+                path.append(x)
+        if home not in fileA:   #cannot move left from file A
+            x = home - 9    #forward left
+            if board[x] in xblack:
+                path.append(x)
     else:   #black
         if home > 56:    #back rank
             print("Error: unpromoted Pawn")
@@ -266,12 +268,14 @@ def PawnMoves(home):
                 x = 64
             if x > 23:  #more than 1 step from starting position
                 x = 64
-        x = home + 7
-        if board[x] in xblack:
-            path.append(x)
-        x = home + 9
-        if board[x] in xblack:
-            path.append(x)
+        if home not in fileA:   #connot move left from file A
+            x = home + 7    #back left
+            if board[x] in xblack:
+                path.append(x)
+        if home not in file H:  #connot move right from file H
+            x = home + 9    #back right
+            if board[x] in xblack:
+                path.append(x)
     return path
 
 #Promote Pawn On Back Rank

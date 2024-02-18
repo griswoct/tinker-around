@@ -2,7 +2,7 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-02-16
+#UPDATED: 2024-02-17
 #
 #validates of a piece can:
     #move in that way
@@ -233,11 +233,11 @@ def ValidPath(type, origin, destination):
 
 #Returns the squares a Pawn can move to
 def PawnMoves(home):
-    path = []
+    path = [home]
     if white:
         if home < 8:    #back rank
             print("Error: unpromoted Pawn")
-            return [64]   #No valid moves
+            return path   #Cannot, return home square
         x = home
         while x < 64:   #exit if off the board
             x -= 8
@@ -258,7 +258,7 @@ def PawnMoves(home):
     else:   #black
         if home > 56:    #back rank
             print("Error: unpromoted Pawn")
-            return [64]   #No valid moves
+            return path   #Cannot move, return home square
         x = home
         while x < 64:   #exit if off the board
             x += 8
@@ -318,6 +318,44 @@ def PromotePawn():
         else:   #defaults to Queen (also catches 'Q')
             print("Promoted", square, "to Queen")
             return 'q'
+
+#Returns the squares a Rook can move to
+def RookMoves(home):
+    path = [home]
+    x = home
+    while x not in fileA: #move left until reaching file A
+        x -= 1
+        if board[x] == ' ':
+            path.append(x)
+        elif white and board[x] in xblack:
+            path.append(x)
+        elif not white and board[x] in xwhite:
+            path.append(x)
+    while x not in fileH: #move right until reaching file H
+        x += 1
+        if board[x] == ' ':
+            path.append(x)
+        elif white and board[x] in xblack:
+            path.append(x)
+        elif not white and board[x] in xwhite:
+            path.append(x)
+    while x > 7: #move up until reaching rank 8
+        x -= 8
+        if board[x] == ' ':
+            path.append(x)
+        elif white and board[x] in xblack:
+            path.append(x)
+        elif not white and board[x] in xwhite:
+            path.append(x)
+    while x < 56: #move down until reaching rank 1
+        x += 8
+        if board[x] == ' ':
+            path.append(x)
+        elif white and board[x] in xblack:
+            path.append(x)
+        elif not white and board[x] in xwhite:
+            path.append(x)
+    return path
 
 #MAIN BODY
 #Get Board Configuration

@@ -224,6 +224,12 @@ def WhichPiece(p, loc, end):
 def ValidPath(type, origin, destination):
     if type == 'P' or type == 'p':
         reach = PawnMoves(origin)
+    elif type == 'B' or type == 'b':
+        reach = BishopMoves(origin)
+    elif type == 'R' or type == 'r':
+        reach = RookMoves(origin)
+    elif type == 'Q' or type == 'q':
+        reach = QueenMoves(origin)
     else:
         print("Error: couldn't determine possible moves for", type, "on", origin)
     if destination in reach:
@@ -349,6 +355,44 @@ def RookMoves(home):
             path.append(x)
     while x < 56: #move down until reaching rank 1
         x += 8
+        if board[x] == ' ':
+            path.append(x)
+        elif white and board[x] in xblack:
+            path.append(x)
+        elif not white and board[x] in xwhite:
+            path.append(x)
+    return path
+
+#Returns the squares a Bishop can move to
+def BishopMoves(home):
+    path = [home]
+    x = home
+    while x not in fileA and x > 7: #move up and left until reaching file A or rank 8
+        x -= 9
+        if board[x] == ' ':
+            path.append(x)
+        elif white and board[x] in xblack:
+            path.append(x)
+        elif not white and board[x] in xwhite:
+            path.append(x)
+    while x not in fileH and x > 7: #move up and right until reaching file H or rank 8
+        x -= 7
+        if board[x] == ' ':
+            path.append(x)
+        elif white and board[x] in xblack:
+            path.append(x)
+        elif not white and board[x] in xwhite:
+            path.append(x)
+    while x not in fileA and x < 56: #move down and left until reaching file A or rank 1
+        x += 7
+        if board[x] == ' ':
+            path.append(x)
+        elif white and board[x] in xblack:
+            path.append(x)
+        elif not white and board[x] in xwhite:
+            path.append(x)
+    while x not in fileH and x < 56: #move down and right until reaching file H or rank 1
+        x += 9
         if board[x] == ' ':
             path.append(x)
         elif white and board[x] in xblack:

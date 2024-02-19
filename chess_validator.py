@@ -2,20 +2,16 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-02-18
+#UPDATED: 2024-02-19
 #
 #validates of a piece can:
     #move in that way
-    #no piece is in the way
     #dosen't put your King in check
 #More Ideas:
     #Heat map of which squares on the boad are controlled by which player
     #How many attackers and defenders are there on each piece
     #Identify checkmate
     #Identifies all valid move for selected piece
-
-#IMPORT STATEMENTS
-#import
 
 #VARIABLES (GLOBAL)
 capture = False #Indicates a piece is being captured
@@ -210,6 +206,7 @@ def WhichPiece(p, loc, end):
                 good = False
         i += 1
     if j > 1:
+        #Need to select Pawn based on letter in the move
         start = input("Multiple pieces can make that move. Please enter the location of the intended piece: ")
         start = BoardIndex(start)
         #Check a is in locations, check a to b is a valid move for piece
@@ -232,6 +229,8 @@ def ValidPath(type, origin, destination):
         reach = QueenMoves(origin)
     else:
         print("Error: couldn't determine possible moves for", type, "on", origin)
+    print(type, "on", origin, "can reached:")   #for testing
+    print(reach)    #for testing
     if destination in reach:
         return True
     else:
@@ -276,11 +275,11 @@ def PawnMoves(home):
                 x = 64
         if home not in fileA:   #connot move left from file A
             x = home + 7    #back left
-            if board[x] in xblack:
+            if board[x] in xwhite:
                 path.append(x)
-        if home not in file H:  #connot move right from file H
+        if home not in fileH:  #connot move right from file H
             x = home + 9    #back right
-            if board[x] in xblack:
+            if board[x] in xwhite:
                 path.append(x)
     return path
 
@@ -333,34 +332,45 @@ def RookMoves(home):
         x -= 1
         if board[x] == ' ':
             path.append(x)
-        elif white and board[x] in xblack:
-            path.append(x)
-        elif not white and board[x] in xwhite:
-            path.append(x)
+        else:
+            if white and board[x] in xblack:
+                path.append(x)
+            elif not white and board[x] in xwhite:
+                path.append(x)
+            break
+    x = home
     while x not in fileH: #move right until reaching file H
         x += 1
         if board[x] == ' ':
             path.append(x)
-        elif white and board[x] in xblack:
-            path.append(x)
-        elif not white and board[x] in xwhite:
-            path.append(x)
+        else:
+            if white and board[x] in xblack:
+                path.append(x)
+            elif not white and board[x] in xwhite:
+                path.append(x)
+            break
+    x = home
     while x > 7: #move up until reaching rank 8
         x -= 8
         if board[x] == ' ':
             path.append(x)
-        elif white and board[x] in xblack:
-            path.append(x)
-        elif not white and board[x] in xwhite:
-            path.append(x)
+        else:
+            if white and board[x] in xblack:
+                path.append(x)
+            elif not white and board[x] in xwhite:
+                path.append(x)
+            break
+    x = home
     while x < 56: #move down until reaching rank 1
         x += 8
         if board[x] == ' ':
             path.append(x)
-        elif white and board[x] in xblack:
-            path.append(x)
-        elif not white and board[x] in xwhite:
-            path.append(x)
+        else:
+            if white and board[x] in xblack:
+                path.append(x)
+            elif not white and board[x] in xwhite:
+                path.append(x)
+            break
     return path
 
 #Returns the squares a Bishop can move to
@@ -371,39 +381,53 @@ def BishopMoves(home):
         x -= 9
         if board[x] == ' ':
             path.append(x)
-        elif white and board[x] in xblack:
-            path.append(x)
-        elif not white and board[x] in xwhite:
-            path.append(x)
+        else:
+            if white and board[x] in xblack:
+                path.append(x)
+            elif not white and board[x] in xwhite:
+                path.append(x)
+            break
+    x = home
     while x not in fileH and x > 7: #move up and right until reaching file H or rank 8
         x -= 7
         if board[x] == ' ':
             path.append(x)
-        elif white and board[x] in xblack:
-            path.append(x)
-        elif not white and board[x] in xwhite:
-            path.append(x)
+        else:
+            if white and board[x] in xblack:
+                path.append(x)
+            elif not white and board[x] in xwhite:
+                path.append(x)
+            break
+    x = home
     while x not in fileA and x < 56: #move down and left until reaching file A or rank 1
         x += 7
         if board[x] == ' ':
             path.append(x)
-        elif white and board[x] in xblack:
-            path.append(x)
-        elif not white and board[x] in xwhite:
-            path.append(x)
+        else:
+            if white and board[x] in xblack:
+                path.append(x)
+            elif not white and board[x] in xwhite:
+                path.append(x)
+            break
+    x = home
     while x not in fileH and x < 56: #move down and right until reaching file H or rank 1
         x += 9
         if board[x] == ' ':
             path.append(x)
-        elif white and board[x] in xblack:
-            path.append(x)
-        elif not white and board[x] in xwhite:
-            path.append(x)
+        else:
+            if white and board[x] in xblack:
+                path.append(x)
+            elif not white and board[x] in xwhite:
+                path.append(x)
+            break
     return path
 
 #Returns the squares a Queen can move to
 def QueenMoves(home):
-    path = RookMoves(home).remove(home) + BishopMoves(home)
+    pathR = RookMoves(home)
+    pathR.remove(home)
+    pathB = BishopMoves(home)
+    path = pathR + pathB
     return path
 
 #MAIN BODY
@@ -491,6 +515,7 @@ if piece == 'P' and b < 8 or piece == 'p' and b > 55:   #"and" is evaluated befo
     piece = PromotePawn()
 if a < 64:
     ShowBoard(board)
+    print('\n')
     board_new = board    #Save previous version of board (still need to verify no check)
     board_new[a] = ' '  #Starting square is now empty
     board_new[b] = piece    #Piece is now in the new location

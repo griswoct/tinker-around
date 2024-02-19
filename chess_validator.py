@@ -2,7 +2,7 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-02-17
+#UPDATED: 2024-02-18
 #
 #validates of a piece can:
     #move in that way
@@ -399,6 +399,11 @@ def BishopMoves(home):
             path.append(x)
         elif not white and board[x] in xwhite:
             path.append(x)
+    return path
+
+#Returns the squares a Queen can move to
+def QueenMoves(home):
+    path = RookMoves(home).remove(home) + BishopMoves(home)
     return path
 
 #MAIN BODY

@@ -2,13 +2,10 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-02-20
+#UPDATED: 2024-02-21
 #
-#validates of a piece can:
-    #move in that way
-    #dosen't put your King in check
+#validate if a move dosen't put your King in check
 #break parse move out as a seperate function
-#add function to change index to algebraic
 #More Ideas:
     #Heat map of which squares on the boad are controlled by which player
     #How many attackers and defenders are there on each piece
@@ -26,7 +23,9 @@ i = 0    #Integer index
 j = 0    #Integer index
 k = 0    #Integer index
 fileA = [0,8,16,24,32,40,48,56] #Board indexes for A-file (edge of board)
+fileB = [1,9,17,25,33,41,49,57] #Board indexes for B-file
 fileH = [7,15,23,31,39,47,55,63]    #Board indexes for H-file (edge of board)
+fileG = [6,14,22,30,38,46,54,62]    #Board indexes for G-file
 locations = [0,0,0,0,0,0,0,0,0,0]   #Number and locations of pieces
 move = 'e4'    #Chess move in algebraic notation
 piece = 'P' #Letter indicating piece (capitalization indicates color)
@@ -267,8 +266,8 @@ def ValidPath(type, origin, destination):
         reach = RookMoves(origin)
     elif type == 'Q' or type == 'q':
         reach = QueenMoves(origin)
-    #elif type == 'K' or type == 'k':
-    #    reach = KingMoves(origin)
+    elif type == 'K' or type == 'k':
+        reach = KingMoves(origin)
     else:
         print("Error: couldn't determine possible moves for", type, "on", origin)
     print(type, "on", origin, "can reached:")   #for testing
@@ -369,8 +368,6 @@ def PromotePawn():
 #Returns the squares a Knight can move to
 def KnightMoves(home):
     path = [home]
-    squares = []
-    spot = BoardAlgebraic(home)
     if home < 48:   #ranks 3-8
         if home not in fileA:
             x = home + 15  #down 2 ranks, left 1 file
@@ -405,7 +402,8 @@ def KnightMoves(home):
                 path.append(x)
             elif not white and board[x] in xwhite:
                 path.append(x)
-    if spot[0] != 'a' and spot[0] != 'b':
+    if home not in fileA and home not in fileB:
+        print("Not A nor B")
         if home > 7:
             x = home - 10   #left 2 files, up 1 rank
             if board[x] == ' ':
@@ -422,7 +420,8 @@ def KnightMoves(home):
                 path.append(x)
             elif not white and board[x] in xwhite:
                 path.append(x)
-    if spot[0] != 'h' and spot[0] != 'g':
+    if home not in fileG and home not in fileH:
+        print("Not G nor H")
         if home > 7:
             x = home - 6   #right 2 files, up 1 rank
             if board[x] == ' ':
@@ -545,6 +544,83 @@ def QueenMoves(home):
     pathR.remove(home)
     pathB = BishopMoves(home)
     path = pathR + pathB
+    return path
+
+#Returns the squares a King can move to
+def KingMoves(home):
+    path = [home]
+    if home > 7:    #not in rank 8
+        if home not in fileA:
+            x = home - 9    #up 1 left 1
+            if board[x] == ' ':
+                path.append(x)
+            else:
+                if white and board[x] in xblack:
+                    path.append(x)
+                elif not white and board[x] in xwhite:
+                    path.append(x)
+        x = home - 8    #up 1
+        if board[x] == ' ':
+            path.append(x)
+        else:
+            if white and board[x] in xblack:
+                path.append(x)
+            elif not white and board[x] in xwhite:
+                path.append(x)
+        if home not in fileH:
+            x = home - 7    #up 1 right 1
+            if board[x] == ' ':
+                path.append(x)
+            else:
+                if white and board[x] in xblack:
+                    path.append(x)
+                elif not white and board[x] in xwhite:
+                    path.append(x)
+    if home not in fileA:
+        x = home - 1    #left 1
+        if board[x] == ' ':
+            path.append(x)
+        else:
+            if white and board[x] in xblack:
+                path.append(x)
+            elif not white and board[x] in xwhite:
+                path.append(x)
+    if home not in fileH:
+        x = home + 1    #right 1
+        if board[x] == ' ':
+            path.append(x)
+        else:
+            if white and board[x] in xblack:
+                path.append(x)
+            elif not white and board[x] in xwhite:
+                path.append(x)
+    if home < 56:   #not in rank 1
+        if home not in fileA:
+            x = home + 7    #down  left 1
+            if board[x] == ' ':
+                path.append(x)
+            else:
+                if white and board[x] in xblack:
+                    path.append(x)
+                elif not white and board[x] in xwhite:
+                    path.append(x)
+        x = home + 8    #down 1
+        if board[x] == ' ':
+            path.append(x)
+        else:
+            if white and board[x] in xblack:
+                path.append(x)
+            elif not white and board[x] in xwhite:
+                path.append(x)
+        if home not in fileH:
+            x = home + 9    #down 1 right 1
+            if board[x] == ' ':
+                path.append(x)
+            else:
+                if white and board[x] in xblack:
+                    path.append(x)
+                elif not white and board[x] in xwhite:
+                    path.append(x)
     return path
 
 #MAIN BODY

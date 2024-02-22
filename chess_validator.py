@@ -2,7 +2,7 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-02-21
+#UPDATED: 2024-02-22
 #
 #validate if a move dosen't put your King in check
 #break parse move out as a seperate function
@@ -278,21 +278,21 @@ def ValidPath(type, origin, destination):
         return False
 
 #Returns the squares a Pawn can move to
-def PawnMoves(home):
+def PawnMoves(home, forwards):
     path = [home]
-    if white:
-        if home < 8:    #back rank
+    if forwards:
+        if home < 8 and white:    #back rank
             print("Error: unpromoted Pawn")
             return path   #Cannot, return home square
         x = home
         while x < 64:   #exit if off the board
-            x -= 8
+            x -= 8  #forward 1
             if board[x] == ' ':
                 path.append(x)
             else:
-                x = 64
-            if x < 40:  #more than 1 step from starting position
-                x = 64
+                break
+            if white and x < 40:  #more than 1 step from starting position
+                break
         if home not in fileH:   #connot move right from file h
             x = home - 7    #forward right
             if board[x] in xblack:
@@ -301,8 +301,8 @@ def PawnMoves(home):
             x = home - 9    #forward left
             if board[x] in xblack:
                 path.append(x)
-    else:   #black
-        if home > 56:    #back rank
+    else:   #backwards
+        if not white and home > 56:    #back rank
             print("Error: unpromoted Pawn")
             return path   #Cannot move, return home square
         x = home
@@ -311,9 +311,9 @@ def PawnMoves(home):
             if board[x] == ' ':
                 path.append(x)
             else:
-                x = 64
-            if x > 23:  #more than 1 step from starting position
-                x = 64
+                break
+            if not white and x > 23:  #more than 1 step from starting position
+                break
         if home not in fileA:   #connot move left from file A
             x = home + 7    #back left
             if board[x] in xwhite:

@@ -2,7 +2,7 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-02-23
+#UPDATED: 2024-02-24
 #
 #validate if a move dosen't put your King in check
 #break parse move out as a seperate function
@@ -655,6 +655,19 @@ def KingMoves(home, forwards):
             #add new square for king
     return path
 
+#Checks if a square can be attacked by an opponents piece
+def CheckCheck(throne, color):
+    if color:
+        for x in xblack:
+            threat = BackTrack(throne, x)
+            if threat != []:
+                return True
+    else:
+        for x in xwhite:
+            threat = BackTrack(throne, x)
+            if threat != []:
+                return True
+
 #MAIN BODY
 #Get Board Configuration
 board = GetBoard()
@@ -744,6 +757,13 @@ else:
     print("Error: could not find a", piece, "that can move to", square)
 if piece == 'P' and b < 8 or piece == 'p' and b > 55:   #"and" is evaluated before "or" in a multiple conditional statement
     piece = PromotePawn()
+if white:
+    king = FindPieces('K')
+else:
+    king = FindPieces('k')
+good = CheckCheck(king, white)
+if not good:
+    print("Invalid move: your King is in check!")
 if a < 64:
     ShowBoard(board)
     print('\n')

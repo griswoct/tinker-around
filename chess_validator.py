@@ -2,7 +2,7 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-02-25
+#UPDATED: 2024-02-26
 #
 #break parse move out as a seperate function
 #More Ideas:
@@ -670,21 +670,54 @@ def CheckCheck(throne, color):
 
 #Determins if the King can Castle Kingside or Queenside
 def CastleCheck(color):
-    options = [False,False]
-    if color: #white
-        if home != 59: #White King is not on starting square
-            return [False,False]
-        if board[56] != 'R':
+    options = [True, True]
+    if color:   #white
+        if board[60] != 'K':    #White King is not on starting square
+            return [False, False]
+        if board[63] == 'R':    #Kingside Rook
+            c = 60
+            while c < 63:
+                bad = CheckCheck(c, color)
+                if bad:
+                    options[0] = False #No castling Kingside
+                    break
+                c += 1
+        else:
             options[0] = False
-        #check Kingside rook
-        #check queenside rook
-        #check squares in between
-        #check in check
-        #check destination in check
-        #check pass through check
+        if board[56] == 'R':    #Queenside Rook
+            c = 60
+            while c > 57:
+                bad = CheckCheck(c, color)
+                if bad:
+                    options[1] = False #No castling Kingside
+                    break
+                c -= 1
+        else:
+            options[1] = False
     else: #black
-        if home != 3: #Black King is not on starting square
-            return [False,False]
+        if board[4] != 'k':    #White King is not on starting square
+            return [False, False]
+        if board[7] == 'r':    #Kingside Rook
+            c = 4
+            while c < 7:
+                bad = CheckCheck(c, color)
+                if bad:
+                    options[0] = False #No castling Kingside
+                    break
+                c += 1
+        else:
+            options[0] = False
+        if board[0] == 'r':    #Queenside Rook
+            c = 4
+            while c > 0:
+                bad = CheckCheck(c, color)
+                if bad:
+                    options[1] = False #No castling Kingside
+                    break
+                c -= 1
+        else:
+            options[1] = False
+    return options
 
 #MAIN BODY
 #Get Board Configuration

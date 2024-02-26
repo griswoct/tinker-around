@@ -2,9 +2,8 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-02-24
+#UPDATED: 2024-02-25
 #
-#validate if a move dosen't put your King in check
 #break parse move out as a seperate function
 #More Ideas:
     #Heat map of which squares on the boad are controlled by which player
@@ -667,6 +666,25 @@ def CheckCheck(throne, color):
             threat = BackTrack(throne, x)
             if threat != []:
                 return True
+    return False
+
+#Determins if the King can Castle Kingside or Queenside
+def CastleCheck(color):
+    options = [False,False]
+    if color: #white
+        if home != 59: #White King is not on starting square
+            return [False,False]
+        if board[56] != 'R':
+            options[0] = False
+        #check Kingside rook
+        #check queenside rook
+        #check squares in between
+        #check in check
+        #check destination in check
+        #check pass through check
+    else: #black
+        if home != 3: #Black King is not on starting square
+            return [False,False]
 
 #MAIN BODY
 #Get Board Configuration

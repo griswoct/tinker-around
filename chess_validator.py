@@ -2,7 +2,7 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-02-26
+#UPDATED: 2024-02-28
 #
 #break parse move out as a seperate function
 #More Ideas:
@@ -213,14 +213,11 @@ def ValidCapture(p):
 
 #Find the Number and Locations of Pieces "p"
 def FindPieces(p):
-    loc = [0,64,64,64,64,64,64,64,64,64]   #Count and up to 9 locations, 64 is off the board
-    c = 0
+    loc = []   #Count and up to 9 locations, 64 is off the board
     i = 0
     while i < 64:
         if board[i] == p:
-            c += 1
-            loc[0] = c
-            loc[c] = i
+            loc.append(i)
         i += 1
     return loc
 
@@ -307,41 +304,45 @@ def PawnMoves(home, forwards):
         if home < 8 and white:    #back rank
             print("Error: unpromoted Pawn")
             return path   #Cannot, return home square
-        x = home
+        #x = home
+        x = home - 8
         while x < 64:   #exit if off the board
-            x -= 8  #forward 1
+            #x -= 8  #forward 1
             if board[x] == ' ':
                 path.append(x)
             else:
                 break
             if white and x < 40:  #more than 1 step from starting position
                 break
+            x -= 8
         if home not in fileH:   #connot move right from file h
             x = home - 7    #forward right
-            if board[x] in xblack:
+            if x > -1 and board[x] in xblack:
                 path.append(x)
         if home not in fileA:   #cannot move left from file A
             x = home - 9    #forward left
-            if board[x] in xblack:
+            if x > -1 and board[x] in xblack:
                 path.append(x)
     else:   #backwards
         if not white and home > 56:    #back rank
             print("Error: unpromoted Pawn")
             return path   #Cannot move, return home square
-        x = home
+        #x = home
+        x = home + 8
         while x < 64:   #exit if off the board
-            x += 8
+            #x += 8
             if board[x] == ' ':
                 path.append(x)
             else:
                 break
             if not white and x > 23:  #more than 1 step from starting position
                 break
+            x += 8
         if home not in fileA:   #connot move left from file A
             x = home + 7    #back left
-            if board[x] in xwhite:
+            if x < 64 and board[x] in xwhite:
                 path.append(x)
-        if home not in fileH:  #connot move right from file H
+        if x < 64 and home not in fileH:  #connot move right from file H
             x = home + 9    #back right
             if board[x] in xwhite:
                 path.append(x)
@@ -516,6 +517,7 @@ def BishopMoves(home, forwards):
 def RookMoves(home, forwards):
     path = [home]
     x = home
+    print("x =",x)
     while x not in fileA: #move left until reaching file A
         x -= 1
         if board[x] == ' ':
@@ -564,7 +566,7 @@ def RookMoves(home, forwards):
 #Returns the squares a Queen can move to
 def QueenMoves(home, fwd):
     pathR = RookMoves(home, fwd)
-    pathR.remove(home, fwd)
+    pathR.remove(home)
     pathB = BishopMoves(home, fwd)
     path = pathR + pathB
     return path
@@ -644,14 +646,17 @@ def KingMoves(home, forwards):
                     path.append(x)
                 elif not forwards and board[x] in xwhite:
                     path.append(x)
-    #Add castling:
-    #if not in check
-    #if nothing kingside
-        #if rook kingside
-        #if nothing in the way
-        #if destination isn't in check
-        #if path not in check
-            #add new square for king
+    castles = CastleCheck(white)
+    if white:   #white
+        if castles[0]:
+            path.append(62) #kingside
+        if castles[1]:
+            path.append(58) #queenside
+    else:   #black
+        if castles[0]:
+            path.append(6) #kingside
+        if castles[1]:
+            path.append(2) #queenside
     return path
 
 #Checks if a square can be attacked by an opponents piece
@@ -812,7 +817,7 @@ if white:
     king = FindPieces('K')
 else:
     king = FindPieces('k')
-good = CheckCheck(king, white)
+good = not CheckCheck(king[0], white)
 if not good:
     print("Invalid move: your King is in check!")
 if a < 64:

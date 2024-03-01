@@ -2,7 +2,7 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-02-29    (Leap Day)
+#UPDATED: 2024-03-01
 #
 #break parse move out as a seperate function
 #More Ideas:
@@ -47,7 +47,7 @@ def GetBoard():
     if fen == 'D' or fen == 'd':
         fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"    #Chess starting position
     elif fen == 'T' or fen == 't':
-        fen = "r2kq2r/8/8/3P1P2/8/8/8/R3K3"
+        fen = "r3k2r/8/4n3/3P1P2/8/8/8/R3K2R"
     i = 0    #Position in fen array
     j = 0    #Board position
     while j < 64 and i < len(fen):    #Populate board array from FEN string
@@ -257,26 +257,27 @@ def WhichPiece(p, loc, end):
         return start
 
 #Backtracks along the path for that type of piece and returns the locations of that type of piece
-def BackTrack(destination, type):
+def BackTrack(destination, type, color):
     origins = []
-    color = not white   #include your own pieces, not your opponents
+    color = not color   #include your own pieces, not your opponents
     if type == 'P' or type == 'p':
         reach = PawnMoves(destination, color)
-        if move[0] == 'a' or move [0] == 'A':   #find file if the piece is a Pawn
+        print("Move:",move) #for testing
+        if move[0] == 'a' or move[0] == 'A':   #find file if the piece is a Pawn
             file = fileA
-        elif move[0] == 'a' or move [0] == 'B':
+        elif move[0] == 'a' or move[0] == 'B':
             file = fileB
-        elif move[0] == 'c' or move [0] == 'C':
+        elif move[0] == 'c' or move[0] == 'C':
             file = fileC
-        elif move[0] == 'd' or move [0] == 'D':
+        elif move[0] == 'd' or move[0] == 'D':
             file = fileD
-        elif move[0] == 'e' or move [0] == 'E':
+        elif move[0] == 'e' or move[0] == 'E':
             file = fileE
-        elif move[0] == 'f' or move [0] == 'F':
+        elif move[0] == 'f' or move[0] == 'F':
             file = fileF
-        elif move[0] == 'g' or move [0] == 'G':
+        elif move[0] == 'g' or move[0] == 'G':
             file = fileG
-        elif move[0] == 'h' or move [0] == 'H':
+        elif move[0] == 'h' or move[0] == 'H':
             file = fileH
     elif type == 'B' or type == 'b':
         reach = BishopMoves(destination, color)
@@ -290,7 +291,7 @@ def BackTrack(destination, type):
         reach = KingMoves(destination, color)
     i = 0
     while i < len(reach):
-        print("i:",i,"reach[i]:",reach[i])  #for testing
+        #print("i:",i,"reach[i]:",reach[i])  #for testing
         if board[reach[i]] == type:
             if type == 'P' or type == 'p':
                 if reach[i] in file:    #skip the rest of the loop if not the selected Pawn
@@ -298,7 +299,7 @@ def BackTrack(destination, type):
             else:
                 origins.append(reach[i])
         i += 1
-    print("reach is:", reach,", origins is:", origins)  #for testing
+    #print("reach is:", reach,", origins is:", origins)  #for testing
     return origins
 
 #Checks if a piece can move from origin to destination in a single move
@@ -317,8 +318,8 @@ def ValidPath(type, origin, destination):
         reach = KingMoves(origin, white)
     else:
         print("Error: couldn't determine possible moves for", type, "on", origin)
-    print(type, "on", origin, "can reached:")   #for testing
-    print(reach)    #for testing
+    #print(type, "on", origin, "can reached:")   #for testing
+    #print(reach)    #for testing
     if destination in reach:
         return True
     else:
@@ -333,7 +334,7 @@ def PawnMoves(home, forwards):
             return path   #Cannot, return home square
         #x = home
         x = home - 8
-        while x < 64:   #exit if off the board
+        while x > -1:   #exit if off the board
             #x -= 8  #forward 1
             if board[x] == ' ':
                 path.append(x)
@@ -454,7 +455,7 @@ def KnightMoves(home, forwards):
             elif not forwards and board[x] in xwhite:
                 path.append(x)
     if home not in fileA and home not in fileB:
-        print("Not A nor B")
+        #print("Not A nor B")   #for testing
         if home > 7:
             x = home - 10   #left 2 files, up 1 rank
             if board[x] == ' ':
@@ -472,7 +473,7 @@ def KnightMoves(home, forwards):
             elif not forwards and board[x] in xwhite:
                 path.append(x)
     if home not in fileG and home not in fileH:
-        print("Not G nor H")
+        #print("Not G nor H")   #for testing
         if home > 7:
             x = home - 6   #right 2 files, up 1 rank
             if board[x] == ' ':
@@ -544,7 +545,7 @@ def BishopMoves(home, forwards):
 def RookMoves(home, forwards):
     path = [home]
     x = home
-    print("x =",x)
+    #print("x =",x) #for testing
     while x not in fileA: #move left until reaching file A
         x -= 1
         if board[x] == ' ':
@@ -682,36 +683,54 @@ def KingMoves(home, forwards):
             if castles[1]:
                 path.append(58) #queenside
         else:   #backwards
-            if castles[0]:  #backtracking, kingside
-                path.append(home - 2)
-            if castles[1]:  #backtracking, queenside
-                path.append(home + 2)
+            #if castles[0] or castles[1]:
+            #    path.append(60) #white king starting square
+            if castles[0] and home == 62:  #backtracking, kingside
+                path.append(60)
+            if castles[1] and home == 58:  #backtracking, queenside
+                path.append(60)
     else:   #black
-        if forwards:
+        if not forwards:
             if castles[0]:
                 path.append(6) #kingside
             if castles[1]:
                 path.append(2) #queenside
         else:   #backwards
-            if castles[0]:  #backtracking, kingside
-                path.append(home - 2)
-            if castles[1]:  #backtracking, queenside
-                path.append(home + 2)
+            #if castles[0] or castles[1]:
+            #    path.append(4)  #white king starting square
+            if castles[0] and home == 6:  #backtracking, kingside
+                path.append(4)
+            if castles[1] and home == 2:  #backtracking, queenside
+                path.append(4)
+    print("King moves:", path)  #for testing
     return path
 
 #Checks if a square can be attacked by an opponents piece
 def CheckCheck(throne, color):
     if color:
         for x in xblack:
-            threat = BackTrack(throne, x)
+            threat = BackTrack(throne, x, not white)
+            print("Threats from",x,threat)  #for testing
             if threat != []:
                 return True
     else:
         for x in xwhite:
-            threat = BackTrack(throne, x)
+            threat = BackTrack(throne, x, not white)
+            print("Threats from",x,threat)  #for testing
             if threat != []:
                 return True
     return False
+
+#Checks if a square can be attacked by an opponents piece
+def Attackers(target, color):
+    threat = []
+    if color:
+        for x in xblack:
+            threat.append(BackTrack(target, x, not white))
+    else:
+        for x in xwhite:
+            threat.append(BackTrack(target, x, not white))
+    return threat
 
 #Determins if the King can Castle Kingside or Queenside
 def CastleCheck(color):
@@ -722,7 +741,11 @@ def CastleCheck(color):
         if board[63] == 'R':    #Kingside Rook
             c = 60
             while c < 63:
+                if c > 60 and board[c] != ' ':
+                    options[0] = False   #a piece is between the king and the rook
+                    break
                 bad = CheckCheck(c, color)
+                print("Check for",c,"is",bad)   #for testing
                 if bad:
                     options[0] = False #No castling Kingside
                     break
@@ -731,9 +754,13 @@ def CastleCheck(color):
             options[0] = False
         if board[56] == 'R':    #Queenside Rook
             c = 60
-            while c > 57:
+            while c > 56:
+                if c < 60 and board[c] != ' ':
+                    options[1] = False   #a piece is between the king and the rook
+                    break
                 bad = CheckCheck(c, color)
-                if bad:
+                print("Check for",c,"is",bad)   #for testing
+                if bad and c > 57:
                     options[1] = False #No castling Kingside
                     break
                 c -= 1
@@ -745,7 +772,11 @@ def CastleCheck(color):
         if board[7] == 'r':    #Kingside Rook
             c = 4
             while c < 7:
+                if c > 4 and board[c] != ' ':
+                    options[0] = False   #a piece is between the king and the rook
+                    break
                 bad = CheckCheck(c, color)
+                print("Check for",c,"is",bad)   #for testing
                 if bad:
                     options[0] = False #No castling Kingside
                     break
@@ -755,8 +786,12 @@ def CastleCheck(color):
         if board[0] == 'r':    #Queenside Rook
             c = 4
             while c > 0:
+                if board[c] != ' ':
+                    options[1] = False   #a piece is between the king and the rook
+                    break
                 bad = CheckCheck(c, color)
-                if bad:
+                print("Check for",c,"is",bad)   #for testing
+                if bad and c > 1:
                     options[1] = False #No castling Kingside
                     break
                 c -= 1
@@ -770,7 +805,7 @@ def MakeMove(original,type,start,end):
     updated[start] = ' '
     updated[end] = type
     if move[-1] == '0' or move[0] == 'O' or move[0] == 'O':    #castling
-        print("castling")   #for testing
+        #print("Castling")   #for testing
         if end == 62:   #white kingside
             updated[61] = 'R'
             updated[63] = ' '
@@ -857,10 +892,10 @@ if b == 64:    #Indicates error
     print("Error: ", square, " not found on board")
 #Validate Capture
 if board[b] != ' ': #A piece already occupies that square
-    move = ValidCapture(board[b])
-    if move == False:
+    good = ValidCapture(board[b])
+    if not good:
         print("Error: invalid capture")
-options = BackTrack(b, piece)
+options = BackTrack(b, piece, white)
 if len(options) == 1:
     a = options[0]
 elif len(options) > 1:

@@ -208,7 +208,7 @@ do
 	do
 		if [ ${list[$j]} == true ]
 		then
-			density+=1
+			density=$((density+1))
 		fi
 		((j++))
 	done

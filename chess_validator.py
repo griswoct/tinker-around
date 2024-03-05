@@ -2,7 +2,7 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-03-01
+#UPDATED: 2024-03-05
 #
 #break parse move out as a seperate function
 #More Ideas:
@@ -833,90 +833,100 @@ ShowBoard(board)
 q = input ("Are you playing White (W) or Black (B)? ")
 if q == 'B' or q == 'b':    #Black selected
     white = False
-    move = input("Black to move (enter algebraic notation): ")
-else:    #Defaults to white
-    move = input("White to move (enter algebraic notation): ")
-#Parse Move
-if move[-1] == '+' or move [-1] == '#':
-    check = True
-    square = move[-3:-2]
-elif move[-1] == '0' or move[-1] == 'o' or move[-1] == 'O':    #Castle
-    if len(move) < 5:    #King side
+else:
+    white = True
+while move != "exit":   #continue play switching between colors until "exit" is selected
+    if white:
+        move = input("White to move (enter algebraic notation): ")
+    else:    #Defaults to white
+        move = input("Black to move (enter algebraic notation): ")
+    #Parse Move
+    if move[-1] == '+' or move [-1] == '#':
+        check = True
+        square = move[-3:-2]
+    elif move[-1] == '0' or move[-1] == 'o' or move[-1] == 'O':    #Castle
+        if len(move) < 5:    #King side
+            if white:
+                square = 'g1'
+            else:
+                square = 'g8'
+        else:    #Queen side
+            if white:
+                square = 'c1'
+            else:
+                square = 'c8'
+    else:
+        square = move[-2:]
+    if move[1] == 'x' or move[1] == 'X':
+        capture = True
+    if move[0] == 'K' or move[0] == 'k' or move[0] == '0' or move[0] == 'O' or move[0] == 'o':
         if white:
-            square = 'g1'
-        else:
-            square = 'g8'
-    else:    #Queen side
+            piece = 'K'
+        else: piece = 'k'
+    elif move[0] == 'Q' or move[0] == 'q':
         if white:
-            square = 'c1'
+            piece = 'Q'
         else:
-            square = 'c8'
-else:
-    square = move[-2:]
-if move[1] == 'x' or move[1] == 'X':
-    capture = True
-if move[0] == 'K' or move[0] == 'k' or move[0] == '0' or move[0] == 'O' or move[0] == 'o':
-    if white:
-        piece = 'K'
-    else: piece = 'k'
-elif move[0] == 'Q' or move[0] == 'q':
-    if white:
-        piece = 'Q'
+            piece = 'q'
+    elif move[0] == 'R' or move[0] == 'r':
+        if white:
+            piece = 'R'
+        else:
+            piece = 'r'
+    elif move[0] == 'N' or move[0] == 'n':
+        if white:
+            piece = 'N'
+        else:
+            piece = 'n'
+    elif move[0] == 'B' and move[1].isdigit() == False:
+        if white:
+            piece = 'B'
+        else:
+            piece = 'b'
+    elif move[0] == 'a' or move[0] == 'b' or move[0] == 'c' or move[0] == 'd' or move[0] == 'e' or move[0] == 'f' or move[0] == 'g' or move[0] == 'h' or move[0] == 'P' or move[0] == 'p':
+        if white:
+            piece ='P'
+        else:
+            piece = 'p'
     else:
-        piece = 'q'
-elif move[0] == 'R' or move[0] == 'r':
-    if white:
-        piece = 'R'
+        print("Error: could not parse move notation: ", move)
+        continue    #loop without switching (try again)
+    #Validate Selected Square
+    b = int(BoardIndex(square))
+    if b == 64:    #Indicates error
+        print("Error: ", square, " not found on board")
+        continue    #loop without switching (try again)
+    #Validate Capture
+    if board[b] != ' ': #A piece already occupies that square
+        good = ValidCapture(board[b])
+        if not good:
+            print("Error: connot capture", board[b], "on square", square)
+            continue    #loop without switching (try again)
+    options = BackTrack(b, piece, white)
+    if len(options) == 1:
+        a = options[0]
+    elif len(options) > 1:
+        start = input("Multiple pieces can make that move. Please enter the location of the intended piece: ")
+        a = BoardIndex(start)
+        good = ValidPath(piece,a,b)
+        if not good:
+            print("Error: the", piece, "on ", start, "cannot move to", square)
+            continue    #loop without switching (try again)
     else:
-        piece = 'r'
-elif move[0] == 'N' or move[0] == 'n':
+        print("Error: could not find a", piece, "that can move to", square)
+        continue    #loop without switching (try again)
+    if piece == 'P' and b < 8 or piece == 'p' and b > 55:   #"and" is evaluated before "or" in a multiple conditional statement
+        piece = PromotePawn()
+    OldBoard = board
+    board = MakeMove(board, piece, a, b)
     if white:
-        piece = 'N'
+        king = FindPieces('K')
     else:
-        piece = 'n'
-elif move[0] == 'B' and move[1].isdigit() == False:
-    if white:
-        piece = 'B'
-    else:
-        piece = 'b'
-elif move[0] == 'a' or move[0] == 'b' or move[0] == 'c' or move[0] == 'd' or move[0] == 'e' or move[0] == 'f' or move[0] == 'g' or move[0] == 'h' or move[0] == 'P' or move[0] == 'p':
-    if white:
-        piece ='P'
-    else:
-        piece = 'p'
-else:
-    print("Error: could not parse move notation: ", move)
-#Validate Selected Square
-b = int(BoardIndex(square))
-if b == 64:    #Indicates error
-    print("Error: ", square, " not found on board")
-#Validate Capture
-if board[b] != ' ': #A piece already occupies that square
-    good = ValidCapture(board[b])
+        king = FindPieces('k')
+    good = not CheckCheck(king[0], white)
     if not good:
-        print("Error: invalid capture")
-options = BackTrack(b, piece, white)
-if len(options) == 1:
-    a = options[0]
-elif len(options) > 1:
-    start = input("Multiple pieces can make that move. Please enter the location of the intended piece: ")
-    a = BoardIndex(start)
-    good = ValidPath(piece,a,b)
-    if not good:
-        print("Error: the", piece, "on ", start, "cannot move to", square)
-        a = 64
-else:
-    print("Error: could not find a", piece, "that can move to", square)
-if piece == 'P' and b < 8 or piece == 'p' and b > 55:   #"and" is evaluated before "or" in a multiple conditional statement
-    piece = PromotePawn()
-OldBoard = board
-board = MakeMove(board, piece, a, b)
-if white:
-    king = FindPieces('K')
-else:
-    king = FindPieces('k')
-good = not CheckCheck(king[0], white)
-if not good:
-    print("Invalid move: your King is in check!")
-    board = OldBoard
-ShowBoard(board)
+        print("Invalid move: your King is in check!")
+        board = OldBoard
+        continue    #loop without switching (try again)
+    ShowBoard(board)
+    white = not white   #switch colors for next player

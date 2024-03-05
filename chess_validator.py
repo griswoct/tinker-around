@@ -835,11 +835,14 @@ if q == 'B' or q == 'b':    #Black selected
     white = False
 else:
     white = True
-while move != "exit":   #continue play switching between colors until "exit" is selected
+c = 0
+while c < 50:   #continue play switching between colors until 50 moves
     if white:
         move = input("White to move (enter algebraic notation): ")
     else:    #Defaults to white
         move = input("Black to move (enter algebraic notation): ")
+    if move == "resign": #resign game (exit)
+        break
     #Parse Move
     if move[-1] == '+' or move [-1] == '#':
         check = True
@@ -930,3 +933,5 @@ while move != "exit":   #continue play switching between colors until "exit" is 
         continue    #loop without switching (try again)
     ShowBoard(board)
     white = not white   #switch colors for next player
+    if not white:
+        c += 1

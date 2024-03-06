@@ -2,7 +2,7 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-03-05
+#UPDATED: 2024-03-06
 #
 #break parse move out as a seperate function
 #More Ideas:
@@ -29,10 +29,11 @@ fileE = [4,12,20,28,36,44,52,60] #Board indexes for E-file
 fileF = [5,13,21,29,37,45,53,61] #Board indexes for F-file
 fileG = [6,14,22,30,38,46,54,62]    #Board indexes for G-file
 fileH = [7,15,23,31,39,47,55,63]    #Board indexes for H-file (edge of board)
+ranks = ['a','b','c','d','e','f','g','h']
 locations = [0,0,0,0,0,0,0,0,0,0]   #Number and locations of pieces
-move = 'e4'    #Chess move in algebraic notation
-piece = 'P' #Letter indicating piece (capitalization indicates color)
-square = 'e4'    #Selected square on the board (algebraic notation)
+#move = 'e4'    #Chess move in algebraic notation
+#piece = 'P' #Letter indicating piece (capitalization indicates color)
+#square = 'e4'    #Selected square on the board (algebraic notation)
 board = []    #Chess board configuration
 board_old = []
 pieces = ['K','k','Q','q','R','r','N','n','B','b','P','p']    #Valid chess pieces list
@@ -113,6 +114,100 @@ def ShowBoard(brd):
         print(brd[i:i+8])
         i += 8
 
+#Get Chess Move in Algebraic Notation:
+def GetMove():
+    #Get move from user
+    if white:
+        move = input("White to move (enter algebraic notation): ")
+    else:    #Defaults to white
+        move = input("Black to move (enter algebraic notation): ")
+    #Check for resignation
+    if move == "resign":    #resign game (exit)
+        return "resign"
+    #Remove '+' or '#'
+    if move[-1] == '+' or move [-1] == '#':
+        move.pop()    #Removes last character
+    #Handle castling
+    if move[0] == '0' or move[0] == 'o' or move[0] == 'O':
+        if white:
+            piece = 'K'
+            if len(move) < 5:   #kingside
+                destination = 62  #g1 = 62
+            else:   #queenside
+                destination = 58  #c1 = 58
+        else:   #black
+            piece = 'k'
+            if len(move) < 5:   #kingside
+                destination = 6 #g8 = 6
+            else:   #queenside
+                destination = 2 #c8 = 2
+        return [piece, destination, piece, True, '']
+    #Remove 'x' or 'X' (will determine capturing later)
+    if 'x' in move:
+        move.remove('x')
+    elif 'X' in move:
+        move.remove('X')
+    #Determine piece
+    if move[0] == 'K' or move[0] == 'k' or move[0] == '0' or move[0] == 'O' or move[0] == 'o':
+        if white:
+            piece = 'K'
+        else: piece = 'k'
+    elif move[0] == 'Q' or move[0] == 'q':
+        if white:
+            piece = 'Q'
+        else:
+            piece = 'q'
+    elif move[0] == 'R' or move[0] == 'r':
+        if white:
+            piece = 'R'
+        else:
+            piece = 'r'
+    elif move[0] == 'N' or move[0] == 'n':
+        if white:
+            piece = 'N'
+        else:
+            piece = 'n'
+    elif move[0] == 'B' and move[1].isdigit() == False:
+        if white:
+            piece = 'B'
+        else:
+            piece = 'b'
+    elif move[0] == 'a' or move[0] == 'b' or move[0] == 'c' or move[0] == 'd' or move[0] == 'e' or move[0] == 'f' or move[0] == 'g' or move[0] == 'h' or move[0] == 'P' or move[0] == 'p':
+        if '=' in move:
+            promo = move.pop()
+            move.remove('=')
+        else:
+            promo = ''
+        if white:
+            piece ='P'
+            if promo not in xwhite:
+                promo = 'P' #invalid promotion, default to pawn
+        else:
+            piece = 'p'
+            if promo not in xblack:
+                promo = 'p'  #invalid promotion, default to pawn
+    else:
+        print("Error -- couldn't parse move: [", move, "] -- couldn't find piece")
+        #continue    #try again
+    if piece != 'P' and piece != 'p':   #if  not a pawn
+        promo = piece   #set promotion piece to itself (failsafe)
+    #Determine square
+    sq = move[-2:]
+    print("Square = ", sq)  #for testing
+    #Validate square
+    try:
+        rank = int(move[-1])
+    except ValueError:
+        print("Error -- couldn't parse move: [", move, "] -- couldn't find square")
+        #continue   #try again
+    if move[-2] not in ranks:
+        print("Error -- couldn't parse move: [", move, "] -- couldn't find square")
+        #continue   #try again
+    col = move[-2]
+    #Convert square to number
+    destination = BoardIndex(sq)
+    return [piece, destination, promo, False, col]  #capture, check, checkmate can be calculated
+
 #Convert Algebraic Notated Square to Board Index Number
 def BoardIndex(sq):
     if len(sq) != 2:    #Board location should be 2 characters in algebraic notation
@@ -183,15 +278,7 @@ def BoardAlgebraic(i):
 def ValidCapture(p):
     if white:
         if p in xblack:
-            if not capture:
-                if p == 'P' or p == 'p':
-                    correct = piece + 'x' + move
-                else:
-                    correct = piece + 'x' + move[1:]
-                print("Changing move to: ", correct)
-            else:
-                correct = move
-            return correct
+            return True
         else:    #A non-capturable piece is already on the square
             if p == 'k':
                 print("You cannot capture the King")
@@ -202,12 +289,7 @@ def ValidCapture(p):
             return False
     else:
         if p in xwhite:
-            if not capture:
-                correct = piece + 'x' + move[1:]
-                print("Changing move to: ", correct)
-            else:
-                correct = move
-            return correct
+            return True
         else:    #A non-capturable piece is already on the square
             if p == 'K':
                 print("You cannot capture the King")
@@ -257,27 +339,26 @@ def WhichPiece(p, loc, end):
         return start
 
 #Backtracks along the path for that type of piece and returns the locations of that type of piece
-def BackTrack(destination, type, color):
+def BackTrack(destination, type, color, col):
     origins = []
     color = not color   #include your own pieces, not your opponents
     if type == 'P' or type == 'p':
         reach = PawnMoves(destination, color)
-        print("Move:",move) #for testing
-        if move[0] == 'a' or move[0] == 'A':   #find file if the piece is a Pawn
+        if col == 'a':   #find file if the piece is a Pawn
             file = fileA
-        elif move[0] == 'a' or move[0] == 'B':
+        elif col == 'b':
             file = fileB
-        elif move[0] == 'c' or move[0] == 'C':
+        elif col == 'c':
             file = fileC
-        elif move[0] == 'd' or move[0] == 'D':
+        elif col == 'd':
             file = fileD
-        elif move[0] == 'e' or move[0] == 'E':
+        elif col == 'e':
             file = fileE
-        elif move[0] == 'f' or move[0] == 'F':
+        elif col == 'f':
             file = fileF
-        elif move[0] == 'g' or move[0] == 'G':
+        elif col == 'g':
             file = fileG
-        elif move[0] == 'h' or move[0] == 'H':
+        elif col == 'h':
             file = fileH
     elif type == 'B' or type == 'b':
         reach = BishopMoves(destination, color)
@@ -709,13 +790,13 @@ def KingMoves(home, forwards):
 def CheckCheck(throne, color):
     if color:
         for x in xblack:
-            threat = BackTrack(throne, x, not white)
+            threat = BackTrack(throne, x, not white, rank)
             print("Threats from",x,threat)  #for testing
             if threat != []:
                 return True
     else:
         for x in xwhite:
-            threat = BackTrack(throne, x, not white)
+            threat = BackTrack(throne, x, not white, rank)
             print("Threats from",x,threat)  #for testing
             if threat != []:
                 return True
@@ -726,10 +807,10 @@ def Attackers(target, color):
     threat = []
     if color:
         for x in xblack:
-            threat.append(BackTrack(target, x, not white))
+            threat.append(BackTrack(target, x, not white), rank)
     else:
         for x in xwhite:
-            threat.append(BackTrack(target, x, not white))
+            threat.append(BackTrack(target, x, not white), rank)
     return threat
 
 #Determins if the King can Castle Kingside or Queenside
@@ -800,11 +881,11 @@ def CastleCheck(color):
     return options
 
 #Updates the board with requested move
-def MakeMove(original,type,start,end):
+def MakeMove(original, type, start, end, castling):
     updated = original
     updated[start] = ' '
     updated[end] = type
-    if move[-1] == '0' or move[0] == 'O' or move[0] == 'O':    #castling
+    if castling:    #castling
         #print("Castling")   #for testing
         if end == 62:   #white kingside
             updated[61] = 'R'
@@ -837,91 +918,49 @@ else:
     white = True
 c = 0
 while c < 50:   #continue play switching between colors until 50 moves
-    if white:
-        move = input("White to move (enter algebraic notation): ")
-    else:    #Defaults to white
-        move = input("Black to move (enter algebraic notation): ")
-    if move == "resign": #resign game (exit)
+    q = GetMove()
+    if q == "resign": #resign game (exit)
+        print("Resigning game...")
         break
-    #Parse Move
-    if move[-1] == '+' or move [-1] == '#':
-        check = True
-        square = move[-3:-2]
-    elif move[-1] == '0' or move[-1] == 'o' or move[-1] == 'O':    #Castle
-        if len(move) < 5:    #King side
-            if white:
-                square = 'g1'
-            else:
-                square = 'g8'
-        else:    #Queen side
-            if white:
-                square = 'c1'
-            else:
-                square = 'c8'
     else:
-        square = move[-2:]
-    if move[1] == 'x' or move[1] == 'X':
-        capture = True
-    if move[0] == 'K' or move[0] == 'k' or move[0] == '0' or move[0] == 'O' or move[0] == 'o':
-        if white:
-            piece = 'K'
-        else: piece = 'k'
-    elif move[0] == 'Q' or move[0] == 'q':
-        if white:
-            piece = 'Q'
-        else:
-            piece = 'q'
-    elif move[0] == 'R' or move[0] == 'r':
-        if white:
-            piece = 'R'
-        else:
-            piece = 'r'
-    elif move[0] == 'N' or move[0] == 'n':
-        if white:
-            piece = 'N'
-        else:
-            piece = 'n'
-    elif move[0] == 'B' and move[1].isdigit() == False:
-        if white:
-            piece = 'B'
-        else:
-            piece = 'b'
-    elif move[0] == 'a' or move[0] == 'b' or move[0] == 'c' or move[0] == 'd' or move[0] == 'e' or move[0] == 'f' or move[0] == 'g' or move[0] == 'h' or move[0] == 'P' or move[0] == 'p':
-        if white:
-            piece ='P'
-        else:
-            piece = 'p'
-    else:
-        print("Error: could not parse move notation: ", move)
-        continue    #loop without switching (try again)
+        chessman = q[0]
+        b = q[1]
+        promotion = q[2]
+        castle = q[3]
+        rank = q[4]
+    square = BoardAlgebraic(b)  #get algebratic notation for user feedback (error messages)
     #Validate Selected Square
-    b = int(BoardIndex(square))
-    if b == 64:    #Indicates error
+    if b >= len(board):    #off the board
         print("Error: ", square, " not found on board")
         continue    #loop without switching (try again)
     #Validate Capture
     if board[b] != ' ': #A piece already occupies that square
         good = ValidCapture(board[b])
-        if not good:
+        if good:
+            capture = True
+        else:
             print("Error: connot capture", board[b], "on square", square)
             continue    #loop without switching (try again)
-    options = BackTrack(b, piece, white)
+    options = BackTrack(b, chessman, white, rank)
     if len(options) == 1:
         a = options[0]
     elif len(options) > 1:
         start = input("Multiple pieces can make that move. Please enter the location of the intended piece: ")
         a = BoardIndex(start)
-        good = ValidPath(piece,a,b)
+        good = ValidPath(chessman,a,b)
         if not good:
-            print("Error: the", piece, "on ", start, "cannot move to", square)
+            print("Error: the", chessman, "on ", start, "cannot move to", square)
             continue    #loop without switching (try again)
     else:
-        print("Error: could not find a", piece, "that can move to", square)
+        print("Error: could not find a", chessman, "that can move to", square)
         continue    #loop without switching (try again)
-    if piece == 'P' and b < 8 or piece == 'p' and b > 55:   #"and" is evaluated before "or" in a multiple conditional statement
-        piece = PromotePawn()
+    if chessman == 'P' and b < 8 or chessman == 'p' and b > 55:   #"and" is evaluated before "or" in a multiple conditional statement
+        if promotion != 'p' and promotion != 'P':
+            chessman = promotion
+        else:
+            chessman = PromotePawn()
     OldBoard = board
-    board = MakeMove(board, piece, a, b)
+    board = MakeMove(board, chessman, a, b, castle)
     if white:
         king = FindPieces('K')
     else:
@@ -931,6 +970,7 @@ while c < 50:   #continue play switching between colors until 50 moves
         print("Invalid move: your King is in check!")
         board = OldBoard
         continue    #loop without switching (try again)
+    #show corrected move (including check, checkmate, castling, pawn promotion)
     ShowBoard(board)
     white = not white   #switch colors for next player
     if not white:

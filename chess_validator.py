@@ -2,13 +2,15 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-03-06
+#UPDATED: 2024-03-07
 #
-#break parse move out as a seperate function
 #More Ideas:
     #Heat map of which squares on the boad are controlled by which player
     #How many attackers and defenders are there on each piece
     #Identify checkmate
+        #identify all possible moves
+        #try each one and check for checkmate
+        #if list of options is [] then checkmate
     #Identifies all valid move for selected piece
 
 #VARIABLES (GLOBAL)
@@ -193,7 +195,6 @@ def GetMove():
         promo = piece   #set promotion piece to itself (failsafe)
     #Determine square
     sq = move[-2:]
-    print("Square = ", sq)  #for testing
     #Validate square
     try:
         rank = int(move[-1])
@@ -241,21 +242,21 @@ def BoardIndex(sq):
 #Conver Board Index to Algebraic Notation
 def BoardAlgebraic(i):
     if i % 8 == 0:
-        spot = 'h'
-    elif i % 8 == 1:
-        spot = 'g'
-    elif i % 8 == 2:
-        spot = 'f'
-    elif i % 8 == 3:
-        spot = 'e'
-    elif i % 8 == 4:
-        spot = 'd'
-    elif i % 8 == 5:
-        spot = 'c'
-    elif i % 8 == 6:
-        spot = 'b'
-    else:
         spot = 'a'
+    elif i % 8 == 1:
+        spot = 'b'
+    elif i % 8 == 2:
+        spot = 'c'
+    elif i % 8 == 3:
+        spot = 'd'
+    elif i % 8 == 4:
+        spot = 'e'
+    elif i % 8 == 5:
+        spot = 'f'
+    elif i % 8 == 6:
+        spot = 'g'
+    else:
+        spot = 'h'
     if i < 8:
         spot += '8'
     elif i < 16:

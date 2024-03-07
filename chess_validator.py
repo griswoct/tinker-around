@@ -4,13 +4,21 @@
 #AUTHOR: CALEB GRISWOLD
 #UPDATED: 2024-03-07
 #
+#Need to add:
+    #Fully parse FEN:
+        #Active color
+        #Track castling (replace CheckCastle?)
+        #En passant target square
+        #Number of halfmoves (ply) since last capture or pawn movement
+        #Fullmove number
+    #Identify checkmate
+        #Identify all possible moves
+        #Try each one and check for checkmate
+        #If list of options is [], then checkmate
+        #Declare winned are end game
 #More Ideas:
     #Heat map of which squares on the boad are controlled by which player
     #How many attackers and defenders are there on each piece
-    #Identify checkmate
-        #identify all possible moves
-        #try each one and check for checkmate
-        #if list of options is [] then checkmate
     #Identifies all valid move for selected piece
 
 #VARIABLES (GLOBAL)
@@ -375,10 +383,10 @@ def BackTrack(destination, type, color, col):
     while i < len(reach):
         #print("i:",i,"reach[i]:",reach[i])  #for testing
         if board[reach[i]] == type:
-            if type == 'P' or type == 'p':
-                if reach[i] in file:    #skip the rest of the loop if not the selected Pawn
+            if (type == 'P' or type == 'p') and col in ranks:   #check a valid column is selected and the piece is a Pawn
+                if reach[i] in file:    #only include Pawn in list if it is in the indicated file (e.g. cxd4 only includes Pawns in the c file)
                     origins.append(reach[i])
-            else:
+            else:   #will include all Pawns in range if a file isn't selected
                 origins.append(reach[i])
         i += 1
     #print("reach is:", reach,", origins is:", origins)  #for testing
@@ -887,7 +895,7 @@ def MakeMove(original, type, start, end, castling):
     updated[start] = ' '
     updated[end] = type
     if castling:    #castling
-        #print("Castling")   #for testing
+        print("Castling")   #for testing
         if end == 62:   #white kingside
             updated[61] = 'R'
             updated[63] = ' '

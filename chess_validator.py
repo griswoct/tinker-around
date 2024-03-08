@@ -16,6 +16,17 @@
         #Try each one and check for checkmate
         #If list of options is [], then checkmate
         #Declare winned are end game
+    #game over:
+        #checkmate
+        #resignation
+        #stalemate (no leagal moves)
+        #draw no Pawn moves or captures in 50 moves, 3 move repetition
+        #insufficient material:
+            #King
+            #King + Bishop
+            #King + Knight
+            #King + 2 Knights vs King
+            #in other words, you need a King and [(two or more pieces)** or (Rook or Queen or Pawn)] **except King and Knight and Knight vs King
 #More Ideas:
     #Heat map of which squares on the boad are controlled by which player
     #How many attackers and defenders are there on each piece
@@ -154,9 +165,9 @@ def GetMove():
         return [piece, destination, piece, True, '']
     #Remove 'x' or 'X' (will determine capturing later)
     if 'x' in move:
-        move.remove('x')
+        move = move.replace('x','')
     elif 'X' in move:
-        move.remove('X')
+        move = move.replace('X','')
     #Determine piece
     if move[0] == 'K' or move[0] == 'k' or move[0] == '0' or move[0] == 'O' or move[0] == 'o':
         if white:
@@ -799,13 +810,13 @@ def KingMoves(home, forwards):
 def CheckCheck(throne, color):
     if color:
         for x in xblack:
-            threat = BackTrack(throne, x, not white, rank)
+            threat = BackTrack(throne, x, not white, '')
             print("Threats from",x,threat)  #for testing
             if threat != []:
                 return True
     else:
         for x in xwhite:
-            threat = BackTrack(throne, x, not white, rank)
+            threat = BackTrack(throne, x, not white, '')
             print("Threats from",x,threat)  #for testing
             if threat != []:
                 return True
@@ -816,10 +827,10 @@ def Attackers(target, color):
     threat = []
     if color:
         for x in xblack:
-            threat.append(BackTrack(target, x, not white), rank)
+            threat.append(BackTrack(target, x, not white), '')
     else:
         for x in xwhite:
-            threat.append(BackTrack(target, x, not white), rank)
+            threat.append(BackTrack(target, x, not white), '')
     return threat
 
 #Determins if the King can Castle Kingside or Queenside
@@ -892,8 +903,16 @@ def CastleCheck(color):
 #Updates the board with requested move
 def MakeMove(original, type, start, end, castling):
     updated = original
+    #Promote Pawn
+    if type == 'P' and end < 8 or type == 'p' and end > 55:   #"and" is evaluated before "or" in a multiple conditional statement
+        if promotion != 'p' and promotion != 'P':
+            type = promotion
+        else:
+            type = PromotePawn()
+    #Update board:
     updated[start] = ' '
     updated[end] = type
+    #Castle:
     if castling:    #castling
         print("Castling")   #for testing
         if end == 62:   #white kingside
@@ -925,8 +944,9 @@ if q == 'B' or q == 'b':    #Black selected
     white = False
 else:
     white = True
-c = 0
-while c < 50:   #continue play switching between colors until 50 moves
+fmn = 0
+ply = 0
+while ply < 50:   #counts ply since last capture or Pawn movement
     q = GetMove()
     if q == "resign": #resign game (exit)
         print("Resigning game...")
@@ -956,7 +976,7 @@ while c < 50:   #continue play switching between colors until 50 moves
     elif len(options) > 1:
         start = input("Multiple pieces can make that move. Please enter the location of the intended piece: ")
         a = BoardIndex(start)
-        good = ValidPath(chessman,a,b)
+        good = ValidPath(chessman, a, b)
         if not good:
             print("Error: the", chessman, "on ", start, "cannot move to", square)
             continue    #loop without switching (try again)
@@ -982,5 +1002,8 @@ while c < 50:   #continue play switching between colors until 50 moves
     #show corrected move (including check, checkmate, castling, pawn promotion)
     ShowBoard(board)
     white = not white   #switch colors for next player
+    ply += 1
+    if capture or chessman == 'p' or chessman == 'P':
+        ply = 0 #reset 
     if not white:
-        c += 1
+        fmn += 1    #increment full move number

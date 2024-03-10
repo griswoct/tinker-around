@@ -13,6 +13,7 @@
 
 density=0
 letters=['A','B','C']
+q=(0,0,0,0,0) #tracks the density of each quintant
 read -p 'Which letters do you want to find the density of? ' letters
 length=${#letters}
 list=()
@@ -217,11 +218,29 @@ do
 		if [ ${list[$j]} == true ]
 		then
 			density=$((density+1))
-			#add check for each quadrant here
+			
+			case $j in
+			 0 | 1 | 2 | 5 | 6) #indices for first quintant (upper left)
+	    q[0]++
+     ;;
+				3 | 4 | 8 | 9 | 14) #indices for second quintant (upper right)
+				q[1]++
+     ;;
+				7 | 11 | 12 | 13 | 17) #indices for third quintant (middle)
+	    q[2]++
+     ;;
+				10 | 15 | 16 | 20 | 21) #indices for forth quintant (lower left)
+			  q[3]++
+     ;;
+				18 | 19 | 22 | 23 | 24) #indices for fifth quintant (lower right)
+				q[1]++
+     ;;
+			esac
 		fi
 		((j++))
 	done
 	density=$((4*density))
  	echo "Density of " ${letters:$i:1} ": " $density
  	((i++))
+		echo "1/5 Quintants: " $q
 done

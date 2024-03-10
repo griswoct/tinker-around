@@ -1,6 +1,14 @@
-#grab pixal letters
-#go through the list of true/false and add 1 for each true
-#output list of letters and number 0-25 (for 5x5 letters)
+#!/bin/bash
+
+#LETTER DENSITY
+#
+#PURPOSE: FIND THE DISPLAY DENSITY OF A 5x5 LETTER (BLACK:WHITE PIXALS)
+#LICENSE: THE UNLICENSE
+#AUTHOR: CALEB GRISWOLD
+#UPDATED: 2024-03-09
+#
+# Ideads:
+#Find the density of each quadrant to get an idea of the density distribution (upper left, upper right, lower left, lower right, middle?)
 #use these values for first attempt at ASCII Art generator
 
 density=0
@@ -209,6 +217,7 @@ do
 		if [ ${list[$j]} == true ]
 		then
 			density=$((density+1))
+			#add check for each quadrant here
 		fi
 		((j++))
 	done

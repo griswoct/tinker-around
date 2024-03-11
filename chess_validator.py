@@ -2,7 +2,7 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-03-07
+#UPDATED: 2024-03-011
 #
 #Need to add:
     #Fully parse FEN:
@@ -202,10 +202,13 @@ def GetMove():
         if white:
             piece ='P'
             if promo not in xwhite:
+                print(promo, "not recognized as a valid promotion")
                 promo = 'P' #invalid promotion, default to pawn
         else:
             piece = 'p'
             if promo not in xblack:
+                #Add case change? (e.g. Q --> q)
+                print(promo, "not recognized as a valid promotion")
                 promo = 'p'  #invalid promotion, default to pawn
     else:
         print("Error -- couldn't parse move: [", move, "] -- couldn't find piece")
@@ -216,7 +219,7 @@ def GetMove():
     sq = move[-2:]
     #Validate square
     try:
-        rank = int(move[-1])
+        col = int(move[-1])
     except ValueError:
         print("Error -- couldn't parse move: [", move, "] -- couldn't find square")
         #continue   #try again
@@ -364,6 +367,7 @@ def BackTrack(destination, type, color, col):
     color = not color   #include your own pieces, not your opponents
     if type == 'P' or type == 'p':
         reach = PawnMoves(destination, color)
+        print("Pawn reach =", reach)    #for testing
         if col == 'a':   #find file if the piece is a Pawn
             file = fileA
         elif col == 'b':
@@ -392,7 +396,7 @@ def BackTrack(destination, type, color, col):
         reach = KingMoves(destination, color)
     i = 0
     while i < len(reach):
-        #print("i:",i,"reach[i]:",reach[i])  #for testing
+        print("i:",i,"reach[i]:",reach[i])  #for testing
         if board[reach[i]] == type:
             if (type == 'P' or type == 'p') and col in ranks:   #check a valid column is selected and the piece is a Pawn
                 if reach[i] in file:    #only include Pawn in list if it is in the indicated file (e.g. cxd4 only includes Pawns in the c file)
@@ -400,7 +404,7 @@ def BackTrack(destination, type, color, col):
             else:   #will include all Pawns in range if a file isn't selected
                 origins.append(reach[i])
         i += 1
-    #print("reach is:", reach,", origins is:", origins)  #for testing
+    print("final reach is:", reach,", origins is:", origins)  #for testing
     return origins
 
 #Checks if a piece can move from origin to destination in a single move
@@ -429,10 +433,13 @@ def ValidPath(type, origin, destination):
 #Returns the squares a Pawn can move to
 def PawnMoves(home, forwards):
     path = [home]
+    if home < 8 and white:    #back rank
+        print("Error: unpromoted Pawn")
+        return path   #Cannot, return home square
+    if not white and home > 56:    #back rank
+        print("Error: unpromoted Pawn")
+        return path   #Cannot move, return home square
     if forwards:
-        if home < 8 and white:    #back rank
-            print("Error: unpromoted Pawn")
-            return path   #Cannot, return home square
         #x = home
         x = home - 8
         while x > -1:   #exit if off the board
@@ -453,17 +460,20 @@ def PawnMoves(home, forwards):
             if x > -1 and board[x] in xblack:
                 path.append(x)
     else:   #backwards
-        if not white and home > 56:    #back rank
-            print("Error: unpromoted Pawn")
-            return path   #Cannot move, return home square
         #x = home
         x = home + 8
         while x < 64:   #exit if off the board
             #x += 8
             if board[x] == ' ':
                 path.append(x)
+            elif white and board[x] in xwhite:  #include your own piece
+                path.append(x)
+                break   #stop moving in a straight line
+            elif not white and board[x] in xblack:  #include your own piece
+                path.append(x)
+                break   #stop moving in a straight line
             else:
-                break
+                break   #stop moving in a straight line (blocked)
             if not white and x > 23:  #more than 1 step from starting position
                 break
             x += 8
@@ -1004,6 +1014,9 @@ while ply < 50:   #counts ply since last capture or Pawn movement
     white = not white   #switch colors for next player
     ply += 1
     if capture or chessman == 'p' or chessman == 'P':
-        ply = 0 #reset 
+        ply = 0 #reset moves since capture or Pawn movement
+    if ply > 50:
+        print("No capture or Pawn move in 50 moves. Game is a DRAW")
+        break
     if not white:
         fmn += 1    #increment full move number

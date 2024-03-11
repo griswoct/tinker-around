@@ -55,6 +55,8 @@
   * Intersection nodes
   * Distance or time based
   * Random trip mode (random road selection at each intersection)
+  * *Use JSON object for each node:*
+    `K{H,1200,N;J,800,W;L,600,E;Q,1200,S}`
 ***
 ## Languages of interest:
 * Python

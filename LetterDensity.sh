@@ -5,7 +5,7 @@
 #PURPOSE: FIND THE DISPLAY DENSITY OF A 5x5 LETTER (BLACK:WHITE PIXALS)
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-03-09
+#UPDATED: 2024-03-11
 #
 # Ideads:
 #Find the density of each quadrant to get an idea of the density distribution (upper left, upper right, lower left, lower right, middle?)
@@ -159,8 +159,7 @@ do
 		0)
 			h=5
 			w=5
-			list=(false true true true false true false false true true true false true false true true true false false true false true true true false
- )
+			list=(false true true true false true false false true true true false true false true true true false false true false true true true false)
 			;;
 		1)
 			h=5
@@ -218,24 +217,23 @@ do
 		if [ ${list[$j]} == true ]
 		then
 			density=$((density+1))
-			
 			case $j in
-			 0 | 1 | 2 | 5 | 6) #indices for first quintant (upper left)
-	    q[0]++
-     ;;
+   				0 | 1 | 2 | 5 | 6) #indices for first quintant (upper left)
+       					q[0]++
+	    				;;
 				3 | 4 | 8 | 9 | 14) #indices for second quintant (upper right)
-				q[1]++
-     ;;
+					q[1]++
+    					;;
 				7 | 11 | 12 | 13 | 17) #indices for third quintant (middle)
-	    q[2]++
-     ;;
-				10 | 15 | 16 | 20 | 21) #indices for forth quintant (lower left)
-			  q[3]++
-     ;;
-				18 | 19 | 22 | 23 | 24) #indices for fifth quintant (lower right)
-				q[1]++
-     ;;
-			esac
+    					q[2]++
+	 				;;
+      				10 | 15 | 16 | 20 | 21) #indices for forth quintant (lower left)
+	  				q[3]++
+       					;;
+	    			18 | 19 | 22 | 23 | 24) #indices for fifth quintant (lower right)
+					q[1]++
+     					;;
+	  		esac
 		fi
 		((j++))
 	done

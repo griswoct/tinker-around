@@ -2,7 +2,7 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-03-011
+#UPDATED: 2024-03-12
 #
 #Need to add:
     #Fully parse FEN:
@@ -479,12 +479,60 @@ def PawnMoves(home, forwards):
             x += 8
         if home not in fileA:   #connot move left from file A
             x = home + 7    #back left
-            if x < 64 and board[x] in xwhite:
-                path.append(x)
+            if x < 64:
+                if white and board[x] in xwhite:
+                    path.append(x)
+                elif not white and board[x] in xblack:
+                    path.append(x)
         if x < 64 and home not in fileH:  #connot move right from file H
-            x = home + 9    #back right
-            if board[x] in xwhite:
-                path.append(x)
+                if white and board[x] in xwhite:
+                    path.append(x)
+                elif not white and board[x] in xblack:
+                    path.append(x)
+    return path
+
+#Starting Fresh -- PawnMoves() is a mess
+def NewPawnMoves(home: int, forwards: bool, color: bool):    
+    path = [home]
+    #straight:
+        #forwards
+            #if white: x = home - 8   (forwards)
+            #else (black): x = home + 8   (backwards)
+            #if square is empty: path.append(x)
+        #backwards
+            #if white: x = home + 8 (backwards)
+            #else (black): x = home - 8 (forwards)
+            #if square is empty: path.append(x)?
+            #elif white and board[x] == 'P': path.append(x)
+            #elif not white and board[x] == 'p': path.append(x)
+    #attack
+        #forwards
+            #if white:
+                #home not in fileH:
+                    #x = home - 7    #forward right
+                    #if piece in xblack: path.append(x)
+                #home not in fileA:
+                    #x = home - 9   #forward left
+                    #if piece in xblack: path.append(x)
+            #if not white (black)
+                #home not in fileA:
+                    #x = home + 7   #backward left
+                    #if piece in xwhite: path.append(x)
+                #home not in fileH:
+                    #x = home + 9   #backward right
+                    #if piece in xwhite: path.append(x)
+        #backwards
+    #extra step
+        #forwards
+            #if white and rank 2: x = home - 16 (forwards)
+            #elif not white and rank 7: x = home + 16 (backwards)
+            #if square is empty: path.append(x)
+        #backwards
+            #if white: x = home + 16 (backwards)
+            #else (black): x = home - 16 (forwards)
+            #if square is empty: path.append(x)?
+            #elif white and board[x] == 'P': path.append(x)
+            #elif not white and board[x] == 'p': path.append(x)
     return path
 
 #Promote Pawn On Back Rank

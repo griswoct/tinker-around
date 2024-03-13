@@ -2,7 +2,7 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-03-12
+#UPDATED: 2024-03-13
 #
 #Need to add:
     #Fully parse FEN:
@@ -492,20 +492,9 @@ def PawnMoves(home, forwards):
     return path
 
 #Starting Fresh -- PawnMoves() is a mess
-def NewPawnMoves(home: int, forwards: bool, color: bool):    
+def NewPawnMoves(home: int, forwards: bool, color: bool, attack: bool):
     path = [home]
-    #straight:
-        #forwards
-            #if white: x = home - 8   (forwards)
-            #else (black): x = home + 8   (backwards)
-            #if square is empty: path.append(x)
-        #backwards
-            #if white: x = home + 8 (backwards)
-            #else (black): x = home - 8 (forwards)
-            #if square is empty: path.append(x)?
-            #elif white and board[x] == 'P': path.append(x)
-            #elif not white and board[x] == 'p': path.append(x)
-    #attack
+    #if attack
         #forwards
             #if white:
                 #home not in fileH:
@@ -522,6 +511,32 @@ def NewPawnMoves(home: int, forwards: bool, color: bool):
                     #x = home + 9   #backward right
                     #if piece in xwhite: path.append(x)
         #backwards
+            #if white:
+                #home not in fileA:
+                    #x = home + 7   #backward left
+                    #if board[x] == 'P': path.append(x)
+                #home not in fileH:
+                    #x = home + 9   #backward right
+                    #if board[x] == 'P': path.append(x)
+            #if not white:  #black
+                #home not in fileH:
+                    #x = home - 7    #forward right
+                    #if board[x] == 'p': path.append(x)
+                #home not in fileA:
+                    #x = home - 9   #forward left
+                    #if board[x] == 'p': path.append(x)
+        #return path
+    #straight:
+        #forwards
+            #if white: x = home - 8   (forwards)
+            #else (black): x = home + 8   (backwards)
+            #if square is empty: path.append(x)
+        #backwards
+            #if white: x = home + 8 (backwards)
+            #else (black): x = home - 8 (forwards)
+            #if square is empty: path.append(x)?
+            #elif white and board[x] == 'P': path.append(x)
+            #elif not white and board[x] == 'p': path.append(x)
     #extra step
         #forwards
             #if white and rank 2: x = home - 16 (forwards)

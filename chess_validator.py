@@ -366,7 +366,7 @@ def BackTrack(destination, type, color, col):
     origins = []
     color = not color   #include your own pieces, not your opponents
     if type == 'P' or type == 'p':
-        reach = PawnMoves(destination, color)
+        reach = PawnMoves(destination, False)
         print("Pawn reach =", reach)    #for testing
         if col == 'a':   #find file if the piece is a Pawn
             file = fileA
@@ -410,7 +410,7 @@ def BackTrack(destination, type, color, col):
 #Checks if a piece can move from origin to destination in a single move
 def ValidPath(type, origin, destination):
     if type == 'P' or type == 'p':
-        reach = PawnMoves(origin, white)
+        reach = PawnMoves(origin, True)
     elif type == 'B' or type == 'b':
         reach = BishopMoves(origin, white)
     elif type == 'N' or type == 'n':
@@ -492,62 +492,50 @@ def PawnMoves(home, forwards):
     return path
 
 #Starting Fresh -- PawnMoves() is a mess
-def NewPawnMoves(home: int, forwards: bool, color: bool, attack: bool):
+def NewPawnMoves(home: int, forwards: bool):
     path = [home]
-    #if attack
-        #forwards
-            #if white:
-                #home not in fileH:
-                    #x = home - 7    #forward right
-                    #if piece in xblack: path.append(x)
-                #home not in fileA:
-                    #x = home - 9   #forward left
-                    #if piece in xblack: path.append(x)
-            #if not white (black)
-                #home not in fileA:
-                    #x = home + 7   #backward left
-                    #if piece in xwhite: path.append(x)
-                #home not in fileH:
-                    #x = home + 9   #backward right
-                    #if piece in xwhite: path.append(x)
-        #backwards
-            #if white:
-                #home not in fileA:
-                    #x = home + 7   #backward left
-                    #if board[x] == 'P': path.append(x)
-                #home not in fileH:
-                    #x = home + 9   #backward right
-                    #if board[x] == 'P': path.append(x)
-            #if not white:  #black
-                #home not in fileH:
-                    #x = home - 7    #forward right
-                    #if board[x] == 'p': path.append(x)
-                #home not in fileA:
-                    #x = home - 9   #forward left
-                    #if board[x] == 'p': path.append(x)
+    #if capture:
+        #if forwards == white:  #True if white forwards or black backwards
+            #if home not in fileH:
+                #x = home - 7    #forward right
+                #if piece in xblack: path.append(x)
+            #home not in fileA:
+                #x = home - 9   #forward left
+                #if piece in xblack: path.append(x)
+        #elif forwards ^ white: #XOR: white and backwards or black and forwards
+            #home not in fileA:
+                #x = home + 7   #backward left
+                #if piece in xwhite: path.append(x)
+            #home not in fileH:
+                #x = home + 9   #backward right
+                #if piece in xwhite: path.append(x)
         #return path
-    #straight:
-        #forwards
-            #if white: x = home - 8   (forwards)
-            #else (black): x = home + 8   (backwards)
-            #if square is empty: path.append(x)
-        #backwards
-            #if white: x = home + 8 (backwards)
-            #else (black): x = home - 8 (forwards)
-            #if square is empty: path.append(x)?
-            #elif white and board[x] == 'P': path.append(x)
-            #elif not white and board[x] == 'p': path.append(x)
-    #extra step
-        #forwards
-            #if white and rank 2: x = home - 16 (forwards)
-            #elif not white and rank 7: x = home + 16 (backwards)
-            #if square is empty: path.append(x)
-        #backwards
-            #if white: x = home + 16 (backwards)
-            #else (black): x = home - 16 (forwards)
-            #if square is empty: path.append(x)?
-            #elif white and board[x] == 'P': path.append(x)
-            #elif not white and board[x] == 'p': path.append(x)
+    #Straight
+    #x = home
+    #march = True
+    #while march:
+        #if forwards == white:  #True if white forwards or black backwards
+            #x -= 8 #forwards
+            #if not white:  #black backwards
+                #if board[x] == 'p': #found a matching color Pawn
+                    #path.append(x)
+                    #break  #Pawns can't jump eachother
+        #elif forwards ^ white: #XOR: white and backwards or black and forwards
+            #x += 8 #backwards
+            #if white:  #white backwards
+                #if board[x] == 'P':    #found a matching color Pawn
+                    #path.append(x)
+                    #break  #Pawns can't jump eachother
+        #if board[x] == ' ':
+            #path.append(x)
+        #else:  #blocked, stop moving
+            #break
+        #if white:  #white
+            #if rank not 3: #white can take one more step if on rank 3 (forwards or backwards)
+                #break
+        #else:  #black
+            #if not rank 6: #black can take one more step if on rank 6 (forwards or backwards)
+                #break
     return path
 
 #Promote Pawn On Back Rank

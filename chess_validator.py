@@ -2,7 +2,7 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-03-13
+#UPDATED: 2024-03-14 (Pi Day)
 #
 #Need to add:
     #Fully parse FEN:
@@ -351,7 +351,7 @@ def WhichPiece(p, loc, end):
         i += 1
     if j > 1:
         #Need to select Pawn based on letter in the move
-        start = input("Multiple pieces can make that move. Please enter the location of the intended piece: ")
+        start = input("Multiple pieces available, please enter square of intended piece square: ")
         start = BoardIndex(start)
         #Check a is in locations, check a to b is a valid move for piece
         return start
@@ -385,7 +385,7 @@ def BackTrack(destination, type, color, col):
         elif col == 'h':
             file = fileH
     elif type == 'B' or type == 'b':
-        reach = BishopMoves(destination, color)
+        reach = BishopMoves(destination, False)
     elif type == 'N' or type == 'n':
         reach = KnightMoves(destination, color)
     elif type == 'R' or type == 'r':
@@ -398,8 +398,8 @@ def BackTrack(destination, type, color, col):
     while i < len(reach):
         print("i:",i,"reach[i]:",reach[i])  #for testing
         if board[reach[i]] == type:
-            if (type == 'P' or type == 'p') and col in ranks:   #check a valid column is selected and the piece is a Pawn
-                if reach[i] in file:    #only include Pawn in list if it is in the indicated file (e.g. cxd4 only includes Pawns in the c file)
+            if (type == 'P' or type == 'p') and col in file:   #check valid file, piece is a Pawn
+                if reach[i] in file:    #only include Pawn in file indicated in entered move
                     origins.append(reach[i])
             else:   #will include all Pawns in range if a file isn't selected
                 origins.append(reach[i])
@@ -431,111 +431,58 @@ def ValidPath(type, origin, destination):
         return False
 
 #Returns the squares a Pawn can move to
-def PawnMoves(home, forwards):
+def PawnMoves(home: int, forwards: bool):
     path = [home]
-    if home < 8 and white:    #back rank
-        print("Error: unpromoted Pawn")
-        return path   #Cannot, return home square
-    if not white and home > 56:    #back rank
-        print("Error: unpromoted Pawn")
-        return path   #Cannot move, return home square
-    if forwards:
-        #x = home
-        x = home - 8
-        while x > -1:   #exit if off the board
-            #x -= 8  #forward 1
-            if board[x] == ' ':
-                path.append(x)
-            else:
+    if home < 8 or home > 55:
+        print("Error: Pawn out of range")
+        return []
+    if capture:
+        if forwards == white:  #True if white forwards or black backwards
+            if home not in fileH:   #can move right
+                x = home - 7    #forward right
+                if board[x] in xblack: path.append(x)
+            if home not in fileA:   #can move left
+                x = home - 9   #forward left
+                if board[x] in xblack: path.append(x)
+        elif forwards ^ white: #XOR: white and backwards or black and forwards
+            if home not in fileA:  #can move left
+                x = home + 7   #backward left
+                if board[x] in xwhite: path.append(x)
+            if home not in fileH:   #can move right
+                x = home + 9   #backward right
+                if board[x] in xwhite: path.append(x)
+        return path #if capturing, no straigh movement
+    #Straight:
+    x = home
+    while True:
+        if forwards == white:  #True if white forwards or black backwards
+            x -= 8 #forwards
+            if not white:  #black backwards
+                if board[x] == 'p': #found a matching color Pawn
+                    print("I foundmy black Pawn on", x) #for testing
+                    path.append(x)
+                    break  #Pawns can't jump eachother
+        elif forwards ^ white: #XOR: white and backwards or black and forwards
+            x += 8 #backwards
+            if white:  #white backwards
+                if board[x] == 'P':    #found a matching color Pawn
+                    print("I found my white Pawn on", x)    #for testing
+                    path.append(x)
+                    break  #Pawns can't jump eachother
+        if board[x] == ' ':
+            print(x, "is an open space")    #for testing
+            path.append(x)
+        else:  #blocked, stop moving
+            print("blocked by", board[x], "on", x)  #for testing
+            break
+        if white:  #white
+            if x < 40 or x > 47: #white can only take one more step if on rank 3
+                print("not in rank 3")  #for testing
                 break
-            if white and x < 40:  #more than 1 step from starting position
+        else:  #black
+            if x < 16 or x > 23: #black can only take one more step if on rank 6
+                print("not on row 6")   #for testing
                 break
-            x -= 8
-        if home not in fileH:   #connot move right from file h
-            x = home - 7    #forward right
-            if x > -1 and board[x] in xblack:
-                path.append(x)
-        if home not in fileA:   #cannot move left from file A
-            x = home - 9    #forward left
-            if x > -1 and board[x] in xblack:
-                path.append(x)
-    else:   #backwards
-        #x = home
-        x = home + 8
-        while x < 64:   #exit if off the board
-            #x += 8
-            if board[x] == ' ':
-                path.append(x)
-            elif white and board[x] in xwhite:  #include your own piece
-                path.append(x)
-                break   #stop moving in a straight line
-            elif not white and board[x] in xblack:  #include your own piece
-                path.append(x)
-                break   #stop moving in a straight line
-            else:
-                break   #stop moving in a straight line (blocked)
-            if not white and x > 23:  #more than 1 step from starting position
-                break
-            x += 8
-        if home not in fileA:   #connot move left from file A
-            x = home + 7    #back left
-            if x < 64:
-                if white and board[x] in xwhite:
-                    path.append(x)
-                elif not white and board[x] in xblack:
-                    path.append(x)
-        if x < 64 and home not in fileH:  #connot move right from file H
-                if white and board[x] in xwhite:
-                    path.append(x)
-                elif not white and board[x] in xblack:
-                    path.append(x)
-    return path
-
-#Starting Fresh -- PawnMoves() is a mess
-def NewPawnMoves(home: int, forwards: bool):
-    path = [home]
-    #if capture:
-        #if forwards == white:  #True if white forwards or black backwards
-            #if home not in fileH:
-                #x = home - 7    #forward right
-                #if piece in xblack: path.append(x)
-            #home not in fileA:
-                #x = home - 9   #forward left
-                #if piece in xblack: path.append(x)
-        #elif forwards ^ white: #XOR: white and backwards or black and forwards
-            #home not in fileA:
-                #x = home + 7   #backward left
-                #if piece in xwhite: path.append(x)
-            #home not in fileH:
-                #x = home + 9   #backward right
-                #if piece in xwhite: path.append(x)
-        #return path
-    #Straight
-    #x = home
-    #march = True
-    #while march:
-        #if forwards == white:  #True if white forwards or black backwards
-            #x -= 8 #forwards
-            #if not white:  #black backwards
-                #if board[x] == 'p': #found a matching color Pawn
-                    #path.append(x)
-                    #break  #Pawns can't jump eachother
-        #elif forwards ^ white: #XOR: white and backwards or black and forwards
-            #x += 8 #backwards
-            #if white:  #white backwards
-                #if board[x] == 'P':    #found a matching color Pawn
-                    #path.append(x)
-                    #break  #Pawns can't jump eachother
-        #if board[x] == ' ':
-            #path.append(x)
-        #else:  #blocked, stop moving
-            #break
-        #if white:  #white
-            #if rank not 3: #white can take one more step if on rank 3 (forwards or backwards)
-                #break
-        #else:  #black
-            #if not rank 6: #black can take one more step if on rank 6 (forwards or backwards)
-                #break
     return path
 
 #Promote Pawn On Back Rank
@@ -543,7 +490,7 @@ def PromotePawn():
     if white:
         p = 'Q' #Default promotion
         options = xwhite
-        options.remove('P')    #Possible promotions
+        options.remove('P')    #Possible promotion
         if b > 7:
             return 'P'  #Pawn cannot be promoted
         print("The Pawn on", square, "is ready to be promoted!")
@@ -663,9 +610,9 @@ def BishopMoves(home, forwards):
         if board[x] == ' ':
             path.append(x)
         else:
-            if forwards and board[x] in xblack:
+            if forwards == white and board[x] in xblack:
                 path.append(x)
-            elif not forwards and board[x] in xwhite:
+            elif forwards ^ white and board[x] in xwhite:
                 path.append(x)
             break
     x = home
@@ -674,9 +621,9 @@ def BishopMoves(home, forwards):
         if board[x] == ' ':
             path.append(x)
         else:
-            if forwards and board[x] in xblack:
+            if forwards == white and board[x] in xblack:
                 path.append(x)
-            elif not forwards and board[x] in xwhite:
+            elif forwards ^ white and board[x] in xwhite:
                 path.append(x)
             break
     x = home
@@ -685,9 +632,9 @@ def BishopMoves(home, forwards):
         if board[x] == ' ':
             path.append(x)
         else:
-            if forwards and board[x] in xblack:
+            if forwards == white and board[x] in xblack:
                 path.append(x)
-            elif not forwards and board[x] in xwhite:
+            elif forwards ^ white and board[x] in xwhite:
                 path.append(x)
             break
     x = home
@@ -696,9 +643,9 @@ def BishopMoves(home, forwards):
         if board[x] == ' ':
             path.append(x)
         else:
-            if forwards and board[x] in xblack:
+            if forwards == white and board[x] in xblack:
                 path.append(x)
-            elif not white and board[x] in xwhite:
+            elif forwards ^ white and board[x] in xwhite:
                 path.append(x)
             break
     return path
@@ -1008,6 +955,9 @@ else:
 fmn = 0
 ply = 0
 while ply < 50:   #counts ply since last capture or Pawn movement
+    capture = False #reset capture
+    check = False   #reset check
+    a = 52  #reser a
     q = GetMove()
     if q == "resign": #resign game (exit)
         print("Resigning game...")
@@ -1055,8 +1005,8 @@ while ply < 50:   #counts ply since last capture or Pawn movement
         king = FindPieces('K')
     else:
         king = FindPieces('k')
-    good = not CheckCheck(king[0], white)
-    if not good:
+    check = CheckCheck(king[0], white)
+    if check:
         print("Invalid move: your King is in check!")
         board = OldBoard
         continue    #loop without switching (try again)

@@ -5,7 +5,9 @@
 #UPDATED: 2024-03-15 (Ides of March)
 #
 #Need to fix:
-    #black queen won't move diagonally
+    #Pawn e moved from e5 to e4 when move fxe4 was selected (e4 was empty)
+    #crashed when an empty move was entered (hit enter twice after typing in move)
+    #black queen struggling to move diagonally
     #can't find King (backtracking)
 #
 #Need to add:
@@ -43,9 +45,6 @@ good = False    #Boolean to control loops
 white = True    #Playing as white? (Boolean)
 a = 52    #Board index starting location
 b = 36    #Board index ending location
-i = 0    #Integer index
-j = 0    #Integer index
-k = 0    #Integer index
 fileA = [0,8,16,24,32,40,48,56] #Board indexes for A-file (edge of board)
 fileB = [1,9,17,25,33,41,49,57] #Board indexes for B-file
 fileC = [2,10,18,26,34,42,50,58] #Board indexes for C-file
@@ -55,15 +54,11 @@ fileF = [5,13,21,29,37,45,53,61] #Board indexes for F-file
 fileG = [6,14,22,30,38,46,54,62]    #Board indexes for G-file
 fileH = [7,15,23,31,39,47,55,63]    #Board indexes for H-file (edge of board)
 ranks = ['a','b','c','d','e','f','g','h']
-locations = [0,0,0,0,0,0,0,0,0,0]   #Number and locations of pieces
-#move = 'e4'    #Chess move in algebraic notation
-#piece = 'P' #Letter indicating piece (capitalization indicates color)
-#square = 'e4'    #Selected square on the board (algebraic notation)
 board = []    #Chess board configuration
 board_old = []
-pieces = ['K','k','Q','q','R','r','N','n','B','b','P','p']    #Valid chess pieces list
 xblack = ['q','r','b','n','p']    #Capturable black pieces list (no King)
 xwhite = ['Q','R','N','B','P']    #Capturable white pieces list (no King)
+pieces = ['K', *xwhite, 'k', *xblack]    #Valid chess pieces list
 
 #FUNCTIONS
 #Get Chess Board Setup
@@ -72,8 +67,6 @@ def GetBoard():
     fen = input("Enter D for default starting position, or board configuration in FEN notation: ")
     if fen == 'D' or fen == 'd':
         fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"    #Chess starting position
-    elif fen == 'T' or fen == 't':
-        fen = "r3k2r/8/4n3/3P1P2/8/8/8/R3K2R"
     i = 0    #Position in fen array
     j = 0    #Board position
     while j < 64 and i < len(fen):    #Populate board array from FEN string
@@ -143,6 +136,7 @@ def ShowBoard(brd):
 def GetMove():
     #Get move from user
     move = ''
+    col = ''
     while move == '':   #keep prompting for a move if nothing is entered
         if white:
             move = input("White to move (enter algebraic notation): ")
@@ -208,31 +202,30 @@ def GetMove():
         if white:
             piece ='P'
             if promo not in xwhite:
-                print(promo, "not recognized as a valid promotion")
                 promo = 'P' #invalid promotion, default to pawn
         else:
             piece = 'p'
             if promo not in xblack:
                 #Add case change? (e.g. Q --> q)
-                print(promo, "not recognized as a valid promotion")
                 promo = 'p'  #invalid promotion, default to pawn
     else:
         print("Error -- couldn't parse move: [", move, "] -- couldn't find piece")
         #continue    #try again
     if piece != 'P' and piece != 'p':   #if  not a pawn
         promo = piece   #set promotion piece to itself (failsafe)
+        col = move[0]
     #Determine square
     sq = move[-2:]
     #Validate square
     try:
-        col = int(move[-1])
+        row = int(move[-1])
     except ValueError:
         print("Error -- couldn't parse move: [", move, "] -- couldn't find square")
         #continue   #try again
     if move[-2] not in ranks:
         print("Error -- couldn't parse move: [", move, "] -- couldn't find square")
         #continue   #try again
-    col = move[-2]
+    #col = move[-2]
     #Convert square to number
     destination = BoardIndex(sq)
     return [piece, destination, promo, False, col]  #capture, check, checkmate can be calculated
@@ -373,6 +366,7 @@ def BackTrack(destination, type, color, col):
     color = not color   #include your own pieces, not your opponents
     if type == 'P' or type == 'p':
         reach = PawnMoves(destination, False)
+        print("Pawn reach:", reach) #for testing
         if col == 'a':   #find file if the piece is a Pawn
             col = fileA
         elif col == 'b':
@@ -407,7 +401,7 @@ def BackTrack(destination, type, color, col):
             if type == 'P' or type == 'p':    # and col in file:   #check valid file, piece is a Pawn
                 if reach[i] in col:    #only include Pawn in file indicated in entered move
                     origins.append(reach[i])
-            else:   #will include all Pawns in range if a file isn't selected
+            else:
                 origins.append(reach[i])
         i += 1
     return origins
@@ -437,8 +431,8 @@ def ValidPath(type, origin, destination):
 def PawnMoves(home: int, forwards: bool):
     path = [home]
     if home < 8 or home > 55:
-        print("Error: Pawn out of range")
-        return []
+        #print("Pawn out of range (1st or 8th rank)")    
+        return []   #not a valid Pawn rank, return null array
     if capture:
         if forwards == white:  #True if white forwards or black backwards
             if home not in fileH:   #can move right

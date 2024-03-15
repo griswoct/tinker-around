@@ -2,7 +2,11 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-03-14 (Pi Day)
+#UPDATED: 2024-03-15 (Ides of March)
+#
+#Need to fix:
+    #black queen won't move diagonally
+    #can't find King (backtracking)
 #
 #Need to add:
     #Fully parse FEN:
@@ -18,15 +22,15 @@
         #Declare winned are end game
     #game over:
         #checkmate
-        #resignation
+        #[x] resignation
         #stalemate (no leagal moves)
-        #draw no Pawn moves or captures in 50 moves, 3 move repetition
+        #[x] draw no Pawn moves or captures in 50 moves, 3 move repetition
         #insufficient material:
             #King
             #King + Bishop
             #King + Knight
             #King + 2 Knights vs King
-            #in other words, you need a King and [(two or more pieces)** or (Rook or Queen or Pawn)] **except King and Knight and Knight vs King
+            #summary: you need a major piece (or Pawn) or two minor pieces (except K vs K and 2N)
 #More Ideas:
     #Heat map of which squares on the boad are controlled by which player
     #How many attackers and defenders are there on each piece
@@ -81,7 +85,7 @@ def GetBoard():
             else:
                 i += 1    #Ignore and go to to next character
         elif fen[i].isdigit() == True:
-            if int(fen[i]) > 8:    #More than 8 empty squares in a rank isn't posible in normal chess
+            if int(fen[i]) > 8:    #More than 8 empty squares in a rank
                 print("Error: extra empty squares in the board configuration:")
                 print(fen)
                 break
@@ -138,10 +142,12 @@ def ShowBoard(brd):
 #Get Chess Move in Algebraic Notation:
 def GetMove():
     #Get move from user
-    if white:
-        move = input("White to move (enter algebraic notation): ")
-    else:    #Defaults to white
-        move = input("Black to move (enter algebraic notation): ")
+    move = ''
+    while move == '':   #keep prompting for a move if nothing is entered
+        if white:
+            move = input("White to move (enter algebraic notation): ")
+        else:    #black
+            move = input("Black to move (enter algebraic notation): ")
     #Check for resignation
     if move == "resign":    #resign game (exit)
         return "resign"
@@ -367,44 +373,43 @@ def BackTrack(destination, type, color, col):
     color = not color   #include your own pieces, not your opponents
     if type == 'P' or type == 'p':
         reach = PawnMoves(destination, False)
-        print("Pawn reach =", reach)    #for testing
         if col == 'a':   #find file if the piece is a Pawn
-            file = fileA
+            col = fileA
         elif col == 'b':
-            file = fileB
+            col = fileB
         elif col == 'c':
-            file = fileC
+            col = fileC
         elif col == 'd':
-            file = fileD
+            col = fileD
         elif col == 'e':
-            file = fileE
+            col = fileE
         elif col == 'f':
-            file = fileF
+            col = fileF
         elif col == 'g':
-            file = fileG
+            col = fileG
         elif col == 'h':
-            file = fileH
+            col = fileH
+        else:
+            col = list(range(64))  #if col isn't recognized, file includes whole board
     elif type == 'B' or type == 'b':
         reach = BishopMoves(destination, False)
     elif type == 'N' or type == 'n':
-        reach = KnightMoves(destination, color)
+        reach = KnightMoves(destination, False)
     elif type == 'R' or type == 'r':
-        reach = RookMoves(destination, color)
+        reach = RookMoves(destination, False)
     elif type == 'Q' or type == 'q':
-        reach = QueenMoves(destination, color)
+        reach = QueenMoves(destination, False)
     elif type == 'K' or type == 'k':
-        reach = KingMoves(destination, color)
+        reach = KingMoves(destination, False)
     i = 0
-    while i < len(reach):
-        print("i:",i,"reach[i]:",reach[i])  #for testing
+    while i < len(reach):   #itterate through piece's range
         if board[reach[i]] == type:
-            if (type == 'P' or type == 'p') and col in file:   #check valid file, piece is a Pawn
-                if reach[i] in file:    #only include Pawn in file indicated in entered move
+            if type == 'P' or type == 'p':    # and col in file:   #check valid file, piece is a Pawn
+                if reach[i] in col:    #only include Pawn in file indicated in entered move
                     origins.append(reach[i])
             else:   #will include all Pawns in range if a file isn't selected
                 origins.append(reach[i])
         i += 1
-    print("final reach is:", reach,", origins is:", origins)  #for testing
     return origins
 
 #Checks if a piece can move from origin to destination in a single move
@@ -412,19 +417,17 @@ def ValidPath(type, origin, destination):
     if type == 'P' or type == 'p':
         reach = PawnMoves(origin, True)
     elif type == 'B' or type == 'b':
-        reach = BishopMoves(origin, white)
+        reach = BishopMoves(origin, True)
     elif type == 'N' or type == 'n':
-        reach = KnightMoves(origin, white)
+        reach = KnightMoves(origin, True)
     elif type == 'R' or type == 'r':
-        reach = RookMoves(origin, white)
+        reach = RookMoves(origin, True)
     elif type == 'Q' or type == 'q':
-        reach = QueenMoves(origin, white)
+        reach = QueenMoves(origin, True)
     elif type == 'K' or type == 'k':
-        reach = KingMoves(origin, white)
+        reach = KingMoves(origin, True)
     else:
         print("Error: couldn't determine possible moves for", type, "on", origin)
-    #print(type, "on", origin, "can reached:")   #for testing
-    #print(reach)    #for testing
     if destination in reach:
         return True
     else:
@@ -451,38 +454,31 @@ def PawnMoves(home: int, forwards: bool):
             if home not in fileH:   #can move right
                 x = home + 9   #backward right
                 if board[x] in xwhite: path.append(x)
-        return path #if capturing, no straigh movement
-    #Straight:
-    x = home
-    while True:
-        if forwards == white:  #True if white forwards or black backwards
-            x -= 8 #forwards
-            if not white:  #black backwards
-                if board[x] == 'p': #found a matching color Pawn
-                    print("I foundmy black Pawn on", x) #for testing
-                    path.append(x)
-                    break  #Pawns can't jump eachother
-        elif forwards ^ white: #XOR: white and backwards or black and forwards
-            x += 8 #backwards
-            if white:  #white backwards
-                if board[x] == 'P':    #found a matching color Pawn
-                    print("I found my white Pawn on", x)    #for testing
-                    path.append(x)
-                    break  #Pawns can't jump eachother
-        if board[x] == ' ':
-            print(x, "is an open space")    #for testing
-            path.append(x)
-        else:  #blocked, stop moving
-            print("blocked by", board[x], "on", x)  #for testing
-            break
-        if white:  #white
-            if x < 40 or x > 47: #white can only take one more step if on rank 3
-                print("not in rank 3")  #for testing
+    else:   #straight
+        x = home
+        while True:
+            if forwards == white:  #True if white forwards or black backwards
+                x -= 8 #forwards
+                if not white:  #black backwards
+                    if board[x] == 'p': #found a matching color Pawn
+                        path.append(x)
+                        break  #Pawns can't jump eachother
+            elif forwards ^ white: #XOR: white and backwards or black and forwards
+                x += 8 #backwards
+                if white:  #white backwards
+                    if board[x] == 'P':    #found a matching color Pawn
+                        path.append(x)
+                        break  #Pawns can't jump eachother
+            if board[x] == ' ':
+                path.append(x)
+            else:  #blocked, stop moving
                 break
-        else:  #black
-            if x < 16 or x > 23: #black can only take one more step if on rank 6
-                print("not on row 6")   #for testing
-                break
+            if white:  #white
+                if x < 40 or x > 47: #white can only take one more step if on rank 3
+                    break
+            else:  #black
+                if x < 16 or x > 23: #black can only take one more step if on rank 6
+                    break
     return path
 
 #Promote Pawn On Back Rank
@@ -967,7 +963,7 @@ while ply < 50:   #counts ply since last capture or Pawn movement
         b = q[1]
         promotion = q[2]
         castle = q[3]
-        rank = q[4]
+        file = q[4]
     square = BoardAlgebraic(b)  #get algebratic notation for user feedback (error messages)
     #Validate Selected Square
     if b >= len(board):    #off the board
@@ -981,7 +977,7 @@ while ply < 50:   #counts ply since last capture or Pawn movement
         else:
             print("Error: connot capture", board[b], "on square", square)
             continue    #loop without switching (try again)
-    options = BackTrack(b, chessman, white, rank)
+    options = BackTrack(b, chessman, white, file)
     if len(options) == 1:
         a = options[0]
     elif len(options) > 1:

@@ -524,34 +524,34 @@ def KnightMoves(home, forwards):
             x = home + 15  #down 2 ranks, left 1 file
             if board[x] == ' ':
                 path.append(x)
-            elif forwards and board[x] in xblack:
+            elif forwards == white and board[x] in xblack: #forwards and white or backtrack and black
                 path.append(x)
-            elif not forwards and board[x] in xwhite:
+            elif forwards ^ white and board[x] in xwhite: #forwards and black or white and backtrack
                 path.append(x)
         if home not in fileH:
             x = home + 17  #down 2 ranks, right 1 file
             if board[x] == ' ':
                 path.append(x)
-            elif forwards and board[x] in xblack:
+            elif forwards == white and board[x] in xblack:
                 path.append(x)
-            elif not forwards and board[x] in xwhite:
+            elif forwards ^ white and board[x] in xwhite:
                 path.append(x)
     if home > 15:   #ranks 1-6
         if home not in fileA:
             x = home - 17  #up 2 ranks, left 1 file
             if board[x] == ' ':
                 path.append(x)
-            elif forwards and board[x] in xblack:
+            elif forwards == white and board[x] in xblack:
                 path.append(x)
-            elif not forwards and board[x] in xwhite:
+            elif forwards ^ white and board[x] in xwhite:
                 path.append(x)
         if home not in fileH:
             x = home - 15  #up 2 ranks, right 1 file
             if board[x] == ' ':
                 path.append(x)
-            elif forwards and board[x] in xblack:
+            elif forwards == white and board[x] in xblack:
                 path.append(x)
-            elif not forwards and board[x] in xwhite:
+            elif forwards ^ white and board[x] in xwhite:
                 path.append(x)
     if home not in fileA and home not in fileB:
         #print("Not A nor B")   #for testing
@@ -559,17 +559,17 @@ def KnightMoves(home, forwards):
             x = home - 10   #left 2 files, up 1 rank
             if board[x] == ' ':
                 path.append(x)
-            elif forwards and board[x] in xblack:
+            elif forwards == white and board[x] in xblack:
                 path.append(x)
-            elif not forwards and board[x] in xwhite:
+            elif forwards ^ white and board[x] in xwhite:
                 path.append(x)
         if home < 56:
             x = home + 6   #left 2 files, down 1 rank
             if board[x] == ' ':
                 path.append(x)
-            elif forwards and board[x] in xblack:
+            elif forwards == white and board[x] in xblack:
                 path.append(x)
-            elif not forwards and board[x] in xwhite:
+            elif forwards ^ white and board[x] in xwhite:
                 path.append(x)
     if home not in fileG and home not in fileH:
         #print("Not G nor H")   #for testing
@@ -577,17 +577,17 @@ def KnightMoves(home, forwards):
             x = home - 6   #right 2 files, up 1 rank
             if board[x] == ' ':
                 path.append(x)
-            elif forwards and board[x] in xblack:
+            elif forwards == white and board[x] in xblack:
                 path.append(x)
-            elif not forwards and board[x] in xwhite:
+            elif forwards ^ white and board[x] in xwhite:
                 path.append(x)
         if home < 56:
             x = home + 10   #right 2 files, down 1 rank
             if board[x] == ' ':
                 path.append(x)
-            elif forwards and board[x] in xblack:
+            elif forwards == white and board[x] in xblack:
                 path.append(x)
-            elif not forwards and board[x] in xwhite:
+            elif forwards ^ white and board[x] in xwhite:
                 path.append(x)
     return path
 

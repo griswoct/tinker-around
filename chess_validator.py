@@ -2,11 +2,9 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-03-15 (Ides of March)
+#UPDATED: 2024-03-17 (Saint Patrck's Day)
 #
 #Need to fix:
-    #Pawn e moved from e5 to e4 when move fxe4 was selected (e4 was empty)
-    #crashed when an empty move was entered (hit enter twice after typing in move)
     #black queen struggling to move diagonally
     #can't find King (backtracking)
 #
@@ -26,7 +24,7 @@
         #checkmate
         #[x] resignation
         #stalemate (no leagal moves)
-        #[x] draw no Pawn moves or captures in 50 moves, 3 move repetition
+        #[x] draw )no Pawn moves or captures in 50 moves, 3 move repetition)
         #insufficient material:
             #King
             #King + Bishop
@@ -644,15 +642,14 @@ def BishopMoves(home, forwards):
 def RookMoves(home, forwards):
     path = [home]
     x = home
-    #print("x =",x) #for testing
     while x not in fileA: #move left until reaching file A
         x -= 1
         if board[x] == ' ':
             path.append(x)
         else:
-            if forwards and board[x] in xblack:
+            if forwards == white and board[x] in xblack:
                 path.append(x)
-            elif not forwards and board[x] in xwhite:
+            elif forwards ^ white and board[x] in xwhite:
                 path.append(x)
             break
     x = home
@@ -661,9 +658,9 @@ def RookMoves(home, forwards):
         if board[x] == ' ':
             path.append(x)
         else:
-            if forwards and board[x] in xblack:
+            if forwards == white and board[x] in xblack:
                 path.append(x)
-            elif not forwards and board[x] in xwhite:
+            elif forwards ^ white and board[x] in xwhite:
                 path.append(x)
             break
     x = home
@@ -672,9 +669,9 @@ def RookMoves(home, forwards):
         if board[x] == ' ':
             path.append(x)
         else:
-            if forwards and board[x] in xblack:
+            if forwards == white and board[x] in xblack:
                 path.append(x)
-            elif not forwards and board[x] in xwhite:
+            elif forwards ^ white and board[x] in xwhite:
                 path.append(x)
             break
     x = home
@@ -683,9 +680,9 @@ def RookMoves(home, forwards):
         if board[x] == ' ':
             path.append(x)
         else:
-            if forwards and board[x] in xblack:
+            if forwards == white and board[x] in xblack:
                 path.append(x)
-            elif not forwards and board[x] in xwhite:
+            elif forwards ^ white and board[x] in xwhite:
                 path.append(x)
             break
     return path

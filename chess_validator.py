@@ -2,10 +2,9 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-03-17 (Saint Patrck's Day)
+#UPDATED: 2024-03-18
 #
 #Need to fix:
-    #black queen struggling to move diagonally
     #can't find King (backtracking)
 #
 #Need to add:
@@ -43,6 +42,7 @@ good = False    #Boolean to control loops
 white = True    #Playing as white? (Boolean)
 a = 52    #Board index starting location
 b = 36    #Board index ending location
+ep = '' #En passant target square
 fileA = [0,8,16,24,32,40,48,56] #Board indexes for A-file (edge of board)
 fileB = [1,9,17,25,33,41,49,57] #Board indexes for B-file
 fileC = [2,10,18,26,34,42,50,58] #Board indexes for C-file
@@ -258,7 +258,7 @@ def BoardIndex(sq):
         else:
             return i
 
-#Conver Board Index to Algebraic Notation
+#Convert Board Index to Algebraic Notation
 def BoardAlgebraic(i):
     if i % 8 == 0:
         spot = 'a'
@@ -468,9 +468,13 @@ def PawnMoves(home: int, forwards: bool):
             if white:  #white
                 if x < 40 or x > 47: #white can only take one more step if on rank 3
                     break
+                else:
+                    ep = x #set en passant target
             else:  #black
                 if x < 16 or x > 23: #black can only take one more step if on rank 6
                     break
+                else:
+                    ep = x #set en passant target
     return path
 
 #Promote Pawn On Back Rank

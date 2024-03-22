@@ -60,10 +60,11 @@ pieces = ['K', *xwhite, 'k', *xblack]    #Valid chess pieces list
 
 #FUNCTIONS
 #Get Chess Board Setup
-def GetBoard():
+def get_board():
+    build = []
     fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"    #Default starting position
     fen = input("Enter D for default starting position, or board configuration in FEN notation: ")
-    if fen == 'D' or fen == 'd':
+    if fen in ['D','d']:
         fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"    #Chess starting position
     i = 0    #Position in fen array
     j = 0    #Board position
@@ -73,28 +74,26 @@ def GetBoard():
                 print("Error: unexpected / in the board configuration:")
                 print(fen)
                 break
-            else:
-                i += 1    #Ignore and go to to next character
+            i += 1    #Ignore and go to to next character
         elif fen[i].isdigit() == True:
             if int(fen[i]) > 8:    #More than 8 empty squares in a rank
                 print("Error: extra empty squares in the board configuration:")
                 print(fen)
                 break
-            else:
-                k = 0    #Number of empty squares added to rank
-                while k < int(fen[i]):    #Add specified number of empty squares to board array
-                    board.append(' ')
-                    k += 1
-                    j += 1
-                i += 1    #Go to next character after adding empty squares
+            k = 0    #Number of empty squares added to rank
+            while k < int(fen[i]):    #Add specified number of empty squares to board array
+                build.append(' ')
+                k += 1
+                j += 1
+            i += 1    #Go to next character after adding empty squares
         elif fen[i] in pieces:    #Checks if character indicates valid chess piece
-            board.append(fen[i])
+            build.append(fen[i])
             i += 1
             j += 1
         else:
             print("Error: ", fen[i], " is not a recognized piece.")
             break
-    return board
+    return build
 
 #Validate Chess Board Configuration
 def ValidBoard(board):
@@ -930,11 +929,11 @@ def MakeMove(original, type, start, end, castling):
 
 #MAIN BODY
 #Get Board Configuration
-board = GetBoard()
+board = get_board()
 good = ValidBoard(board)
 while not good:
     print("Sorry, that board configuration is not recognised. Please Try again.")
-    board = GetBoard()
+    board = get_board()
     good = ValidBoard(board)
 ShowBoard(board)
 #Get Color Being Played

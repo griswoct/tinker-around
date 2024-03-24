@@ -111,7 +111,7 @@ def valid_board(brd):
         if i in ['P', 'p'] and k > 8:
             print("Error: more than 8 Pawns")
             return False
-        elif i == 'k' and k != 1:
+        if i == 'k' and k != 1:
             print("Error: there should be exactly 1 black King. Found ", k)
             return False
         if i == 'K' and k != 1:

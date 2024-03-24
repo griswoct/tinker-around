@@ -2,7 +2,7 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-03-23
+#UPDATED: 2024-03-24
 #
 #Need to fix:
     #can't find King (backtracking)
@@ -96,28 +96,25 @@ def get_board():
     return build
 
 #Validate Chess Board Configuration
-def ValidBoard(board):
-    if len(board) != 64:
+def valid_board(brd):
+    if len(brd) != 64:
         print("Error: incomplete board")    #Board array should have 64 elements
         return False
     for i in pieces:
         k = 0
-        for j in board:
+        for j in brd:
             if i == j:
                 k += 1
         if k > 9:
             print("Error: excessive number of ", i)
             return False
-        elif i == 'p' and k > 8:
-            print("Error: more than 8 black Pawns")
-            return False
-        elif i == 'P' and k > 8:
-            print("Error: more than 8 white Pawns")
+        if i in ['P', 'p'] and k > 8:
+            print("Error: more than 8 Pawns")
             return False
         elif i == 'k' and k != 1:
             print("Error: there should be exactly 1 black King. Found ", k)
             return False
-        elif i == 'K' and k != 1:
+        if i == 'K' and k != 1:
             print("Error: there should be exactly 1 white King. Found ", k)
         else:
             return True
@@ -930,11 +927,11 @@ def MakeMove(original, type, start, end, castling):
 #MAIN BODY
 #Get Board Configuration
 board = get_board()
-good = ValidBoard(board)
+good = valid_board(board)
 while not good:
     print("Sorry, that board configuration is not recognised. Please Try again.")
     board = get_board()
-    good = ValidBoard(board)
+    good = valid_board(board)
 ShowBoard(board)
 #Get Color Being Played
 q = input ("Are you playing White (W) or Black (B)? ")

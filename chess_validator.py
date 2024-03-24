@@ -2,7 +2,7 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-03-18
+#UPDATED: 2024-03-23
 #
 #Need to fix:
     #can't find King (backtracking)
@@ -75,7 +75,7 @@ def get_board():
                 print(fen)
                 break
             i += 1    #Ignore and go to to next character
-        elif fen[i].isdigit() == True:
+        elif fen[i].isdigit():
             if int(fen[i]) > 8:    #More than 8 empty squares in a rank
                 print("Error: extra empty squares in the board configuration:")
                 print(fen)

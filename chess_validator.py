@@ -2,7 +2,7 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-03-24
+#UPDATED: 2024-03-25
 #
 #Need to fix:
     #can't find King (backtracking)
@@ -120,14 +120,14 @@ def valid_board(brd):
             return True
 
 #Display Chess Board on Terminal Screen
-def ShowBoard(brd):
+def show_board(brd):
     i = 0    #Board position
     while i < 64:    #Display board
         print(brd[i:i+8])
         i += 8
 
 #Get Chess Move in Algebraic Notation:
-def GetMove():
+def get_move():
     #Get move from user
     move = ''
     col = ''
@@ -182,12 +182,12 @@ def GetMove():
             piece = 'N'
         else:
             piece = 'n'
-    elif move[0] == 'B' and move[1].isdigit() == False:
+    elif move[0] == 'B' and move[1].isdigit() is False:
         if white:
             piece = 'B'
         else:
             piece = 'b'
-    elif move[0] == 'a' or move[0] == 'b' or move[0] == 'c' or move[0] == 'd' or move[0] == 'e' or move[0] == 'f' or move[0] == 'g' or move[0] == 'h' or move[0] == 'P' or move[0] == 'p':
+    elif move[0] in ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'P', 'p']:
         if '=' in move:
             promo = move.pop()
             move.remove('=')
@@ -205,7 +205,7 @@ def GetMove():
     else:
         print("Error -- couldn't parse move: [", move, "] -- couldn't find piece")
         #continue    #try again
-    if piece != 'P' and piece != 'p':   #if  not a pawn
+    if piece not in ['P', 'p']:   #if  not a pawn
         promo = piece   #set promotion piece to itself (failsafe)
         col = move[0]
     #Determine square
@@ -932,7 +932,7 @@ while not good:
     print("Sorry, that board configuration is not recognised. Please Try again.")
     board = get_board()
     good = valid_board(board)
-ShowBoard(board)
+show_board(board)
 #Get Color Being Played
 q = input ("Are you playing White (W) or Black (B)? ")
 if q == 'B' or q == 'b':    #Black selected
@@ -945,7 +945,7 @@ while ply < 50:   #counts ply since last capture or Pawn movement
     capture = False #reset capture
     check = False   #reset check
     a = 52  #reser a
-    q = GetMove()
+    q = get_move()
     if q == "resign": #resign game (exit)
         print("Resigning game...")
         break
@@ -998,7 +998,7 @@ while ply < 50:   #counts ply since last capture or Pawn movement
         board = OldBoard
         continue    #loop without switching (try again)
     #show corrected move (including check, checkmate, castling, pawn promotion)
-    ShowBoard(board)
+    show_board(board)
     white = not white   #switch colors for next player
     ply += 1
     if capture or chessman == 'p' or chessman == 'P':

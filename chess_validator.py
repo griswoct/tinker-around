@@ -2,7 +2,7 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-03-25
+#UPDATED: 2024-03-26
 #
 #Need to fix:
     #can't find King (backtracking)
@@ -221,16 +221,16 @@ def get_move():
         #continue   #try again
     #col = move[-2]
     #Convert square to number
-    destination = BoardIndex(sq)
+    destination = board_index(sq)
     return [piece, destination, promo, False, col]  #capture, check, checkmate can be calculated
 
 #Convert Algebraic Notated Square to Board Index Number
-def BoardIndex(sq):
+def board_index(sq):
     if len(sq) != 2:    #Board location should be 2 characters in algebraic notation
         return 64    #Invalid index indicating error
-    elif not sq[1].isdigit: #Second digit in location should be a number
+    if not sq[1].isdigit: #Second digit in location should be a number
         return 64
-    elif int(sq[1]) != 0 and int(sq[1]) != 9: #Rank 1-8
+    if int(sq[1]) != 0 and int(sq[1]) != 9: #Rank 1-8
         if sq[0] == 'a' or sq[0] == 'A':
             i = (8 - int(sq[1])) * 8
         elif sq[0] == 'b' or sq[0] == 'B':
@@ -251,7 +251,6 @@ def BoardIndex(sq):
             return 64
         if i < 0 or i > 63:
             return 64    #Invalid index indicating error
-        else:
             return i
 
 #Convert Board Index to Algebraic Notation
@@ -345,7 +344,7 @@ def WhichPiece(p, loc, end):
     if j > 1:
         #Need to select Pawn based on letter in the move
         start = input("Multiple pieces available, please enter square of intended piece square: ")
-        start = BoardIndex(start)
+        start = board_index(start)
         #Check a is in locations, check a to b is a valid move for piece
         return start
     elif j == 0:
@@ -973,7 +972,7 @@ while ply < 50:   #counts ply since last capture or Pawn movement
         a = options[0]
     elif len(options) > 1:
         start = input("Multiple pieces can make that move. Please enter the location of the intended piece: ")
-        a = BoardIndex(start)
+        a = board_index(start)
         good = ValidPath(chessman, a, b)
         if not good:
             print("Error: the", chessman, "on ", start, "cannot move to", square)

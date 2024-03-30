@@ -10,6 +10,7 @@
 * Bluring/unbluring algorithm
 * ~~Sudoku solver (VBA)~~
 * Spaghettification/obfuscation
+  * Ida (main)
 * ~~Yellowstone Permutation:~~
   * ~~[Numberphile: Yellowstone Permutation](https://www.youtube.com/watch?v=DUaqiM1bGX4)~~
 * Printer program

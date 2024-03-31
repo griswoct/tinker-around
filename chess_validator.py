@@ -2,7 +2,7 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-03-26
+#UPDATED: 2024-03-30
 #
 #Need to fix:
     #can't find King (backtracking)
@@ -254,7 +254,7 @@ def board_index(sq):
             return i
 
 #Convert Board Index to Algebraic Notation
-def BoardAlgebraic(i):
+def board_algebraic(i):
     if i % 8 == 0:
         spot = 'a'
     elif i % 8 == 1:
@@ -954,7 +954,7 @@ while ply < 50:   #counts ply since last capture or Pawn movement
         promotion = q[2]
         castle = q[3]
         file = q[4]
-    square = BoardAlgebraic(b)  #get algebratic notation for user feedback (error messages)
+    square = board_algebraic(b)  #get algebratic notation for user feedback (error messages)
     #Validate Selected Square
     if b >= len(board):    #off the board
         print("Error: ", square, " not found on board")

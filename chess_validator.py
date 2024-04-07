@@ -290,28 +290,26 @@ def board_algebraic(i):
     return spot
 
 #Verify the Piece "p" Can Be Captured
-def ValidCapture(p):
+def valid_capture(p):
     if white:
         if p in xblack:
             return True
-        else:    #A non-capturable piece is already on the square
-            if p == 'k':
-                print("You cannot capture the King")
-            elif p in xwhite or p == 'K':
-                print("Your ", p, " is already on ", square)
-            else:
-                print("Something went wrong. ", p, " is on ", square)
+        if p == 'k':
+            print("You cannot capture the King")
+        elif p in xwhite or p == 'K':
+            print("Your ", p, " is already on ", square)
+        else:
+            print("Something went wrong. ", p, " is on ", square)
             return False
     else:
         if p in xwhite:
             return True
-        else:    #A non-capturable piece is already on the square
-            if p == 'K':
-                print("You cannot capture the King")
-            elif p in xblack or p == 'k':
-                print("Your ", p, " is already on ", square)
-            else:
-                print("Something went wrong. ", p, " is on ", square)
+        if p == 'K':
+            print("You cannot capture the King")
+        elif p in xblack or p == 'k':
+            print("Your ", p, " is already on ", square)
+        else:
+            print("Something went wrong. ", p, " is on ", square)
             return False
 
 #Find the Number and Locations of Pieces "p"

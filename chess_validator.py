@@ -313,7 +313,7 @@ def valid_capture(p):
             return False
 
 #Find the Number and Locations of Pieces "p"
-def FindPieces(p):
+def find_pieces(p):
     loc = []   #Count and up to 9 locations, 64 is off the board
     i = 0
     while i < 64:
@@ -322,34 +322,35 @@ def FindPieces(p):
         i += 1
     return loc
 
+#NOT USED REMOVE?
 #Find which locations 'loc' can be a starting points for piece 'p' to get to square 'end'
-def WhichPiece(p, loc, end):
+def which_piece(p, loc, end):
     i = 1   #First location at locations[1]
     j = 0
-    good = False
+    okay = False
     while i <= loc[0]:    #locations[0] indicates the number of pieces found
         if loc[i] == 64:  #Invalid board index
             break
-        elif j > 1: #More than one piece can move to square b
+        if j > 1: #More than one piece can move to square b
             break
         else:
-            good = ValidPath(p, loc[i], end)    #piece on locations[i] can move to square b
-            if good:
+            okay = ValidPath(p, loc[i], end)    #piece on locations[i] can move to square b
+            if okay:
                 j += 1
-                start = loc[i]   #save starting location
-                good = False
+                origin = loc[i]   #save starting location
+                okay = False
         i += 1
     if j > 1:
         #Need to select Pawn based on letter in the move
-        start = input("Multiple pieces available, please enter square of intended piece square: ")
-        start = board_index(start)
+        origin = input("Multiple pieces available, please enter square of intended piece square: ")
+        origin = board_index(origin)
         #Check a is in locations, check a to b is a valid move for piece
-        return start
-    elif j == 0:
+        return origin
+    if j == 0:
         print("Error: could not find a", p, "that can move to", square)
-        return 64
+        return False
     else:
-        return start
+        return origin
 
 #Backtracks along the path for that type of piece and returns the locations of that type of piece
 def BackTrack(destination, type, color, col):
@@ -986,9 +987,9 @@ while ply < 50:   #counts ply since last capture or Pawn movement
     OldBoard = board
     board = MakeMove(board, chessman, a, b, castle)
     if white:
-        king = FindPieces('K')
+        king = find_pieces('K')
     else:
-        king = FindPieces('k')
+        king = find_pieces('k')
     check = CheckCheck(king[0], white)
     if check:
         print("Invalid move: your King is in check!")

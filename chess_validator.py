@@ -2,7 +2,7 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-03-30
+#UPDATED: 2024-04-16
 #
 #Need to fix:
     #can't find King (backtracking)
@@ -333,12 +333,11 @@ def which_piece(p, loc, end):
             break
         if j > 1: #More than one piece can move to square b
             break
-        else:
-            okay = ValidPath(p, loc[i], end)    #piece on locations[i] can move to square b
-            if okay:
-                j += 1
-                origin = loc[i]   #save starting location
-                okay = False
+        okay = ValidPath(p, loc[i], end)    #piece on locations[i] can move to square b
+        if okay:
+            j += 1
+            origin = loc[i]   #save starting location
+            okay = False
         i += 1
     if j > 1:
         #Need to select Pawn based on letter in the move
@@ -349,14 +348,13 @@ def which_piece(p, loc, end):
     if j == 0:
         print("Error: could not find a", p, "that can move to", square)
         return False
-    else:
-        return origin
+    return origin
 
 #Backtracks along the path for that type of piece and returns the locations of that type of piece
-def BackTrack(destination, type, color, col):
+def back_track(destination, cm, color, col):
     origins = []
     color = not color   #include your own pieces, not your opponents
-    if type == 'P' or type == 'p':
+    if cm in {'P','p'}:
         reach = PawnMoves(destination, False)
         print("Pawn reach:", reach) #for testing
         if col == 'a':   #find file if the piece is a Pawn
@@ -377,20 +375,20 @@ def BackTrack(destination, type, color, col):
             col = fileH
         else:
             col = list(range(64))  #if col isn't recognized, file includes whole board
-    elif type == 'B' or type == 'b':
+    elif cm in {'B','b'}:
         reach = BishopMoves(destination, False)
-    elif type == 'N' or type == 'n':
+    elif cm in {'N','n'}:
         reach = KnightMoves(destination, False)
-    elif type == 'R' or type == 'r':
+    elif cm in {'R','r'}:
         reach = RookMoves(destination, False)
-    elif type == 'Q' or type == 'q':
+    elif cm in {'Q','q'}:
         reach = QueenMoves(destination, False)
-    elif type == 'K' or type == 'k':
+    elif cm in {'K','k'}:
         reach = KingMoves(destination, False)
     i = 0
     while i < len(reach):   #itterate through piece's range
-        if board[reach[i]] == type:
-            if type == 'P' or type == 'p':    # and col in file:   #check valid file, piece is a Pawn
+        if board[reach[i]] == cm:
+            if cm in {'P','p'}:    # and col in file:   #check valid file, piece is a Pawn
                 if reach[i] in col:    #only include Pawn in file indicated in entered move
                     origins.append(reach[i])
             else:
@@ -803,13 +801,13 @@ def KingMoves(home, forwards):
 def CheckCheck(throne, color):
     if color:
         for x in xblack:
-            threat = BackTrack(throne, x, not white, '')
+            threat = back_track(throne, x, not white, '')
             print("Threats from",x,threat)  #for testing
             if threat != []:
                 return True
     else:
         for x in xwhite:
-            threat = BackTrack(throne, x, not white, '')
+            threat = back_track(throne, x, not white, '')
             print("Threats from",x,threat)  #for testing
             if threat != []:
                 return True
@@ -820,10 +818,10 @@ def Attackers(target, color):
     threat = []
     if color:
         for x in xblack:
-            threat.append(BackTrack(target, x, not white), '')
+            threat.append(back_track(target, x, not white), '')
     else:
         for x in xwhite:
-            threat.append(BackTrack(target, x, not white), '')
+            threat.append(back_track(target, x, not white), '')
     return threat
 
 #Determins if the King can Castle Kingside or Queenside
@@ -966,7 +964,7 @@ while ply < 50:   #counts ply since last capture or Pawn movement
         else:
             print("Error: connot capture", board[b], "on square", square)
             continue    #loop without switching (try again)
-    options = BackTrack(b, chessman, white, file)
+    options = back_track(b, chessman, white, file)
     if len(options) == 1:
         a = options[0]
     elif len(options) > 1:

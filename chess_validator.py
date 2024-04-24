@@ -2,7 +2,7 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-04-16
+#UPDATED: 2024-04-24
 #
 #Need to fix:
     #can't find King (backtracking)
@@ -59,8 +59,8 @@ xwhite = ['Q','R','N','B','P']    #Capturable white pieces list (no King)
 pieces = ['K', *xwhite, 'k', *xblack]    #Valid chess pieces list
 
 #FUNCTIONS
-#Get Chess Board Setup
 def get_board():
+    '''Get Chess Board Setup'''
     build = []
     fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"    #Default starting position
     fen = input("Enter D for default starting position, or board configuration in FEN notation: ")
@@ -95,8 +95,8 @@ def get_board():
             break
     return build
 
-#Validate Chess Board Configuration
-def valid_board(brd):
+def valid_board(brd: str):
+    '''Validate Chess Board Configuration'''
     if len(brd) != 64:
         print("Error: incomplete board")    #Board array should have 64 elements
         return False
@@ -119,16 +119,15 @@ def valid_board(brd):
         else:
             return True
 
-#Display Chess Board on Terminal Screen
-def show_board(brd):
+def show_board(brd: str):
+    '''Display Chess Board on Terminal Screen'''
     i = 0    #Board position
     while i < 64:    #Display board
         print(brd[i:i+8])
         i += 8
 
-#Get Chess Move in Algebraic Notation:
 def get_move():
-    #Get move from user
+    '''Get Chess Move in Algebraic Notation'''
     move = ''
     col = ''
     while move == '':   #keep prompting for a move if nothing is entered
@@ -224,8 +223,8 @@ def get_move():
     destination = board_index(sq)
     return [piece, destination, promo, False, col]  #capture, check, checkmate can be calculated
 
-#Convert Algebraic Notated Square to Board Index Number
-def board_index(sq):
+def board_index(sq: str):
+    '''Convert Algebraic Notated Square to Board Index Number'''
     if len(sq) != 2:    #Board location should be 2 characters in algebraic notation
         return 64    #Invalid index indicating error
     if not sq[1].isdigit: #Second digit in location should be a number
@@ -251,10 +250,10 @@ def board_index(sq):
             return 64
         if i < 0 or i > 63:
             return 64    #Invalid index indicating error
-            return i
+        return i
 
-#Convert Board Index to Algebraic Notation
-def board_algebraic(i):
+def board_algebraic(i: int):
+    '''Convert Board Index to Algebraic Notation'''
     if i % 8 == 0:
         spot = 'a'
     elif i % 8 == 1:
@@ -289,8 +288,8 @@ def board_algebraic(i):
         spot += '1'
     return spot
 
-#Verify the Piece "p" Can Be Captured
 def valid_capture(p):
+    '''Verify the Piece "p" Can Be Captured'''
     if white:
         if p in xblack:
             return True
@@ -312,8 +311,8 @@ def valid_capture(p):
             print("Something went wrong. ", p, " is on ", square)
             return False
 
-#Find the Number and Locations of Pieces "p"
 def find_pieces(p):
+    '''Find the Number and Locations of Pieces "p"'''
     loc = []   #Count and up to 9 locations, 64 is off the board
     i = 0
     while i < 64:
@@ -322,36 +321,8 @@ def find_pieces(p):
         i += 1
     return loc
 
-#NOT USED REMOVE?
-#Find which locations 'loc' can be a starting points for piece 'p' to get to square 'end'
-def which_piece(p, loc, end):
-    i = 1   #First location at locations[1]
-    j = 0
-    okay = False
-    while i <= loc[0]:    #locations[0] indicates the number of pieces found
-        if loc[i] == 64:  #Invalid board index
-            break
-        if j > 1: #More than one piece can move to square b
-            break
-        okay = ValidPath(p, loc[i], end)    #piece on locations[i] can move to square b
-        if okay:
-            j += 1
-            origin = loc[i]   #save starting location
-            okay = False
-        i += 1
-    if j > 1:
-        #Need to select Pawn based on letter in the move
-        origin = input("Multiple pieces available, please enter square of intended piece square: ")
-        origin = board_index(origin)
-        #Check a is in locations, check a to b is a valid move for piece
-        return origin
-    if j == 0:
-        print("Error: could not find a", p, "that can move to", square)
-        return False
-    return origin
-
-#Backtracks along the path for that type of piece and returns the locations of that type of piece
-def back_track(destination, cm, color, col):
+def back_track(destination: int, cm, color: bool, col):
+    '''Backtracks path for that type of piece, and returns the locations of those pieces'''
     origins = []
     color = not color   #include your own pieces, not your opponents
     if cm in {'P','p'}:
@@ -396,8 +367,8 @@ def back_track(destination, cm, color, col):
         i += 1
     return origins
 
-#Checks if a piece can move from origin to destination in a single move
-def ValidPath(type, origin, destination):
+def valid_path(type, origin, destination):
+    '''Checks if a piece can move from origin to destination in a single move'''
     if type == 'P' or type == 'p':
         reach = PawnMoves(origin, True)
     elif type == 'B' or type == 'b':
@@ -511,16 +482,16 @@ def PromotePawn():
             return 'q'
 
 #Returns the squares a Knight can move to
-def KnightMoves(home, forwards):
+def KnightMoves(home: int, forwards: bool):
     path = [home]
     if home < 48:   #ranks 3-8
         if home not in fileA:
             x = home + 15  #down 2 ranks, left 1 file
             if board[x] == ' ':
                 path.append(x)
-            elif forwards == white and board[x] in xblack: #forwards and white or backtrack and black
+            elif forwards == white and board[x] in xblack: #forwards & white or backtrack & black
                 path.append(x)
-            elif forwards ^ white and board[x] in xwhite: #forwards and black or white and backtrack
+            elif forwards ^ white and board[x] in xwhite: #forwards & black or backtrack & white
                 path.append(x)
         if home not in fileH:
             x = home + 17  #down 2 ranks, right 1 file
@@ -586,7 +557,7 @@ def KnightMoves(home, forwards):
     return path
 
 #Returns the squares a Bishop can move to
-def BishopMoves(home, forwards):
+def BishopMoves(home: int, forwards: bool):
     path = [home]
     x = home
     while x not in fileA and x > 7: #move up and left until reaching file A or rank 8
@@ -635,7 +606,7 @@ def BishopMoves(home, forwards):
     return path
 
 #Returns the squares a Rook can move to
-def RookMoves(home, forwards):
+def RookMoves(home: int, forwards: bool):
     path = [home]
     x = home
     while x not in fileA: #move left until reaching file A
@@ -684,7 +655,7 @@ def RookMoves(home, forwards):
     return path
 
 #Returns the squares a Queen can move to
-def QueenMoves(home, fwd):
+def QueenMoves(home: int, fwd: bool):
     pathR = RookMoves(home, fwd)
     pathR.remove(home)
     pathB = BishopMoves(home, fwd)
@@ -692,7 +663,7 @@ def QueenMoves(home, fwd):
     return path
 
 #Returns the squares a King can move to
-def KingMoves(home, forwards):
+def KingMoves(home: int, forwards: bool):
     path = [home]
     if home > 7:    #not in rank 8
         if home not in fileA:
@@ -798,7 +769,7 @@ def KingMoves(home, forwards):
     return path
 
 #Checks if a square can be attacked by an opponents piece
-def CheckCheck(throne, color):
+def CheckCheck(throne: int, color: bool):
     if color:
         for x in xblack:
             threat = back_track(throne, x, not white, '')
@@ -814,7 +785,7 @@ def CheckCheck(throne, color):
     return False
 
 #Checks if a square can be attacked by an opponents piece
-def Attackers(target, color):
+def Attackers(target: int, color: bool):
     threat = []
     if color:
         for x in xblack:
@@ -825,7 +796,7 @@ def Attackers(target, color):
     return threat
 
 #Determins if the King can Castle Kingside or Queenside
-def CastleCheck(color):
+def CastleCheck(color: bool):
     options = [True, True]
     if color:   #white
         if board[60] != 'K':    #White King is not on starting square
@@ -892,10 +863,10 @@ def CastleCheck(color):
     return options
 
 #Updates the board with requested move
-def MakeMove(original, type, start, end, castling):
+def MakeMove(original: str, type: bool, start: int, end: int, castling: bool):
     updated = original
     #Promote Pawn
-    if type == 'P' and end < 8 or type == 'p' and end > 55:   #"and" is evaluated before "or" in a multiple conditional statement
+    if type == 'P' and end < 8 or type == 'p' and end > 55:   #"and" is evaluated before "or"
         if promotion != 'p' and promotion != 'P':
             type = promotion
         else:
@@ -968,16 +939,16 @@ while ply < 50:   #counts ply since last capture or Pawn movement
     if len(options) == 1:
         a = options[0]
     elif len(options) > 1:
-        start = input("Multiple pieces can make that move. Please enter the location of the intended piece: ")
+        start = input("Multiple pieces found. Please enter the location of the intended piece: ")
         a = board_index(start)
-        good = ValidPath(chessman, a, b)
+        good = valid_path(chessman, a, b)
         if not good:
             print("Error: the", chessman, "on ", start, "cannot move to", square)
             continue    #loop without switching (try again)
     else:
         print("Error: could not find a", chessman, "that can move to", square)
         continue    #loop without switching (try again)
-    if chessman == 'P' and b < 8 or chessman == 'p' and b > 55:   #"and" is evaluated before "or" in a multiple conditional statement
+    if chessman == 'P' and b < 8 or chessman == 'p' and b > 55:   #"and" is evaluated before "or"
         if promotion != 'p' and promotion != 'P':
             chessman = promotion
         else:

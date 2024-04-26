@@ -1,12 +1,12 @@
+'''
 #CHESS VALIDATOR
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-04-24
-#
+#UPDATED: 2024-04-26
+'''
 #Need to fix:
     #can't find King (backtracking)
-#
 #Need to add:
     #Fully parse FEN:
         #Active color
@@ -137,7 +137,7 @@ def get_move():
             move = input("Black to move (enter algebraic notation): ")
     #Check for resignation
     if move == "resign":    #resign game (exit)
-        return "resign"
+        return "resign" #exit module?
     #Remove '+' or '#'
     if move[-1] == '+' or move [-1] == '#':
         move.pop()    #Removes last character
@@ -192,6 +192,7 @@ def get_move():
             move.remove('=')
         else:
             promo = ''
+        col = move[-2]
         if white:
             piece ='P'
             if promo not in xwhite:
@@ -212,6 +213,7 @@ def get_move():
     #Validate square
     try:
         row = int(move[-1])
+        sq = str(col+row)
     except ValueError:
         print("Error -- couldn't parse move: [", move, "] -- couldn't find square")
         #continue   #try again
@@ -367,32 +369,28 @@ def back_track(destination: int, cm, color: bool, col):
         i += 1
     return origins
 
-def valid_path(type, origin, destination):
+def valid_path(cm, origin: int, destination: int):
     '''Checks if a piece can move from origin to destination in a single move'''
-    if type == 'P' or type == 'p':
+    if cm in {'P','p'}:
         reach = PawnMoves(origin, True)
-    elif type == 'B' or type == 'b':
+    elif cm in {'B','b'}:
         reach = BishopMoves(origin, True)
-    elif type == 'N' or type == 'n':
+    elif cm in {'N','n'}:
         reach = KnightMoves(origin, True)
-    elif type == 'R' or type == 'r':
+    elif cm in {'R','r'}:
         reach = RookMoves(origin, True)
-    elif type == 'Q' or type == 'q':
+    elif cm in 'Q' or cm == 'q':
         reach = QueenMoves(origin, True)
-    elif type == 'K' or type == 'k':
+    elif cm in {'K','k'}:
         reach = KingMoves(origin, True)
     else:
-        print("Error: couldn't determine possible moves for", type, "on", origin)
-    if destination in reach:
-        return True
-    else:
-        return False
+        print("Error: couldn't determine possible moves for", cm, "on", origin)
+    return bool(destination in reach)
 
 #Returns the squares a Pawn can move to
 def PawnMoves(home: int, forwards: bool):
     path = [home]
     if home < 8 or home > 55:
-        #print("Pawn out of range (1st or 8th rank)")    
         return []   #not a valid Pawn rank, return null array
     if capture:
         if forwards == white:  #True if white forwards or black backwards
@@ -770,7 +768,9 @@ def KingMoves(home: int, forwards: bool):
 
 #Checks if a square can be attacked by an opponents piece
 def CheckCheck(throne: int, color: bool):
-    if color:
+    threats = attackers(throne,color)
+    return bool(not threats)
+    '''if color:
         for x in xblack:
             threat = back_track(throne, x, not white, '')
             print("Threats from",x,threat)  #for testing
@@ -782,10 +782,10 @@ def CheckCheck(throne: int, color: bool):
             print("Threats from",x,threat)  #for testing
             if threat != []:
                 return True
-    return False
+    return False'''
 
-#Checks if a square can be attacked by an opponents piece
-def Attackers(target: int, color: bool):
+def attackers(target: int, color: bool):
+    '''Checks for opponent pieces which can attack the target square'''
     threat = []
     if color:
         for x in xblack:

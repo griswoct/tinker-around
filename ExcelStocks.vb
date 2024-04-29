@@ -14,8 +14,8 @@ Sub Rec()
             If Time > EoB Then  'Market closed
                 MsgBox "Closed for the day"
             Else
-                Call SaveData
                 Application.OnTime Now + TimeValue("00:09:59"), "TickTrack.xlsm!Sheet2.Rec"
+                Call SaveData
             End If
         End If
 End Sub

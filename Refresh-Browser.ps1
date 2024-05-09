@@ -1,6 +1,6 @@
 # PURPOSE: RESTART A BROWSER EVERY DAY, AND CLICK PIXAL PERIODICALLY
 # AUTHOR: CALEB GRISWOLD, HANNAH SPARGUR
-# UPDATED: 05/06/2024
+# UPDATED: 05/09/2024
 
 # Set browser process name
 $BrowserProcessName = "msedge"
@@ -9,7 +9,7 @@ $BrowserProcessName = "msedge"
 $BrowserExePath = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
 
 # Set URL of the webpage to open
-$URL = "https://app.powerbi.com/groups/me/apps/a9586831-a6bc-4cc7-bcc8-7f290c253bca/reports/ac43fbe2-08b1-4ff0-b760-2cf190248e1b/ReportSection06d38b8985a52a6ba432?ctid=1f67262f-d37c-4cf9-8a56-fa1608024af7&experience=power-bi"
+$URL = "https://app.powerbi.com/groups/me/reports/0cebbe70-aa32-48c1-a01d-cbc709f96a2c/ReportSectioncabb32f803074857db0a"
 
 # Function to restart the browser
 function Restart-Browser {

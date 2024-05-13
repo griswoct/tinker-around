@@ -3,7 +3,7 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-04-26
+#UPDATED: 2024-05-13
 '''
 #Need to fix:
     #can't find King (backtracking)
@@ -213,7 +213,7 @@ def get_move():
     #Validate square
     try:
         row = int(move[-1])
-        sq = str(col+row)
+        sq = col + str(row)
     except ValueError:
         print("Error -- couldn't parse move: [", move, "] -- couldn't find square")
         #continue   #try again
@@ -328,7 +328,7 @@ def back_track(destination: int, cm, color: bool, col):
     origins = []
     color = not color   #include your own pieces, not your opponents
     if cm in {'P','p'}:
-        reach = PawnMoves(destination, False)
+        reach = pawn_moves(destination, False)
         print("Pawn reach:", reach) #for testing
         if col == 'a':   #find file if the piece is a Pawn
             col = fileA
@@ -372,7 +372,7 @@ def back_track(destination: int, cm, color: bool, col):
 def valid_path(cm, origin: int, destination: int):
     '''Checks if a piece can move from origin to destination in a single move'''
     if cm in {'P','p'}:
-        reach = PawnMoves(origin, True)
+        reach = pawn_moves(origin, True)
     elif cm in {'B','b'}:
         reach = BishopMoves(origin, True)
     elif cm in {'N','n'}:
@@ -387,8 +387,8 @@ def valid_path(cm, origin: int, destination: int):
         print("Error: couldn't determine possible moves for", cm, "on", origin)
     return bool(destination in reach)
 
-#Returns the squares a Pawn can move to
-def PawnMoves(home: int, forwards: bool):
+def pawn_moves(home: int, forwards: bool):
+    '''Returns the squares a Pawn can move to from starting point home'''
     path = [home]
     if home < 8 or home > 55:
         return []   #not a valid Pawn rank, return null array
@@ -396,18 +396,23 @@ def PawnMoves(home: int, forwards: bool):
         if forwards == white:  #True if white forwards or black backwards
             if home not in fileH:   #can move right
                 x = home - 7    #forward right
-                if board[x] in xblack: path.append(x)
+                if board[x] in xblack:
+                    path.append(x)
             if home not in fileA:   #can move left
                 x = home - 9   #forward left
-                if board[x] in xblack: path.append(x)
+                if board[x] in xblack:
+                    path.append(x)
         elif forwards ^ white: #XOR: white and backwards or black and forwards
             if home not in fileA:  #can move left
                 x = home + 7   #backward left
-                if board[x] in xwhite: path.append(x)
+                if board[x] in xwhite:
+                    path.append(x)
             if home not in fileH:   #can move right
                 x = home + 9   #backward right
-                if board[x] in xwhite: path.append(x)
+                if board[x] in xwhite:
+                    path.append(x)
     else:   #straight
+        global ep
         x = home
         while True:
             if forwards == white:  #True if white forwards or black backwards
@@ -429,55 +434,51 @@ def PawnMoves(home: int, forwards: bool):
             if white:  #white
                 if x < 40 or x > 47: #white can only take one more step if on rank 3
                     break
-                else:
-                    ep = x #set en passant target
+                ep = x #set en passant target
             else:  #black
                 if x < 16 or x > 23: #black can only take one more step if on rank 6
                     break
-                else:
-                    ep = x #set en passant target
+                ep = x #set en passant target
     return path
 
-#Promote Pawn On Back Rank
-def PromotePawn():
+def promote_pawn():
+    '''Promote pawn on the back rank'''
     if white:
         p = 'Q' #Default promotion
-        options = xwhite
-        options.remove('P')    #Possible promotion
+        promotions = xwhite
+        promotions.remove('P')    #Possible promotion
         if b > 7:
             return 'P'  #Pawn cannot be promoted
         print("The Pawn on", square, "is ready to be promoted!")
         p = input("Enter new piece: ")
-        if p in options:
+        if p in promotions:
             return p
-        elif p == 'r':  #Chose Rook, wrong case
+        if p == 'r':  #Chose Rook, wrong case
             return 'R'
-        elif p == 'b':  #Chose Bishop, wrong case
+        if p == 'b':  #Chose Bishop, wrong case
             return 'B'
-        elif p == 'n':  #Chose Night, wrong case
+        if p == 'n':  #Chose Night, wrong case
             return 'N'
-        else:   #defaults to Queen (also catches 'q')
-            print("Promoted", square, "to Queen")
-            return 'Q'
+        print("Promoted", square, "to Queen")   #defaults to Queen (also catches 'q')
+        return 'Q'
     else:   #black
         p = 'q' #Default promotion
-        options = xblack
-        options.remove('p')    #Possible promotions
+        promotions = xblack
+        promotions.remove('p')    #Possible promotions
         if b < 56:
             return 'p'  #Pawn cannot be promoted
         print("The Pawn on", square, "is ready to be promoted!")
         p = input("Enter new piece: ")
-        if p in options:
+        if p in promotions:
             return p
-        elif p == 'R':  #Chose Rook, wrong case
+        if p == 'R':  #Chose Rook, wrong case
             return 'r'
-        elif p == 'B':  #Chose Bishop, wrong case
+        if p == 'B':  #Chose Bishop, wrong case
             return 'b'
-        elif p == 'N':  #Chose Night, wrong case
+        if p == 'N':  #Chose Night, wrong case
             return 'n'
-        else:   #defaults to Queen (also catches 'Q')
-            print("Promoted", square, "to Queen")
-            return 'q'
+        print("Promoted", square, "to Queen")   #defaults to Queen (also catches 'Q')
+        return 'q'
 
 #Returns the squares a Knight can move to
 def KnightMoves(home: int, forwards: bool):
@@ -789,10 +790,10 @@ def attackers(target: int, color: bool):
     threat = []
     if color:
         for x in xblack:
-            threat.append(back_track(target, x, not white), '')
+            threat.append(back_track(target, x, not white, ''))
     else:
         for x in xwhite:
-            threat.append(back_track(target, x, not white), '')
+            threat.append(back_track(target, x, not white, ''))
     return threat
 
 #Determins if the King can Castle Kingside or Queenside
@@ -870,7 +871,7 @@ def MakeMove(original: str, type: bool, start: int, end: int, castling: bool):
         if promotion != 'p' and promotion != 'P':
             type = promotion
         else:
-            type = PromotePawn()
+            type = promote_pawn()
     #Update board:
     updated[start] = ' '
     updated[end] = type
@@ -952,7 +953,7 @@ while ply < 50:   #counts ply since last capture or Pawn movement
         if promotion != 'p' and promotion != 'P':
             chessman = promotion
         else:
-            chessman = PromotePawn()
+            chessman = promote_pawn()
     OldBoard = board
     board = MakeMove(board, chessman, a, b, castle)
     if white:

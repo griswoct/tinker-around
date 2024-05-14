@@ -3,7 +3,7 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-05-13
+#UPDATED: 2024-05-14
 '''
 #Need to fix:
     #can't find King (backtracking)
@@ -18,12 +18,12 @@
         #Identify all possible moves
         #Try each one and check for checkmate
         #If list of options is [], then checkmate
-        #Declare winned are end game
+        #Declare winner and end game
     #game over:
         #checkmate
         #[x] resignation
         #stalemate (no leagal moves)
-        #[x] draw )no Pawn moves or captures in 50 moves, 3 move repetition)
+        #[x] draw) no Pawn moves or captures in 50 moves, 3 move repetition)
         #insufficient material:
             #King
             #King + Bishop
@@ -143,6 +143,7 @@ def get_move():
         move.pop()    #Removes last character
     #Handle castling
     if move[0] == '0' or move[0] == 'o' or move[0] == 'O':
+        print("Castling...")
         if white:
             piece = 'K'
             if len(move) < 5:   #kingside
@@ -349,9 +350,9 @@ def back_track(destination: int, cm, color: bool, col):
         else:
             col = list(range(64))  #if col isn't recognized, file includes whole board
     elif cm in {'B','b'}:
-        reach = BishopMoves(destination, False)
+        reach = bishop_moves(destination, False)
     elif cm in {'N','n'}:
-        reach = KnightMoves(destination, False)
+        reach = knight_moves(destination, False)
     elif cm in {'R','r'}:
         reach = RookMoves(destination, False)
     elif cm in {'Q','q'}:
@@ -374,9 +375,9 @@ def valid_path(cm, origin: int, destination: int):
     if cm in {'P','p'}:
         reach = pawn_moves(origin, True)
     elif cm in {'B','b'}:
-        reach = BishopMoves(origin, True)
+        reach = bishop_moves(origin, True)
     elif cm in {'N','n'}:
-        reach = KnightMoves(origin, True)
+        reach = knight_moves(origin, True)
     elif cm in {'R','r'}:
         reach = RookMoves(origin, True)
     elif cm in 'Q' or cm == 'q':
@@ -388,7 +389,7 @@ def valid_path(cm, origin: int, destination: int):
     return bool(destination in reach)
 
 def pawn_moves(home: int, forwards: bool):
-    '''Returns the squares a Pawn can move to from starting point home'''
+    '''Returns the squares a Pawn can move to from starting square home'''
     path = [home]
     if home < 8 or home > 55:
         return []   #not a valid Pawn rank, return null array
@@ -480,8 +481,8 @@ def promote_pawn():
         print("Promoted", square, "to Queen")   #defaults to Queen (also catches 'Q')
         return 'q'
 
-#Returns the squares a Knight can move to
-def KnightMoves(home: int, forwards: bool):
+def knight_moves(home: int, forwards: bool):
+    '''Returns the squares a Knight can move to from starting square home'''
     path = [home]
     if home < 48:   #ranks 3-8
         if home not in fileA:
@@ -518,7 +519,6 @@ def KnightMoves(home: int, forwards: bool):
             elif forwards ^ white and board[x] in xwhite:
                 path.append(x)
     if home not in fileA and home not in fileB:
-        #print("Not A nor B")   #for testing
         if home > 7:
             x = home - 10   #left 2 files, up 1 rank
             if board[x] == ' ':
@@ -536,7 +536,6 @@ def KnightMoves(home: int, forwards: bool):
             elif forwards ^ white and board[x] in xwhite:
                 path.append(x)
     if home not in fileG and home not in fileH:
-        #print("Not G nor H")   #for testing
         if home > 7:
             x = home - 6   #right 2 files, up 1 rank
             if board[x] == ' ':
@@ -555,8 +554,8 @@ def KnightMoves(home: int, forwards: bool):
                 path.append(x)
     return path
 
-#Returns the squares a Bishop can move to
-def BishopMoves(home: int, forwards: bool):
+def bishop_moves(home: int, forwards: bool):
+    '''Returns the squares a Bishop can move to from starting square home'''
     path = [home]
     x = home
     while x not in fileA and x > 7: #move up and left until reaching file A or rank 8
@@ -657,7 +656,7 @@ def RookMoves(home: int, forwards: bool):
 def QueenMoves(home: int, fwd: bool):
     pathR = RookMoves(home, fwd)
     pathR.remove(home)
-    pathB = BishopMoves(home, fwd)
+    pathB = bishop_moves(home, fwd)
     path = pathR + pathB
     return path
 

@@ -2,11 +2,12 @@
 'PURPOSE: RECORD STOCK PRICES FROM EXCEL
 'LICENSE: THE UNLICENSE
 'AUTHOR: CALEB GRISWOLD
-'UPDATED: 2024-05-16
+'UPDATED: 2024-05-17
 
 Option Explicit
 
 Sub Rec()
+    On Error GoTo ErrorHandler
     Dim i As Integer
     Dim OpenBell, EoB As Date
     Dim Time0, Time1
@@ -28,6 +29,10 @@ Sub Rec()
                 Call SaveData
             End If
         End If
+    Exit Sub
+ErrorHandler:
+    Call Stopped
+    ActiveWorkbook.Save
 End Sub
 
 Sub Stopped()

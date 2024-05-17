@@ -3,10 +3,11 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-05-14
+#UPDATED: 2024-05-17
 '''
 #Need to fix:
     #can't find King (backtracking)
+    #add en passant to make_move
 #Need to add:
     #Fully parse FEN:
         #Active color
@@ -208,9 +209,10 @@ def get_move():
         #continue    #try again
     if piece not in ['P', 'p']:   #if  not a pawn
         promo = piece   #set promotion piece to itself (failsafe)
-        col = move[0]
+        col = move[1]
     #Determine square
     sq = move[-2:]
+    print("move is: ", move)
     #Validate square
     try:
         row = int(move[-1])
@@ -292,7 +294,11 @@ def board_algebraic(i: int):
     return spot
 
 def valid_capture(p):
-    '''Verify the Piece "p" Can Be Captured'''
+    '''Verify Piece Can Be Captured'''
+    global ep
+    global b
+    if b == ep:
+        return True
     if white:
         if p in xblack:
             return True
@@ -303,7 +309,7 @@ def valid_capture(p):
         else:
             print("Something went wrong. ", p, " is on ", square)
             return False
-    else:
+    else:   #black
         if p in xwhite:
             return True
         if p == 'K':
@@ -354,9 +360,9 @@ def back_track(destination: int, cm, color: bool, col):
     elif cm in {'N','n'}:
         reach = knight_moves(destination, False)
     elif cm in {'R','r'}:
-        reach = RookMoves(destination, False)
+        reach = rook_moves(destination, False)
     elif cm in {'Q','q'}:
-        reach = QueenMoves(destination, False)
+        reach = queen_moves(destination, False)
     elif cm in {'K','k'}:
         reach = KingMoves(destination, False)
     i = 0
@@ -372,6 +378,7 @@ def back_track(destination: int, cm, color: bool, col):
 
 def valid_path(cm, origin: int, destination: int):
     '''Checks if a piece can move from origin to destination in a single move'''
+    reach = [origin]
     if cm in {'P','p'}:
         reach = pawn_moves(origin, True)
     elif cm in {'B','b'}:
@@ -379,9 +386,9 @@ def valid_path(cm, origin: int, destination: int):
     elif cm in {'N','n'}:
         reach = knight_moves(origin, True)
     elif cm in {'R','r'}:
-        reach = RookMoves(origin, True)
+        reach = rook_moves(origin, True)
     elif cm in 'Q' or cm == 'q':
-        reach = QueenMoves(origin, True)
+        reach = queen_moves(origin, True)
     elif cm in {'K','k'}:
         reach = KingMoves(origin, True)
     else:
@@ -413,7 +420,7 @@ def pawn_moves(home: int, forwards: bool):
                 if board[x] in xwhite:
                     path.append(x)
     else:   #straight
-        global ep
+        #global ep
         x = home
         while True:
             if forwards == white:  #True if white forwards or black backwards
@@ -435,11 +442,11 @@ def pawn_moves(home: int, forwards: bool):
             if white:  #white
                 if x < 40 or x > 47: #white can only take one more step if on rank 3
                     break
-                ep = x #set en passant target
+                #ep = x #set en passant target
             else:  #black
                 if x < 16 or x > 23: #black can only take one more step if on rank 6
                     break
-                ep = x #set en passant target
+                #ep = x #set en passant target
     return path
 
 def promote_pawn():
@@ -604,7 +611,7 @@ def bishop_moves(home: int, forwards: bool):
     return path
 
 #Returns the squares a Rook can move to
-def RookMoves(home: int, forwards: bool):
+def rook_moves(home: int, forwards: bool):
     path = [home]
     x = home
     while x not in fileA: #move left until reaching file A
@@ -653,8 +660,8 @@ def RookMoves(home: int, forwards: bool):
     return path
 
 #Returns the squares a Queen can move to
-def QueenMoves(home: int, fwd: bool):
-    pathR = RookMoves(home, fwd)
+def queen_moves(home: int, fwd: bool):
+    pathR = rook_moves(home, fwd)
     pathR.remove(home)
     pathB = bishop_moves(home, fwd)
     path = pathR + pathB
@@ -865,16 +872,25 @@ def CastleCheck(color: bool):
 #Updates the board with requested move
 def MakeMove(original: str, type: bool, start: int, end: int, castling: bool):
     updated = original
+    global ep
+    global white
     #Promote Pawn
     if type == 'P' and end < 8 or type == 'p' and end > 55:   #"and" is evaluated before "or"
         if promotion != 'p' and promotion != 'P':
             type = promotion
         else:
             type = promote_pawn()
-    #Update board:
+    #Update Board
     updated[start] = ' '
     updated[end] = type
-    #Castle:
+    #En Passant
+    if end == ep:
+        if white:
+            updated[end+8] = ' '    #remove pawn from previous rank
+        else:
+            updated[end-8] = ' '    #remove pawn from next rank
+        ep = '' #clear ep target square
+    #Castle
     if castling:    #castling
         print("Castling")   #for testing
         if end == 62:   #white kingside
@@ -901,17 +917,16 @@ while not good:
     good = valid_board(board)
 show_board(board)
 #Get Color Being Played
+white - True    #defaults to white
 q = input ("Are you playing White (W) or Black (B)? ")
 if q == 'B' or q == 'b':    #Black selected
     white = False
-else:
-    white = True
 fmn = 0
 ply = 0
 while ply < 50:   #counts ply since last capture or Pawn movement
     capture = False #reset capture
     check = False   #reset check
-    a = 52  #reser a
+    a = 52  #
     q = get_move()
     if q == "resign": #resign game (exit)
         print("Resigning game...")
@@ -928,8 +943,8 @@ while ply < 50:   #counts ply since last capture or Pawn movement
         print("Error: ", square, " not found on board")
         continue    #loop without switching (try again)
     #Validate Capture
-    if board[b] != ' ': #A piece already occupies that square
-        good = ValidCapture(board[b])
+    if b == ep or board[b] != ' ': #Move attempts to capture
+        good = valid_capture(board[b])
         if good:
             capture = True
         else:

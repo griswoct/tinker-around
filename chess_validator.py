@@ -610,8 +610,8 @@ def bishop_moves(home: int, forwards: bool):
             break
     return path
 
-#Returns the squares a Rook can move to
 def rook_moves(home: int, forwards: bool):
+    '''Returns the squares a Rook can move to'''
     path = [home]
     x = home
     while x not in fileA: #move left until reaching file A
@@ -659,8 +659,8 @@ def rook_moves(home: int, forwards: bool):
             break
     return path
 
-#Returns the squares a Queen can move to
 def queen_moves(home: int, fwd: bool):
+    '''Returns the squares a Queen can move to'''
     pathR = rook_moves(home, fwd)
     pathR.remove(home)
     pathB = bishop_moves(home, fwd)

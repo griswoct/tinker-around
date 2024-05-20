@@ -2,7 +2,7 @@
 'PURPOSE: RECORD STOCK PRICES FROM EXCEL
 'LICENSE: THE UNLICENSE
 'AUTHOR: CALEB GRISWOLD
-'UPDATED: 2024-05-17
+'UPDATED: 2024-05-20
 
 Option Explicit
 
@@ -29,6 +29,7 @@ Sub Rec()
                 Call SaveData
             End If
         End If
+    Sheet2.Range("B3").Activate
     Exit Sub
 ErrorHandler:
     Call Stopped
@@ -65,5 +66,6 @@ Sub SaveData()
     Rows("3:3").Select
     Selection.PasteSpecial Paste:=xlPasteFormats, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
     Application.CutCopyMode = False
+    Sheet2.Range("B3").Activate
     ActiveWorkbook.Save
 End Sub

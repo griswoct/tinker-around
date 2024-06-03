@@ -3,11 +3,10 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-05-17
+#UPDATED: 2024-06-02
 '''
 #Need to fix:
     #can't find King (backtracking)
-    #add en passant to make_move
 #Need to add:
     #Fully parse FEN:
         #Active color
@@ -364,7 +363,7 @@ def back_track(destination: int, cm, color: bool, col):
     elif cm in {'Q','q'}:
         reach = queen_moves(destination, False)
     elif cm in {'K','k'}:
-        reach = KingMoves(destination, False)
+        reach = king_moves(destination, False)
     i = 0
     while i < len(reach):   #itterate through piece's range
         if board[reach[i]] == cm:
@@ -390,7 +389,7 @@ def valid_path(cm, origin: int, destination: int):
     elif cm in 'Q' or cm == 'q':
         reach = queen_moves(origin, True)
     elif cm in {'K','k'}:
-        reach = KingMoves(origin, True)
+        reach = king_moves(origin, True)
     else:
         print("Error: couldn't determine possible moves for", cm, "on", origin)
     return bool(destination in reach)
@@ -667,8 +666,8 @@ def queen_moves(home: int, fwd: bool):
     path = pathR + pathB
     return path
 
-#Returns the squares a King can move to
-def KingMoves(home: int, forwards: bool):
+def king_moves(home: int, forwards: bool):
+    '''Returns the squares a King can move to'''
     path = [home]
     if home > 7:    #not in rank 8
         if home not in fileA:

@@ -3,7 +3,7 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-06-02
+#UPDATED: 2024-06-08
 '''
 #Need to fix:
     #can't find King (backtracking)
@@ -773,22 +773,9 @@ def king_moves(home: int, forwards: bool):
     return path
 
 #Checks if a square can be attacked by an opponents piece
-def CheckCheck(throne: int, color: bool):
+def check_check(throne: int, color: bool):
     threats = attackers(throne,color)
     return bool(not threats)
-    '''if color:
-        for x in xblack:
-            threat = back_track(throne, x, not white, '')
-            print("Threats from",x,threat)  #for testing
-            if threat != []:
-                return True
-    else:
-        for x in xwhite:
-            threat = back_track(throne, x, not white, '')
-            print("Threats from",x,threat)  #for testing
-            if threat != []:
-                return True
-    return False'''
 
 def attackers(target: int, color: bool):
     '''Checks for opponent pieces which can attack the target square'''

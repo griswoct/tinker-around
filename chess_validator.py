@@ -3,7 +3,7 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-06-08
+#UPDATED: 2024-06-09
 '''
 #Need to fix:
     #can't find King (backtracking)
@@ -741,7 +741,7 @@ def king_moves(home: int, forwards: bool):
                     path.append(x)
                 elif not forwards and board[x] in xwhite:
                     path.append(x)
-    castles = CastleCheck(white)
+    castles = castle_check(white)
     print("Castle:", castles)   #for testing
     if white:   #white
         if forwards:
@@ -772,8 +772,8 @@ def king_moves(home: int, forwards: bool):
     print("King moves:", path)  #for testing
     return path
 
-#Checks if a square can be attacked by an opponents piece
 def check_check(throne: int, color: bool):
+    '''Checks if a square can be attacked by an opponents piece'''
     threats = attackers(throne,color)
     return bool(not threats)
 
@@ -788,8 +788,8 @@ def attackers(target: int, color: bool):
             threat.append(back_track(target, x, not white, ''))
     return threat
 
-#Determins if the King can Castle Kingside or Queenside
-def CastleCheck(color: bool):
+def castle_check(color: bool):
+    '''Determins if the King can Castle Kingside or Queenside'''
     options = [True, True]
     if color:   #white
         if board[60] != 'K':    #White King is not on starting square
@@ -800,7 +800,7 @@ def CastleCheck(color: bool):
                 if c > 60 and board[c] != ' ':
                     options[0] = False   #a piece is between the king and the rook
                     break
-                bad = CheckCheck(c, color)
+                bad = check_check(c, color)
                 print("Check for",c,"is",bad)   #for testing
                 if bad:
                     options[0] = False #No castling Kingside
@@ -814,7 +814,7 @@ def CastleCheck(color: bool):
                 if c < 60 and board[c] != ' ':
                     options[1] = False   #a piece is between the king and the rook
                     break
-                bad = CheckCheck(c, color)
+                bad = check_check(c, color)
                 print("Check for",c,"is",bad)   #for testing
                 if bad and c > 57:
                     options[1] = False #No castling Kingside
@@ -831,7 +831,7 @@ def CastleCheck(color: bool):
                 if c > 4 and board[c] != ' ':
                     options[0] = False   #a piece is between the king and the rook
                     break
-                bad = CheckCheck(c, color)
+                bad = check_check(c, color)
                 print("Check for",c,"is",bad)   #for testing
                 if bad:
                     options[0] = False #No castling Kingside
@@ -845,7 +845,7 @@ def CastleCheck(color: bool):
                 if board[c] != ' ':
                     options[1] = False   #a piece is between the king and the rook
                     break
-                bad = CheckCheck(c, color)
+                bad = check_check(c, color)
                 print("Check for",c,"is",bad)   #for testing
                 if bad and c > 1:
                     options[1] = False #No castling Kingside
@@ -960,7 +960,7 @@ while ply < 50:   #counts ply since last capture or Pawn movement
         king = find_pieces('K')
     else:
         king = find_pieces('k')
-    check = CheckCheck(king[0], white)
+    check = check_check(king[0], white)
     if check:
         print("Invalid move: your King is in check!")
         board = OldBoard

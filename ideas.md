@@ -11,6 +11,7 @@
 * ~~Sudoku solver (VBA)~~
 * Spaghettification/obfuscation
   * Ida (main)
+  * Ro (second)
 * ~~Yellowstone Permutation:~~
   * ~~[Numberphile: Yellowstone Permutation](https://www.youtube.com/watch?v=DUaqiM1bGX4)~~
 * Printer program

@@ -3,7 +3,7 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-06-09
+#UPDATED: 2024-07-29
 '''
 #Need to fix:
     #can't find King (backtracking)
@@ -34,6 +34,10 @@
     #Heat map of which squares on the boad are controlled by which player
     #How many attackers and defenders are there on each piece
     #Identifies all valid move for selected piece
+    #Read PGN
+        #Add to PGN as game continues
+        #Generate FEN from PGN
+        #Recognize openings
 
 #VARIABLES (GLOBAL)
 capture = False #Indicates a piece is being captured

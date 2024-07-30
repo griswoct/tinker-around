@@ -3,13 +3,12 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-07-29
+#UPDATED: 2024-07-30
 '''
 #Need to fix:
     #can't find King (backtracking)
 #Need to add:
     #Fully parse FEN:
-        #Active color
         #Track castling (replace CheckCastle?)
         #En passant target square
         #Number of halfmoves (ply) since last capture or pawn movement
@@ -43,7 +42,7 @@
 capture = False #Indicates a piece is being captured
 check = False   #King is in Check
 good = False    #Boolean to control loops
-white = True    #Playing as white? (Boolean)
+white = None    #Playing as white? (Boolean)
 a = 52    #Board index starting location
 b = 36    #Board index ending location
 ep = '' #En passant target square
@@ -66,10 +65,10 @@ pieces = ['K', *xwhite, 'k', *xblack]    #Valid chess pieces list
 def get_board():
     '''Get Chess Board Setup'''
     build = []
-    fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"    #Default starting position
+    fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w"    #Default starting position
     fen = input("Enter D for default starting position, or board configuration in FEN notation: ")
     if fen in ['D','d']:
-        fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"    #Chess starting position
+        fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w"    #Chess starting position
     i = 0    #Position in fen array
     j = 0    #Board position
     while j < 64 and i < len(fen):    #Populate board array from FEN string
@@ -97,6 +96,11 @@ def get_board():
         else:
             print("Error: ", fen[i], " is not a recognized piece.")
             break
+    i += 1    #Skip space in before active color    
+    if fen[i] == 'w':
+        white = True
+    elif fen[i] = 'b':
+        white = False
     return build
 
 def valid_board(brd: str):
@@ -907,10 +911,11 @@ while not good:
     good = valid_board(board)
 show_board(board)
 #Get Color Being Played
-white - True    #defaults to white
-q = input ("Are you playing White (W) or Black (B)? ")
-if q == 'B' or q == 'b':    #Black selected
-    white = False
+if white is None:    #White not set from FEN
+    white = True    #defaults to white
+    q = input ("Are you playing White (W) or Black (B)? ")
+    if q == 'B' or q == 'b':    #Black selected
+        white = False
 fmn = 0
 ply = 0
 while ply < 50:   #counts ply since last capture or Pawn movement

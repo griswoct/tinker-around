@@ -99,16 +99,16 @@ def get_board():
             print("Error: ", fen[i], " is not a recognized piece.")
             break
     i += 1    #Skip space in before active color
-    if i < len[fen]:
+    if i < len(fen):
         if fen[i] == 'w':   #White is active
             white = True
         elif fen[i] == 'b': #Black is active
             white = False
         else:
-            print("ACtive color could not be determined from FEN")
+            print("Active color could not be determined from FEN")
         if fen[i+1] == ' ': #Space between active color and castling ability
             i += 2  #Move to castling ability
-    while fen[i] is not ' ' and i < len(fen):
+    while fen[i] != ' ' and i < len(fen):
         #if KQkq:
             #set castling
         i += 1
@@ -189,7 +189,7 @@ def get_move():
     elif 'X' in move:
         move = move.replace('X','')
     #Determine piece
-    if move[0] == 'K' or move[0] == 'k' or move[0] == '0' or move[0] == 'O' or move[0] == 'o':
+    if move[0] in ['K','k','0','O','o']:
         if white:
             piece = 'K'
         else: piece = 'k'
@@ -321,10 +321,11 @@ def board_algebraic(i: int):
 def valid_capture(p):
     '''Verify Piece Can Be Captured'''
     global ep
-    global a
     global b
+    global chessman
+    global board
     if white:
-        if b == ep and a == 'P':
+        if b == ep and chessman == 'P':
             return True
         if p in xblack:
             return True
@@ -335,7 +336,7 @@ def valid_capture(p):
         else:
             print("Something went wrong. ", p, " is on ", square)
     else:   #black
-        if b == ep and a == 'p':
+        if b == ep and chessman == 'p':
             return True
         if p in xwhite:
             return True
@@ -395,8 +396,8 @@ def back_track(destination: int, cm, color: bool, col):
     i = 0
     while i < len(reach):   #itterate through piece's range
         if board[reach[i]] == cm:
-            if cm in {'P','p'}:    # and col in file:   #check valid file, piece is a Pawn
-                if reach[i] in col:    #only include Pawn in file indicated in entered move
+            if cm in {'P','p'}:    #pawn
+                if capture or reach[i] in col:    #only pawns in destination file (unless capturing)
                     origins.append(reach[i])
             else:
                 origins.append(reach[i])
@@ -891,7 +892,7 @@ def MakeMove(original: str, type, start: int, end: int, castling: bool):
     #Pawn Handling
     if type in {'P','p'}:
         if white and end < 8 or not white and end > 55: #Promote pawn
-            if promotion not in {'P','p',''}:
+            if promotion not in ['P','p','']:
                 type = promotion
             else:
                 type = promote_pawn()
@@ -906,6 +907,7 @@ def MakeMove(original: str, type, start: int, end: int, castling: bool):
                 ep = start - 8  #en passant target
             else:
                 ep = start + 8    #en passant target
+            print("En Passant target is:", ep)  #for testing
     else:
         ep = '' #clear en passant target
     #Update Board
@@ -948,7 +950,8 @@ ply = 0
 while ply < 50:   #counts ply since last capture or Pawn movement
     capture = False #reset capture
     check = False   #reset check
-    a = 52  #
+    a = ''
+    b = ''
     q = get_move()
     if q == "resign": #resign game (exit)
         print("Resigning game...")

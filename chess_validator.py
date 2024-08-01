@@ -3,7 +3,7 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-07-30
+#UPDATED: 2024-08-01
 '''
 #Need to fix:
     #can't find King (backtracking)
@@ -43,8 +43,8 @@ capture = False #Indicates a piece is being captured
 check = False   #King is in Check
 good = False    #Boolean to control loops
 white = None    #Playing as white? (Boolean)
-a = 52    #Board index starting location
-b = 36    #Board index ending location
+a = ''    #Board index starting location
+b = ''    #Board index ending location
 ep = '' #En passant target square
 fileA = [0,8,16,24,32,40,48,56] #Board indexes for A-file (edge of board)
 fileB = [1,9,17,25,33,41,49,57] #Board indexes for B-file
@@ -56,7 +56,7 @@ fileG = [6,14,22,30,38,46,54,62]    #Board indexes for G-file
 fileH = [7,15,23,31,39,47,55,63]    #Board indexes for H-file (edge of board)
 ranks = ['a','b','c','d','e','f','g','h']
 board = []    #Chess board configuration
-board_old = []
+#board_old = []
 xblack = ['q','r','b','n','p']    #Capturable black pieces list (no King)
 xwhite = ['Q','R','N','B','P']    #Capturable white pieces list (no King)
 pieces = ['K', *xwhite, 'k', *xblack]    #Valid chess pieces list
@@ -64,11 +64,13 @@ pieces = ['K', *xwhite, 'k', *xblack]    #Valid chess pieces list
 #FUNCTIONS
 def get_board():
     '''Get Chess Board Setup'''
+    global white
+    global ep
     build = []
-    fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w"    #Default starting position
+    #fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -"    #Default starting position
     fen = input("Enter D for default starting position, or board configuration in FEN notation: ")
     if fen in ['D','d']:
-        fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w"    #Chess starting position
+        fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -"    #Chess starting position
     i = 0    #Position in fen array
     j = 0    #Board position
     while j < 64 and i < len(fen):    #Populate board array from FEN string
@@ -96,11 +98,27 @@ def get_board():
         else:
             print("Error: ", fen[i], " is not a recognized piece.")
             break
-    i += 1    #Skip space in before active color    
-    if fen[i] == 'w':
-        white = True
-    elif fen[i] = 'b':
-        white = False
+    i += 1    #Skip space in before active color
+    if i < len[fen]:
+        if fen[i] == 'w':   #White is active
+            white = True
+        elif fen[i] == 'b': #Black is active
+            white = False
+        else:
+            print("ACtive color could not be determined from FEN")
+        if fen[i+1] == ' ': #Space between active color and castling ability
+            i += 2  #Move to castling ability
+    while fen[i] is not ' ' and i < len(fen):
+        #if KQkq:
+            #set castling
+        i += 1
+    i += 1
+    #Determine En Passant Target
+    if fen[i] == '-':
+        ep = ''
+    else:
+        ep = board_index(fen[i:i+1])
+        print("En Passant target is:", fen[i:i+1], ep)  #for testing)
     return build
 
 def valid_board(brd: str):
@@ -203,7 +221,7 @@ def get_move():
             promo = ''
         col = move[-2]
         if white:
-            piece ='P'
+            piece = 'P'
             if promo not in xwhite:
                 promo = 'P' #invalid promotion, default to pawn
         else:
@@ -303,10 +321,11 @@ def board_algebraic(i: int):
 def valid_capture(p):
     '''Verify Piece Can Be Captured'''
     global ep
+    global a
     global b
-    if b == ep:
-        return True
     if white:
+        if b == ep and a == 'P':
+            return True
         if p in xblack:
             return True
         if p == 'k':
@@ -315,8 +334,9 @@ def valid_capture(p):
             print("Your ", p, " is already on ", square)
         else:
             print("Something went wrong. ", p, " is on ", square)
-            return False
     else:   #black
+        if b == ep and a == 'p':
+            return True
         if p in xwhite:
             return True
         if p == 'K':
@@ -325,7 +345,7 @@ def valid_capture(p):
             print("Your ", p, " is already on ", square)
         else:
             print("Something went wrong. ", p, " is on ", square)
-            return False
+    return False
 
 def find_pieces(p):
     '''Find the Number and Locations of Pieces "p"'''
@@ -864,28 +884,35 @@ def castle_check(color: bool):
     return options
 
 #Updates the board with requested move
-def MakeMove(original: str, type: bool, start: int, end: int, castling: bool):
+def MakeMove(original: str, type, start: int, end: int, castling: bool):
     updated = original
     global ep
     global white
-    #Promote Pawn
-    if type == 'P' and end < 8 or type == 'p' and end > 55:   #"and" is evaluated before "or"
-        if promotion != 'p' and promotion != 'P':
-            type = promotion
-        else:
-            type = promote_pawn()
+    #Pawn Handling
+    if type in {'P','p'}:
+        if white and end < 8 or not white and end > 55: #Promote pawn
+            if promotion not in {'P','p',''}:
+                type = promotion
+            else:
+                type = promote_pawn()
+        elif end == ep: #en passant capture
+            if white:
+                updated[end+8] = ' '    #remove pawn from previous rank
+            else:
+                updated[end-8] = ' '    #remove pawn from next rank
+            ep = '' #clear en passant target
+        elif abs(end - start) == 16:    #pawn moves 2 squares
+            if white:
+                ep = start - 8  #en passant target
+            else:
+                ep = start + 8    #en passant target
+    else:
+        ep = '' #clear en passant target
     #Update Board
     updated[start] = ' '
     updated[end] = type
-    #En Passant
-    if end == ep:
-        if white:
-            updated[end+8] = ' '    #remove pawn from previous rank
-        else:
-            updated[end-8] = ' '    #remove pawn from next rank
-        ep = '' #clear ep target square
-    #Castle
-    if castling:    #castling
+    #Castle (Rook Movement)
+    if castling:
         print("Castling")   #for testing
         if end == 62:   #white kingside
             updated[61] = 'R'

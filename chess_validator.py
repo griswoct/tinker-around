@@ -3,14 +3,13 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-08-01
+#UPDATED: 2024-08-02
 '''
 #Need to fix:
     #can't find King (backtracking)
 #Need to add:
     #Fully parse FEN:
         #Track castling (replace CheckCastle?)
-        #En passant target square
         #Number of halfmoves (ply) since last capture or pawn movement
         #Fullmove number
     #Identify checkmate
@@ -18,20 +17,27 @@
         #Try each one and check for checkmate
         #If list of options is [], then checkmate
         #Declare winner and end game
-    #game over:
-        #checkmate
-        #[x] resignation
-        #stalemate (no leagal moves)
-        #[x] draw) no Pawn moves or captures in 50 moves, 3 move repetition)
-        #insufficient material:
-            #King
-            #King + Bishop
-            #King + Knight
-            #King + 2 Knights vs King
-            #summary: you need a major piece (or Pawn) or two minor pieces (except K vs K and 2N)
+    #Game Over:
+        #[ ] Checkmate (winner)
+        #[x] Resignation (winner)
+        #[ ] Draw (no winner)
+            #[ ] Stalemate (no leagal moves)
+            #[x] 50 moves no Pawn moves or captures
+            #[ ] 3 move repetition (both players)
+            #[ ] insufficient material:
+                #King
+                #King + Bishop
+                #King + Knight
+                #King + 2 Knights vs King
+                #summary: you need a major piece/Pawn or two minor pieces (except K vs K and 2N)
 #More Ideas:
     #Heat map of which squares on the boad are controlled by which player
+        #Number of squares controlled (squares with more defenders than opponent attackers)
+        #Weighted board control (sum of defenders minus attackers for all squares)
     #How many attackers and defenders are there on each piece
+        #Number of hanging pieces (no defenders)
+        #Number of vulnerable pieces (equal or fewer defenders than attackers)
+        #Weighted vulnerability (loss or gain of material if all attacks played out)
     #Identifies all valid move for selected piece
     #Read PGN
         #Add to PGN as game continues
@@ -46,6 +52,7 @@ white = None    #Playing as white? (Boolean)
 a = ''    #Board index starting location
 b = ''    #Board index ending location
 ep = '' #En passant target square
+castle = [True,True,True,True]  #Tracks castle availibility (KQkq)
 fileA = [0,8,16,24,32,40,48,56] #Board indexes for A-file (edge of board)
 fileB = [1,9,17,25,33,41,49,57] #Board indexes for B-file
 fileC = [2,10,18,26,34,42,50,58] #Board indexes for C-file
@@ -56,7 +63,6 @@ fileG = [6,14,22,30,38,46,54,62]    #Board indexes for G-file
 fileH = [7,15,23,31,39,47,55,63]    #Board indexes for H-file (edge of board)
 ranks = ['a','b','c','d','e','f','g','h']
 board = []    #Chess board configuration
-#board_old = []
 xblack = ['q','r','b','n','p']    #Capturable black pieces list (no King)
 xwhite = ['Q','R','N','B','P']    #Capturable white pieces list (no King)
 pieces = ['K', *xwhite, 'k', *xblack]    #Valid chess pieces list
@@ -66,6 +72,7 @@ def get_board():
     '''Get Chess Board Setup'''
     global white
     global ep
+    global castle
     build = []
     #fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -"    #Default starting position
     fen = input("Enter D for default starting position, or board configuration in FEN notation: ")
@@ -98,27 +105,38 @@ def get_board():
         else:
             print("Error: ", fen[i], " is not a recognized piece.")
             break
-    i += 1    #Skip space in before active color
+    i += 1    #Skip space before active color
     if i < len(fen):
         if fen[i] == 'w':   #White is active
             white = True
         elif fen[i] == 'b': #Black is active
             white = False
         else:
-            print("Active color could not be determined from FEN")
-        if fen[i+1] == ' ': #Space between active color and castling ability
+            white = True    #Defaults to white
+            q = input ("Is White (W) or Black (B) active? ")
+            if q == 'B' or q == 'b':    #Black selected
+                white = False
+        if fen[i+1] == ' ': #Skip space befre castling ability
             i += 2  #Move to castling ability
-    while fen[i] != ' ' and i < len(fen):
-        #if KQkq:
-            #set castling
+    while fen[i] != ' ' and i < len(fen):   #Read castling from fen
+        if fen[i] == 'K':
+            castle[0] = True
+        elif fen[i] == 'Q':
+            castle[1] = True
+        elif fen[i] == 'k':
+            castle[2] = True
+        elif fen[i] == 'q':
+            castle[3] = True
+        elif fen[i] == '-':
+            castle = [False,False,False,False]
+        else:
+            print("Error reading castle ability")
         i += 1
-    i += 1
-    #Determine En Passant Target
-    if fen[i] == '-':
+    i += 1  #skip space before en passant target
+    if fen[i] == '-':   #Determine En Passant Target
         ep = ''
     else:
         ep = board_index(fen[i:i+1])
-        print("En Passant target is:", fen[i:i+1], ep)  #for testing)
     return build
 
 def valid_board(brd: str):
@@ -770,6 +788,65 @@ def king_moves(home: int, forwards: bool):
                     path.append(x)
                 elif not forwards and board[x] in xwhite:
                     path.append(x)
+    if white:
+        if castle[0]:    #kingside
+            c = 60
+            bad = False
+            while c < 63:
+                if c > 60 and board[c] != ' ':  #a piece is between the king and the rook
+                    bad = True
+                    break
+                bad = check_check(c, True)  #square c can be attacked
+                if bad:
+                    break
+                c += 1
+            if not bad:
+                path.append(62) #kingside
+        elif castle[1]: #queenside
+            c = 60
+            bad = False
+            while c > 57:
+                if c < 60 and board[c] != ' ':  #a piece is between the king and the rook
+                    bad = True
+                    break
+                bad = check_check(c, True)  #square c can be attacked
+                if bad:
+                    break
+                c -= 1
+            if not bad:
+                path.append(58) #queenside
+        else:
+            return path
+    else:   #black
+        if castle[2]:    #kingside
+            c = 4
+            bad = False
+            while c < 7:
+                if c > 4 and board[c] != ' ':  #a piece is between the king and the rook
+                    bad = True
+                    break
+                bad = check_check(c, True)  #square c can be attacked
+                if bad:
+                    break
+                c += 1
+            if not bad:
+                path.append(6) #kingside
+        elif castle[3]: #queenside
+            c = 4
+            bad = False
+            while c > 1:
+                if c < 4 and board[c] != ' ':  #a piece is between the king and the rook
+                    bad = True
+                    break
+                bad = check_check(c, True)  #square c can be attacked
+                if bad:
+                    break
+                c -= 1
+            if not bad:
+                path.append(2) #queenside
+        else:
+            return path
+    '''
     castles = castle_check(white)
     print("Castle:", castles)   #for testing
     if white:   #white
@@ -798,6 +875,7 @@ def king_moves(home: int, forwards: bool):
                 path.append(4)
             if castles[1] and home == 2:  #backtracking, queenside
                 path.append(4)
+    '''
     print("King moves:", path)  #for testing
     return path
 
@@ -913,21 +991,30 @@ def MakeMove(original: str, type, start: int, end: int, castling: bool):
     #Update Board
     updated[start] = ' '
     updated[end] = type
-    #Castle (Rook Movement)
+    #Castle Handling
     if castling:
         print("Castling")   #for testing
         if end == 62:   #white kingside
             updated[61] = 'R'
             updated[63] = ' '
+            castle[0] = False
+            castle[1] = False
         elif end == 58: #white queenside
             updated[59] = 'R'
             updated[56] = ' '
+            castle[0] = False
+            castle[1] = False
         elif end == 6:  #black kingside
             updated[5] = 'r'
             updated[7] = ' '
+            castle[2] = False
+            castle[3] = False
         elif end == 2:  #black queenside
             updated[3] = 'r'
             updated[0] = ' '
+            castle[2] = False
+            castle[3] = False
+    #if or rook moves, update castling
     return updated
 
 #MAIN BODY
@@ -939,12 +1026,6 @@ while not good:
     board = get_board()
     good = valid_board(board)
 show_board(board)
-#Get Color Being Played
-if white is None:    #White not set from FEN
-    white = True    #defaults to white
-    q = input ("Are you playing White (W) or Black (B)? ")
-    if q == 'B' or q == 'b':    #Black selected
-        white = False
 fmn = 0
 ply = 0
 while ply < 50:   #counts ply since last capture or Pawn movement
@@ -955,6 +1036,10 @@ while ply < 50:   #counts ply since last capture or Pawn movement
     q = get_move()
     if q == "resign": #resign game (exit)
         print("Resigning game...")
+        if white:
+            print("BLACK wins by RESIGNATION!")
+        else:
+            print("WHITE wins BY RESIGNATION!")
         break
     else:
         chessman = q[0]

@@ -3,13 +3,12 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-08-02
+#UPDATED: 2024-08-05
 '''
 #Need to fix:
     #can't find King (backtracking)
 #Need to add:
     #Fully parse FEN:
-        #Track castling (replace CheckCastle?)
         #Number of halfmoves (ply) since last capture or pawn movement
         #Fullmove number
     #Identify checkmate
@@ -179,15 +178,12 @@ def get_move():
             move = input("White to move (enter algebraic notation): ")
         else:    #black
             move = input("Black to move (enter algebraic notation): ")
-    #Check for resignation
     if move == "resign":    #resign game (exit)
         return "resign" #exit module?
-    #Remove '+' or '#'
-    if move[-1] == '+' or move [-1] == '#':
+    if move[-1] == '+' or move [-1] == '#':    #remove '+' or '#'
         move.pop()    #Removes last character
-    #Handle castling
-    if move[0] == '0' or move[0] == 'o' or move[0] == 'O':
-        print("Castling...")
+    if move[0] in ['0','o','O']:    #castling
+        print("Castling...")    #for testing
         if white:
             piece = 'K'
             if len(move) < 5:   #kingside
@@ -201,13 +197,11 @@ def get_move():
             else:   #queenside
                 destination = 2 #c8 = 2
         return [piece, destination, piece, True, '']
-    #Remove 'x' or 'X' (will determine capturing later)
-    if 'x' in move:
+    if 'x' in move: #remove 'x' or 'X' (will determine capturing later)
         move = move.replace('x','')
     elif 'X' in move:
         move = move.replace('X','')
-    #Determine piece
-    if move[0] in ['K','k','0','O','o']:
+    if move[0] in ['K','k','0','O','o']:    #king
         if white:
             piece = 'K'
         else: piece = 'k'
@@ -231,7 +225,7 @@ def get_move():
             piece = 'B'
         else:
             piece = 'b'
-    elif move[0] in ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'P', 'p']:
+    elif move[0] in ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'P', 'p']: #pawn
         if '=' in move:
             promo = move.pop()
             move.remove('=')
@@ -262,13 +256,10 @@ def get_move():
         sq = col + str(row)
     except ValueError:
         print("Error -- couldn't parse move: [", move, "] -- couldn't find square")
-        #continue   #try again
     if move[-2] not in ranks:
         print("Error -- couldn't parse move: [", move, "] -- couldn't find square")
-        #continue   #try again
     #col = move[-2]
-    #Convert square to number
-    destination = board_index(sq)
+    destination = board_index(sq)   #convert square to number
     return [piece, destination, promo, False, col]  #capture, check, checkmate can be calculated
 
 def board_index(sq: str):
@@ -846,36 +837,6 @@ def king_moves(home: int, forwards: bool):
                 path.append(2) #queenside
         else:
             return path
-    '''
-    castles = castle_check(white)
-    print("Castle:", castles)   #for testing
-    if white:   #white
-        if forwards:
-            if castles[0]:
-                path.append(62) #kingside
-            if castles[1]:
-                path.append(58) #queenside
-        else:   #backwards
-            #if castles[0] or castles[1]:
-            #    path.append(60) #white king starting square
-            if castles[0] and home == 62:  #backtracking, kingside
-                path.append(60)
-            if castles[1] and home == 58:  #backtracking, queenside
-                path.append(60)
-    else:   #black
-        if not forwards:
-            if castles[0]:
-                path.append(6) #kingside
-            if castles[1]:
-                path.append(2) #queenside
-        else:   #backwards
-            #if castles[0] or castles[1]:
-            #    path.append(4)  #white king starting square
-            if castles[0] and home == 6:  #backtracking, kingside
-                path.append(4)
-            if castles[1] and home == 2:  #backtracking, queenside
-                path.append(4)
-    '''
     print("King moves:", path)  #for testing
     return path
 
@@ -895,8 +856,9 @@ def attackers(target: int, color: bool):
             threat.append(back_track(target, x, not white, ''))
     return threat
 
+'''
 def castle_check(color: bool):
-    '''Determins if the King can Castle Kingside or Queenside'''
+    ''''''Determins if the King can Castle Kingside or Queenside''''''
     options = [True, True]
     if color:   #white
         if board[60] != 'K':    #White King is not on starting square
@@ -961,12 +923,14 @@ def castle_check(color: bool):
         else:
             options[1] = False
     return options
+'''
 
 #Updates the board with requested move
-def MakeMove(original: str, type, start: int, end: int, castling: bool):
+def make_move(original: str, type, start: int, end: int, castling: bool):
     updated = original
     global ep
     global white
+    global castle
     #Pawn Handling
     if type in {'P','p'}:
         if white and end < 8 or not white and end > 55: #Promote pawn
@@ -1014,7 +978,22 @@ def MakeMove(original: str, type, start: int, end: int, castling: bool):
             updated[0] = ' '
             castle[2] = False
             castle[3] = False
-    #if or rook moves, update castling
+    if type == 'R': #update castling ability
+        if start == 63: #kingside
+            castle[0] = False
+        elif start == 56:   #queenside
+            castle[1] = False
+    elif type == 'r':
+        if start == 7:  #kingside
+            castle[2] = False
+        elif start == 0:   #queenside
+            castle[3] = False
+    elif type == 'K':
+        castle[0] = False
+        castle[1] = False
+    elif type == 'k':
+        castle[2] = False
+        castle[3] = False
     return updated
 
 #MAIN BODY
@@ -1045,7 +1024,7 @@ while ply < 50:   #counts ply since last capture or Pawn movement
         chessman = q[0]
         b = q[1]
         promotion = q[2]
-        castle = q[3]
+        castling = q[3]
         file = q[4]
     square = board_algebraic(b)  #get algebratic notation for user feedback (error messages)
     #Validate Selected Square
@@ -1079,7 +1058,7 @@ while ply < 50:   #counts ply since last capture or Pawn movement
         else:
             chessman = promote_pawn()
     OldBoard = board
-    board = MakeMove(board, chessman, a, b, castle)
+    board = make_move(board, chessman, a, b, castling)
     if white:
         king = find_pieces('K')
     else:

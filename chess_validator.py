@@ -3,17 +3,14 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-08-05
+#UPDATED: 2024-08-06
 '''
 #Need to fix:
     #can't find King (backtracking)
 #Need to add:
-    #Fully parse FEN:
-        #Number of halfmoves (ply) since last capture or pawn movement
-        #Fullmove number
     #Identify checkmate
         #Identify all possible moves
-        #Try each one and check for checkmate
+        #Try each one and check for check
         #If list of options is [], then checkmate
         #Declare winner and end game
     #Game Over:
@@ -29,6 +26,10 @@
                 #King + Knight
                 #King + 2 Knights vs King
                 #summary: you need a major piece/Pawn or two minor pieces (except K vs K and 2N)
+                #If there is a Pawn, Rook, or Queen on the board, there is sufficient material
+                #Elif there is a Bishop and one other minor piece of the same color, there is sufficient material
+                #Else:
+                    #insuffucient material
 #More Ideas:
     #Heat map of which squares on the boad are controlled by which player
         #Number of squares controlled (squares with more defenders than opponent attackers)
@@ -42,6 +43,7 @@
         #Add to PGN as game continues
         #Generate FEN from PGN
         #Recognize openings
+        #Record PGN in file
 
 #VARIABLES (GLOBAL)
 capture = False #Indicates a piece is being captured
@@ -51,6 +53,8 @@ white = None    #Playing as white? (Boolean)
 a = ''    #Board index starting location
 b = ''    #Board index ending location
 ep = '' #En passant target square
+fmn = 1  #Full move number, defaults to start of game
+ply = 0 #Number of half moves since last capture or Pawn movement
 castle = [True,True,True,True]  #Tracks castle availibility (KQkq)
 fileA = [0,8,16,24,32,40,48,56] #Board indexes for A-file (edge of board)
 fileB = [1,9,17,25,33,41,49,57] #Board indexes for B-file
@@ -71,12 +75,13 @@ def get_board():
     '''Get Chess Board Setup'''
     global white
     global ep
+    global fmn
+    global ply
     global castle
     build = []
-    #fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -"    #Default starting position
     fen = input("Enter D for default starting position, or board configuration in FEN notation: ")
     if fen in ['D','d']:
-        fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -"    #Chess starting position
+        fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"    #Chess starting position
     i = 0    #Position in fen array
     j = 0    #Board position
     while j < 64 and i < len(fen):    #Populate board array from FEN string
@@ -131,11 +136,26 @@ def get_board():
         else:
             print("Error reading castle ability")
         i += 1
-    i += 1  #skip space before en passant target
-    if fen[i] == '-':   #Determine En Passant Target
-        ep = ''
-    else:
-        ep = board_index(fen[i:i+1])
+    i += 1  #Skip space before en passant target
+    if i < len(fen):
+        if fen[i] == '-':   #Determine En Passant Target
+            ep = ''
+            i += 2  #Move to halfmove clock
+        else:
+            ep = board_index(fen[i:i+1])
+            i += 3  #Move to halfmove clock
+    if i < len(fen):
+        if fen[i] == '-':   #No halfmoves since last capture or Pawn movement
+            ply = 0
+            i += 2  #Move to full move numner
+        elif fen[i+1] == ' ':   #1 digit halfmove clock
+            ply = int(fen[i])
+            i += 2  #Move to full move number
+        else:  #2 digit halfmove clock
+            ply = int(fen[i:i+1])
+            i += 3  #Move to full move number
+    if i < len(fen):
+        fmn = int(fen[i:])   #Remaining fen string indicates full move number
     return build
 
 def valid_board(brd: str):
@@ -856,77 +876,8 @@ def attackers(target: int, color: bool):
             threat.append(back_track(target, x, not white, ''))
     return threat
 
-'''
-def castle_check(color: bool):
-    ''''''Determins if the King can Castle Kingside or Queenside''''''
-    options = [True, True]
-    if color:   #white
-        if board[60] != 'K':    #White King is not on starting square
-            return [False, False]
-        if board[63] == 'R':    #Kingside Rook
-            c = 60
-            while c < 63:
-                if c > 60 and board[c] != ' ':
-                    options[0] = False   #a piece is between the king and the rook
-                    break
-                bad = check_check(c, color)
-                print("Check for",c,"is",bad)   #for testing
-                if bad:
-                    options[0] = False #No castling Kingside
-                    break
-                c += 1
-        else:
-            options[0] = False
-        if board[56] == 'R':    #Queenside Rook
-            c = 60
-            while c > 56:
-                if c < 60 and board[c] != ' ':
-                    options[1] = False   #a piece is between the king and the rook
-                    break
-                bad = check_check(c, color)
-                print("Check for",c,"is",bad)   #for testing
-                if bad and c > 57:
-                    options[1] = False #No castling Kingside
-                    break
-                c -= 1
-        else:
-            options[1] = False
-    else: #black
-        if board[4] != 'k':    #White King is not on starting square
-            return [False, False]
-        if board[7] == 'r':    #Kingside Rook
-            c = 4
-            while c < 7:
-                if c > 4 and board[c] != ' ':
-                    options[0] = False   #a piece is between the king and the rook
-                    break
-                bad = check_check(c, color)
-                print("Check for",c,"is",bad)   #for testing
-                if bad:
-                    options[0] = False #No castling Kingside
-                    break
-                c += 1
-        else:
-            options[0] = False
-        if board[0] == 'r':    #Queenside Rook
-            c = 4
-            while c > 0:
-                if board[c] != ' ':
-                    options[1] = False   #a piece is between the king and the rook
-                    break
-                bad = check_check(c, color)
-                print("Check for",c,"is",bad)   #for testing
-                if bad and c > 1:
-                    options[1] = False #No castling Kingside
-                    break
-                c -= 1
-        else:
-            options[1] = False
-    return options
-'''
-
-#Updates the board with requested move
 def make_move(original: str, type, start: int, end: int, castling: bool):
+    '''Updates the board array with specified move'''
     updated = original
     global ep
     global white
@@ -996,7 +947,7 @@ def make_move(original: str, type, start: int, end: int, castling: bool):
         castle[3] = False
     return updated
 
-#MAIN BODY
+'''MAIN FUNCTION'''
 #Get Board Configuration
 board = get_board()
 good = valid_board(board)
@@ -1005,9 +956,7 @@ while not good:
     board = get_board()
     good = valid_board(board)
 show_board(board)
-fmn = 0
-ply = 0
-while ply < 50:   #counts ply since last capture or Pawn movement
+while ply < 100:   #counts ply (half moves) since last capture or Pawn movement
     capture = False #reset capture
     check = False   #reset check
     a = ''
@@ -1069,13 +1018,14 @@ while ply < 50:   #counts ply since last capture or Pawn movement
         board = OldBoard
         continue    #loop without switching (try again)
     #show corrected move (including check, checkmate, castling, pawn promotion)
+    #fmn. , chessman (column if Pawn), x if capture, end square (algebraic), =promotion, +/# if check/checkmate
     show_board(board)
     white = not white   #switch colors for next player
     ply += 1
     if capture or chessman == 'p' or chessman == 'P':
         ply = 0 #reset moves since capture or Pawn movement
-    if ply > 50:
-        print("No capture or Pawn move in 50 moves. Game is a DRAW")
+    if ply > 100:
+        print("DRAW by FIFTY-MOVE RULE")
         break
     if not white:
         fmn += 1    #increment full move number

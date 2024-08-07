@@ -3,7 +3,7 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-08-06
+#UPDATED: 2024-08-07
 '''
 #Need to fix:
     #can't find King (backtracking)
@@ -19,7 +19,9 @@
         #[ ] Draw (no winner)
             #[ ] Stalemate (no leagal moves)
             #[x] 50 moves no Pawn moves or captures
-            #[ ] 3 move repetition (both players)
+            #[ ] Position repeated 3 times (including castling and en passant)
+                #Need to record the FEN after each half move
+                #If the same FEN occurs 3 times (not counting ply, fmn, active color), declare DRAW
             #[ ] insufficient material:
                 #King
                 #King + Bishop
@@ -726,79 +728,32 @@ def queen_moves(home: int, fwd: bool):
 
 def king_moves(home: int, forwards: bool):
     '''Returns the squares a King can move to'''
-    path = [home]
-    if home > 7:    #not in rank 8
-        if home not in fileA:
-            x = home - 9    #up 1 left 1
-            if board[x] == ' ':
-                path.append(x)
-            else:
-                if forwards and board[x] in xblack:
-                    path.append(x)
-                elif not forwards and board[x] in xwhite:
-                    path.append(x)
-        x = home - 8    #up 1
-        if board[x] == ' ':
+    path = [home-9,home-8,home-7,home-1,home,home+1,home+7,home+8,home+9]
+    if home > 55:   #bottom rank
+        del path[6:8]   #remove backward movement
+    elif home < 8:  #top rank
+        del path[0:2]   #remove forward movement
+    if home in fileA:   #left edge
+        for x in path:  #itterate through remaining options
+            if x in fileH:  #off the board
+                path.remove(z)  #remove leftward motion
+    elif home in fileH: #right edge
+        for x in path:  #itterate through remaining options
+            if x in fileA:  #off the board
+                path.remove(z)  #remove rightward motion
+    for x in path:
+        if board[x] == ' ': #blank space available
             path.append(x)
-        else:
-            if forwards and board[x] in xblack:
+        elif white:
+            if not forwards and board[x] == 'K':    #backtracking, found white King
                 path.append(x)
-            elif not forwards and board[x] in xwhite:
+            elif board[x] in xblack:  #White King captures black piece
                 path.append(x)
-        if home not in fileH:
-            x = home - 7    #up 1 right 1
-            if board[x] == ' ':
+        else:   #black
+            if not forwards and board[x] == 'k':    #backtracking, found black King
                 path.append(x)
-            else:
-                if forwards and board[x] in xblack:
-                    path.append(x)
-                elif not forwards and board[x] in xwhite:
-                    path.append(x)
-    if home not in fileA:
-        x = home - 1    #left 1
-        if board[x] == ' ':
-            path.append(x)
-        else:
-            if forwards and board[x] in xblack:
+            elif board[x] in xwhite:    #Black King captures white piece
                 path.append(x)
-            elif not forwards and board[x] in xwhite:
-                path.append(x)
-    if home not in fileH:
-        x = home + 1    #right 1
-        if board[x] == ' ':
-            path.append(x)
-        else:
-            if forwards and board[x] in xblack:
-                path.append(x)
-            elif not forwards and board[x] in xwhite:
-                path.append(x)
-    if home < 56:   #not in rank 1
-        if home not in fileA:
-            x = home + 7    #down  left 1
-            if board[x] == ' ':
-                path.append(x)
-            else:
-                if forwards and board[x] in xblack:
-                    path.append(x)
-                elif not forwards and board[x] in xwhite:
-                    path.append(x)
-        x = home + 8    #down 1
-        if board[x] == ' ':
-            path.append(x)
-        else:
-            if forwards and board[x] in xblack:
-                path.append(x)
-            elif not forwards and board[x] in xwhite:
-                path.append(x)
-        if home not in fileH:
-            x = home + 9    #down 1 right 1
-            if board[x] == ' ':
-                path.append(x)
-            else:
-                if forwards and board[x] in xblack:
-                    path.append(x)
-                elif not forwards and board[x] in xwhite:
-                    path.append(x)
     if white:
         if castle[0]:    #kingside
             c = 60

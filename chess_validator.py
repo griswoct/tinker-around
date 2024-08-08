@@ -3,7 +3,7 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-08-07
+#UPDATED: 2024-08-08
 '''
 #Need to fix:
     #can't find King (backtracking)
@@ -83,7 +83,8 @@ def get_board():
     build = []
     fen = input("Enter D for default starting position, or board configuration in FEN notation: ")
     if fen in ['D','d']:
-        fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"    #Chess starting position
+        #fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"    #Chess starting position
+        fen = "r1bqk2r/pppp1ppp/5n2/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4"  #for testing King movement
     i = 0    #Position in fen array
     j = 0    #Board position
     while j < 64 and i < len(fen):    #Populate board array from FEN string
@@ -728,20 +729,21 @@ def queen_moves(home: int, fwd: bool):
 
 def king_moves(home: int, forwards: bool):
     '''Returns the squares a King can move to'''
-    path = [home-9,home-8,home-7,home-1,home,home+1,home+7,home+8,home+9]
+    squares = [home-9,home-8,home-7,home-1,home,home+1,home+7,home+8,home+9]
+    path = []
     if home > 55:   #bottom rank
-        del path[6:8]   #remove backward movement
+        del squares[6:]   #remove backward movement
     elif home < 8:  #top rank
-        del path[0:2]   #remove forward movement
+        del squares[:3]   #remove forward movement
     if home in fileA:   #left edge
-        for x in path:  #itterate through remaining options
+        for x in squares:  #itterate through remaining options
             if x in fileH:  #off the board
-                path.remove(z)  #remove leftward motion
+                squares.remove(x)  #remove leftward motion
     elif home in fileH: #right edge
-        for x in path:  #itterate through remaining options
+        for x in squares:  #itterate through remaining options
             if x in fileA:  #off the board
-                path.remove(z)  #remove rightward motion
-    for x in path:
+                squares.remove(x)  #remove rightward motion
+    for x in squares:
         if board[x] == ' ': #blank space available
             path.append(x)
         elif white:
@@ -754,6 +756,74 @@ def king_moves(home: int, forwards: bool):
                 path.append(x)
             elif board[x] in xwhite:    #Black King captures white piece
                 path.append(x)
+    #Castling
+    if white:
+        if board[60] != 'K':
+            return path
+        threats = attackers(60, white)
+        if bool(threats):   #needs wotk
+            print("White King in check from ", threats)  #for testing
+            return path
+        if castle[0] and board[63] == 'R':  #kingside
+            x = 61  #kingside of King
+            while x < 63:   #path to Rook
+                threats = attackers(x, white)
+                if board[x] != ' ' or bool(threats):
+                    break
+                else:
+                    print(x, " is open and safe")   #for testing
+                    x += 1
+            if x == 63: #checked entire path between King and Rook
+                if forwards:
+                    path.append(62)
+                else:
+                    path.append(60)
+        if castle[1] and board[56] == 'R':  #queenside
+            x = 59  #queenside of King
+            while x > 56:   #path to Rook
+                threats = attackers(x, white)
+                if board[x] != ' ' or bool(threats) and x > 57: #and evaluated before or
+                    break
+                else:
+                    x -= 1
+            if x == 56: #checked entire path between King and Rook
+                if forwards:
+                    path.append(58)
+                else:
+                    path.append(60)
+    else:  #black
+        if board[4] != 'k':
+            return path
+        threats = attackers(4, white)
+        if bool(threats):
+            return path
+        if castle[2] and board[7] == 'R':  #kingside
+            x = 5  #kingside of King
+            while x < 7:   #path to Rook
+                threats = attackers(x, white)
+                if board[x] != ' ' or bool(threats):
+                    break
+                else:
+                    x += 1
+            if x == 7: #checked entire path between King and Rook
+                if forwards:
+                    path.append(6)
+                else:
+                    path.append(4)
+        if castle[3] and board[0] == 'R':  #queenside
+            x = 3  #queenside of King
+            while x > 0:   #path to Rook
+                threats = attackers(x, white)
+                if board[x] != ' ' or bool(threats) and x > 1: #and evaluated before or
+                    break
+                else:
+                    x -= 1
+            if x == 0: #checked entire path between King and Rook
+                if forwards:
+                    path.append(2)
+                else:
+                    path.append(4)
+    '''
     if white:
         if castle[0]:    #kingside
             c = 60
@@ -812,6 +882,7 @@ def king_moves(home: int, forwards: bool):
                 path.append(2) #queenside
         else:
             return path
+    '''
     print("King moves:", path)  #for testing
     return path
 

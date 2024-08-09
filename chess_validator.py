@@ -3,10 +3,8 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-08-08
+#UPDATED: 2024-08-09
 '''
-#Need to fix:
-    #can't find King (backtracking)
 #Need to add:
     #Identify checkmate
         #Identify all possible moves
@@ -83,8 +81,7 @@ def get_board():
     build = []
     fen = input("Enter D for default starting position, or board configuration in FEN notation: ")
     if fen in ['D','d']:
-        #fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"    #Chess starting position
-        fen = "r1bqk2r/pppp1ppp/5n2/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4"  #for testing King movement
+        fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"    #Chess starting position
     i = 0    #Position in fen array
     j = 0    #Board position
     while j < 64 and i < len(fen):    #Populate board array from FEN string
@@ -206,7 +203,6 @@ def get_move():
     if move[-1] == '+' or move [-1] == '#':    #remove '+' or '#'
         move.pop()    #Removes last character
     if move[0] in ['0','o','O']:    #castling
-        print("Castling...")    #for testing
         if white:
             piece = 'K'
             if len(move) < 5:   #kingside
@@ -396,7 +392,6 @@ def back_track(destination: int, cm, color: bool, col):
     color = not color   #include your own pieces, not your opponents
     if cm in {'P','p'}:
         reach = pawn_moves(destination, False)
-        print("Pawn reach:", reach) #for testing
         if col == 'a':   #find file if the piece is a Pawn
             col = fileA
         elif col == 'b':
@@ -760,20 +755,18 @@ def king_moves(home: int, forwards: bool):
     if white:
         if board[60] != 'K':
             return path
-        threats = attackers(60, white)
-        if bool(threats):   #needs wotk
-            print("White King in check from ", threats)  #for testing
+        nogo = check_check(60, white)
+        if nogo:    #White King in check
             return path
         if castle[0] and board[63] == 'R':  #kingside
             x = 61  #kingside of King
             while x < 63:   #path to Rook
-                threats = attackers(x, white)
-                if board[x] != ' ' or bool(threats):
+                nogo = check_check(x, white)
+                if board[x] != ' ' or nogo:
                     break
                 else:
-                    print(x, " is open and safe")   #for testing
                     x += 1
-            if x == 63: #checked entire path between King and Rook
+            if x == 63: #cleared entire path between King and Rook
                 if forwards:
                     path.append(62)
                 else:
@@ -781,8 +774,8 @@ def king_moves(home: int, forwards: bool):
         if castle[1] and board[56] == 'R':  #queenside
             x = 59  #queenside of King
             while x > 56:   #path to Rook
-                threats = attackers(x, white)
-                if board[x] != ' ' or bool(threats) and x > 57: #and evaluated before or
+                nogo = check_check(x, white)
+                if board[x] != ' ' or nogo and x > 57: #and evaluated before or
                     break
                 else:
                     x -= 1
@@ -794,27 +787,27 @@ def king_moves(home: int, forwards: bool):
     else:  #black
         if board[4] != 'k':
             return path
-        threats = attackers(4, white)
-        if bool(threats):
+        nogo = check_check(4, white)
+        if nogo:
             return path
-        if castle[2] and board[7] == 'R':  #kingside
+        if castle[2] and board[7] == 'r':  #kingside
             x = 5  #kingside of King
             while x < 7:   #path to Rook
-                threats = attackers(x, white)
-                if board[x] != ' ' or bool(threats):
+                nogo = check_check(x, white)
+                if board[x] != ' ' or nogo:
                     break
                 else:
                     x += 1
-            if x == 7: #checked entire path between King and Rook
+            if x == 7: #cleared entire path between King and Rook
                 if forwards:
                     path.append(6)
                 else:
                     path.append(4)
-        if castle[3] and board[0] == 'R':  #queenside
+        if castle[3] and board[0] == 'r':  #queenside
             x = 3  #queenside of King
             while x > 0:   #path to Rook
-                threats = attackers(x, white)
-                if board[x] != ' ' or bool(threats) and x > 1: #and evaluated before or
+                nogo = check_check(x, white)
+                if board[x] != ' ' or nogo and x > 1: #and evaluated before or
                     break
                 else:
                     x -= 1
@@ -823,67 +816,7 @@ def king_moves(home: int, forwards: bool):
                     path.append(2)
                 else:
                     path.append(4)
-    '''
-    if white:
-        if castle[0]:    #kingside
-            c = 60
-            bad = False
-            while c < 63:
-                if c > 60 and board[c] != ' ':  #a piece is between the king and the rook
-                    bad = True
-                    break
-                bad = check_check(c, True)  #square c can be attacked
-                if bad:
-                    break
-                c += 1
-            if not bad:
-                path.append(62) #kingside
-        elif castle[1]: #queenside
-            c = 60
-            bad = False
-            while c > 57:
-                if c < 60 and board[c] != ' ':  #a piece is between the king and the rook
-                    bad = True
-                    break
-                bad = check_check(c, True)  #square c can be attacked
-                if bad:
-                    break
-                c -= 1
-            if not bad:
-                path.append(58) #queenside
-        else:
-            return path
-    else:   #black
-        if castle[2]:    #kingside
-            c = 4
-            bad = False
-            while c < 7:
-                if c > 4 and board[c] != ' ':  #a piece is between the king and the rook
-                    bad = True
-                    break
-                bad = check_check(c, True)  #square c can be attacked
-                if bad:
-                    break
-                c += 1
-            if not bad:
-                path.append(6) #kingside
-        elif castle[3]: #queenside
-            c = 4
-            bad = False
-            while c > 1:
-                if c < 4 and board[c] != ' ':  #a piece is between the king and the rook
-                    bad = True
-                    break
-                bad = check_check(c, True)  #square c can be attacked
-                if bad:
-                    break
-                c -= 1
-            if not bad:
-                path.append(2) #queenside
-        else:
-            return path
-    '''
-    print("King moves:", path)  #for testing
+    path = list(set(path))
     return path
 
 def check_check(throne: int, color: bool):
@@ -897,9 +830,11 @@ def attackers(target: int, color: bool):
     if color:
         for x in xblack:
             threat.append(back_track(target, x, not white, ''))
+        #threat.append(back_track(target, 'k', not white, ''))
     else:
         for x in xwhite:
             threat.append(back_track(target, x, not white, ''))
+        #threat.append(back_track(target, 'K', not white, ''))
     return threat
 
 def make_move(original: str, type, start: int, end: int, castling: bool):
@@ -926,7 +861,6 @@ def make_move(original: str, type, start: int, end: int, castling: bool):
                 ep = start - 8  #en passant target
             else:
                 ep = start + 8    #en passant target
-            print("En Passant target is:", ep)  #for testing
     else:
         ep = '' #clear en passant target
     #Update Board
@@ -1016,6 +950,12 @@ while ply < 100:   #counts ply (half moves) since last capture or Pawn movement
             continue    #loop without switching (try again)
     options = back_track(b, chessman, white, file)
     if len(options) == 1:
+        if castling and white and not castle[0] and not castle[1]:  #invalid castle white
+            print("Invalid Castle Option/n",castle)
+            continue
+        elif castling and white and not castle[2] and not castle[3]:  #invalid castle black
+            print("Invalid Castle Option/n",castle)
+            continue
         a = options[0]
     elif len(options) > 1:
         start = input("Multiple pieces found. Please enter the location of the intended piece: ")

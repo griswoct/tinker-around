@@ -5,6 +5,8 @@
 #AUTHOR: CALEB GRISWOLD
 #UPDATED: 2024-08-09
 '''
+#Need to fix:
+    #King in check not detected when verifying move
 #Need to add:
     #Identify checkmate
         #Identify all possible moves

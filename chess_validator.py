@@ -3,7 +3,7 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-08-09
+#UPDATED: 2024-09-17
 '''
 #Need to fix:
     #King in check not detected when verifying move
@@ -11,7 +11,7 @@
     #Identify checkmate
         #Identify all possible moves
         #Try each one and check for check
-        #If list of options is [], then checkmate
+        #If list of options is [], then checkmate or stalemate
         #Declare winner and end game
     #Game Over:
         #[ ] Checkmate (winner)
@@ -83,7 +83,9 @@ def get_board():
     build = []
     fen = input("Enter D for default starting position, or board configuration in FEN notation: ")
     if fen in ['D','d']:
-        fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"    #Chess starting position
+        #fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"    #Chess starting position
+        #fen = "rnb1k2N/pp1p2pp/1b3n2/4p3/1pB1P3/P7/2PPNqPP/R1BQK2R w KQq - 0 11"    #for testing
+        fen = "k7/r7/8/8/8/8/8/1K6 w - - 0 32" #for testing check_check
     i = 0    #Position in fen array
     j = 0    #Board position
     while j < 64 and i < len(fen):    #Populate board array from FEN string
@@ -391,7 +393,9 @@ def find_pieces(p):
 def back_track(destination: int, cm, color: bool, col):
     '''Backtracks path for that type of piece, and returns the locations of those pieces'''
     origins = []
-    color = not color   #include your own pieces, not your opponents
+    #color = not color   #include your own pieces, not your opponents
+    print("destination: ", destination,"cm: ", cm, "color: ", color, "col: ", col)  #for testing
+    i = input("Press any key to continue...")   #for testing
     if cm in {'P','p'}:
         reach = pawn_moves(destination, False)
         if col == 'a':   #find file if the piece is a Pawn
@@ -423,6 +427,7 @@ def back_track(destination: int, cm, color: bool, col):
     elif cm in {'K','k'}:
         reach = king_moves(destination, False)
     i = 0
+    print("Reach for ", cm, " is:", reach)  #for testing
     while i < len(reach):   #itterate through piece's range
         if board[reach[i]] == cm:
             if cm in {'P','p'}:    #pawn
@@ -824,18 +829,23 @@ def king_moves(home: int, forwards: bool):
 def check_check(throne: int, color: bool):
     '''Checks if a square can be attacked by an opponents piece'''
     threats = attackers(throne,color)
+    print(threats)  #for testing
     return bool(not threats)
 
 def attackers(target: int, color: bool):
     '''Checks for opponent pieces which can attack the target square'''
     threat = []
     if color:
+        print("White active, looking for black pieces") #for testing
         for x in xblack:
             threat.append(back_track(target, x, not white, ''))
+            print("Threat from:", x, threat)    #for testing
         #threat.append(back_track(target, 'k', not white, ''))
     else:
+        print("Black active, looking for white pieces") #for testing
         for x in xwhite:
             threat.append(back_track(target, x, not white, ''))
+            print("Threat from:", x, threat)    #for testing 
         #threat.append(back_track(target, 'K', not white, ''))
     return threat
 
@@ -981,6 +991,7 @@ while ply < 100:   #counts ply (half moves) since last capture or Pawn movement
     else:
         king = find_pieces('k')
     check = check_check(king[0], white)
+    print("Color:",white,"Check:",check)    #for testing
     if check:
         print("Invalid move: your King is in check!")
         board = OldBoard

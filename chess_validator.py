@@ -3,7 +3,7 @@
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-09-17
+#UPDATED: 2024-09-18
 '''
 #Need to fix:
     #King in check not detected when verifying move
@@ -417,13 +417,13 @@ def back_track(destination: int, cm, color: bool, col):
         else:
             col = list(range(64))  #if col isn't recognized, file includes whole board
     elif cm in {'B','b'}:
-        reach = bishop_moves(destination, False)
+        reach = bishop_moves(destination, False, color)
     elif cm in {'N','n'}:
         reach = knight_moves(destination, False)
     elif cm in {'R','r'}:
-        reach = rook_moves(destination, False)
+        reach = rook_moves(destination, False, color)
     elif cm in {'Q','q'}:
-        reach = queen_moves(destination, False)
+        reach = queen_moves(destination, False, color)
     elif cm in {'K','k'}:
         reach = king_moves(destination, False)
     i = 0
@@ -623,7 +623,7 @@ def knight_moves(home: int, forwards: bool):
                 path.append(x)
     return path
 
-def bishop_moves(home: int, forwards: bool):
+def bishop_moves(home: int, forwards: bool, color: bool):
     '''Returns the squares a Bishop can move to from starting square home'''
     path = [home]
     x = home
@@ -632,9 +632,9 @@ def bishop_moves(home: int, forwards: bool):
         if board[x] == ' ':
             path.append(x)
         else:
-            if forwards == white and board[x] in xblack:
+            if forwards == color and board[x] in xblack:
                 path.append(x)
-            elif forwards ^ white and board[x] in xwhite:
+            elif forwards ^ color and board[x] in xwhite:
                 path.append(x)
             break
     x = home
@@ -643,9 +643,9 @@ def bishop_moves(home: int, forwards: bool):
         if board[x] == ' ':
             path.append(x)
         else:
-            if forwards == white and board[x] in xblack:
+            if forwards == color and board[x] in xblack:
                 path.append(x)
-            elif forwards ^ white and board[x] in xwhite:
+            elif forwards ^ color and board[x] in xwhite:
                 path.append(x)
             break
     x = home
@@ -654,9 +654,9 @@ def bishop_moves(home: int, forwards: bool):
         if board[x] == ' ':
             path.append(x)
         else:
-            if forwards == white and board[x] in xblack:
+            if forwards == color and board[x] in xblack:
                 path.append(x)
-            elif forwards ^ white and board[x] in xwhite:
+            elif forwards ^ color and board[x] in xwhite:
                 path.append(x)
             break
     x = home
@@ -665,14 +665,14 @@ def bishop_moves(home: int, forwards: bool):
         if board[x] == ' ':
             path.append(x)
         else:
-            if forwards == white and board[x] in xblack:
+            if forwards == color and board[x] in xblack:
                 path.append(x)
-            elif forwards ^ white and board[x] in xwhite:
+            elif forwards ^ color and board[x] in xwhite:
                 path.append(x)
             break
     return path
 
-def rook_moves(home: int, forwards: bool):
+def rook_moves(home: int, forwards: bool, color: bool):
     '''Returns the squares a Rook can move to'''
     path = [home]
     x = home
@@ -681,9 +681,9 @@ def rook_moves(home: int, forwards: bool):
         if board[x] == ' ':
             path.append(x)
         else:
-            if forwards == white and board[x] in xblack:
+            if forwards == color and board[x] in xblack:
                 path.append(x)
-            elif forwards ^ white and board[x] in xwhite:
+            elif forwards ^ color and board[x] in xwhite:
                 path.append(x)
             break
     x = home
@@ -692,9 +692,9 @@ def rook_moves(home: int, forwards: bool):
         if board[x] == ' ':
             path.append(x)
         else:
-            if forwards == white and board[x] in xblack:
+            if forwards == color and board[x] in xblack:
                 path.append(x)
-            elif forwards ^ white and board[x] in xwhite:
+            elif forwards ^ color and board[x] in xwhite:
                 path.append(x)
             break
     x = home
@@ -703,9 +703,9 @@ def rook_moves(home: int, forwards: bool):
         if board[x] == ' ':
             path.append(x)
         else:
-            if forwards == white and board[x] in xblack:
+            if forwards == color and board[x] in xblack:
                 path.append(x)
-            elif forwards ^ white and board[x] in xwhite:
+            elif forwards ^ color and board[x] in xwhite:
                 path.append(x)
             break
     x = home
@@ -714,18 +714,18 @@ def rook_moves(home: int, forwards: bool):
         if board[x] == ' ':
             path.append(x)
         else:
-            if forwards == white and board[x] in xblack:
+            if forwards == color and board[x] in xblack:
                 path.append(x)
-            elif forwards ^ white and board[x] in xwhite:
+            elif forwards ^ color and board[x] in xwhite:
                 path.append(x)
             break
     return path
 
-def queen_moves(home: int, fwd: bool):
+def queen_moves(home: int, fwd: bool, colour):
     '''Returns the squares a Queen can move to'''
-    pathR = rook_moves(home, fwd)
+    pathR = rook_moves(home, fwd, colour)
     pathR.remove(home)
-    pathB = bishop_moves(home, fwd)
+    pathB = bishop_moves(home, fwd, colour)
     path = pathR + pathB
     return path
 
@@ -828,7 +828,7 @@ def king_moves(home: int, forwards: bool):
 
 def check_check(throne: int, color: bool):
     '''Checks if a square can be attacked by an opponents piece'''
-    threats = attackers(throne,color)
+    threats = attackers(throne, color)
     print(threats)  #for testing
     return bool(not threats)
 

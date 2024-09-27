@@ -1,16 +1,24 @@
 '''
 #CHESS VALIDATOR
 #PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
+#   EXPANDED PURPOSE:
+#       VERIFY OR GENERATE LEGAL MOVES
+#       LIST ATTACKERS AND DEFENDERS
+#       FACILITATE GAME BETWEEN TWO PLAYERS
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-09-20
+#UPDATED: 2024-09-27
 '''
+#Need to fix:
+    #Pawn move not identified if capital letter is used form file
 #Need to add:
     #Identify checkmate
         #Identify all possible moves
         #Try each one and check for check
         #If list of options is [], then checkmate or stalemate
         #Declare winner and end game
+    #Read PGN
+    #Generate PGN
     #Game Over:
         #[ ] Checkmate (winner)
         #[x] Resignation (winner)
@@ -19,7 +27,7 @@
             #[x] 50 moves no Pawn moves or captures
             #[ ] Position repeated 3 times (including castling and en passant)
                 #Need to record the FEN after each half move
-                #If the same FEN occurs 3 times (not counting ply, fmn, active color), declare DRAW
+                #If the same FEN occurs 3 times (not counting ply, fmn, active color), declare "DRAW by REPITITION"
             #[ ] insufficient material:
                 #King
                 #King + Bishop
@@ -54,6 +62,7 @@ a = ''    #Board index starting location
 b = ''    #Board index ending location
 ep = '' #En passant target square
 fmn = 1  #Full move number, defaults to start of game
+pgn = ""    #Portable Game Notation string
 ply = 0 #Number of half moves since last capture or Pawn movement
 castle = [True,True,True,True]  #Tracks castle availibility (KQkq)
 fileA = [0,8,16,24,32,40,48,56] #Board indexes for A-file (edge of board)
@@ -64,6 +73,7 @@ fileE = [4,12,20,28,36,44,52,60] #Board indexes for E-file
 fileF = [5,13,21,29,37,45,53,61] #Board indexes for F-file
 fileG = [6,14,22,30,38,46,54,62]    #Board indexes for G-file
 fileH = [7,15,23,31,39,47,55,63]    #Board indexes for H-file (edge of board)
+history = []    #List of positions in Forsyth-Edwards Notation
 ranks = ['a','b','c','d','e','f','g','h']
 board = []    #Chess board configuration
 xblack = ['q','r','b','n','p']    #Capturable black pieces list (no King)
@@ -79,6 +89,11 @@ def get_board():
     global ply
     global castle
     build = []
+    #Add option to select FEN or PGN
+    #if pgn:
+        #call function to read pgn and build fen
+    #if fen:
+        #break read fen into seperate function
     fen = input("Enter D for default starting position, or board configuration in FEN notation: ")
     if fen in ['D','d']:
         fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"    #Chess starting position
@@ -905,6 +920,18 @@ def make_move(original: str, type, start: int, end: int, castling: bool):
     return updated
 
 '''MAIN FUNCTION'''
+#Selection Menu
+print(
+    "Please select an option: (NOT FUNCTIONAL)\n \
+    1. VALIDATE MOVE\n \
+    2. TWO PLAYER GAME\n \
+    3. AVAILABLE MOVES FOR PIECE\n \
+    4. AVAILABLE MOVES FOR COLOR\n \
+    5. PIECE ATTACKERS AND DEFENDERS\n \
+    6. BOARD CONTROL HEATMAP\n \
+    7. IS THE GAME OVER?\n \
+    ")  #Remove 7 once automatic check is implemented
+
 #Get Board Configuration
 board = get_board()
 good = valid_board(board)
@@ -983,6 +1010,7 @@ while ply < 100:   #counts ply (half moves) since last capture or Pawn movement
     #show corrected move (including check, checkmate, castling, pawn promotion)
     #fmn. , chessman (column if Pawn), x if capture, end square (algebraic), =promotion, +/# if check/checkmate
     show_board(board)
+    #Do not loop unless 2 player game was selected
     white = not white   #switch colors for next player
     ply += 1
     if capture or chessman == 'p' or chessman == 'P':

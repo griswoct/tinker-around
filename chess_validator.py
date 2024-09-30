@@ -7,7 +7,7 @@
 #       FACILITATE GAME BETWEEN TWO PLAYERS
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-09-27
+#UPDATED: 2024-09-30
 '''
 #Need to fix:
     #Pawn move not identified if capital letter is used form file
@@ -921,8 +921,7 @@ def make_move(original: str, type, start: int, end: int, castling: bool):
 
 '''MAIN FUNCTION'''
 #Selection Menu
-print(
-    "Please select an option: (NOT FUNCTIONAL)\n \
+print(" \
     1. VALIDATE MOVE\n \
     2. TWO PLAYER GAME\n \
     3. AVAILABLE MOVES FOR PIECE\n \
@@ -931,7 +930,76 @@ print(
     6. BOARD CONTROL HEATMAP\n \
     7. IS THE GAME OVER?\n \
     ")  #Remove 7 once automatic check is implemented
-
+selection = input("Please select an option: ")
+if selection is 1:
+    #run main fuction already written with loop removed
+elif selection is 2:
+    #run main fuction already written
+elif selection is 3:
+    board = get_board()
+    good = valid_board(board)
+    while not good:
+        print("Sorry, that board configuration is not recognised. Please Try again.")
+        board = get_board()
+        good = valid_board(board)
+    show_board(board)
+    square = input("Enter piece location (square): ")
+    a = board_index(square)
+    chessman = board[a]
+    if chessman is 'P':
+        moves = pawn_moves(a, True, True)
+    elif chessman is 'p':
+        moves = pawn_moves(a, True, False)
+    elif chessman in ('B','b'):
+        moves = bishop_moves(a, True, True)
+    elif chessman in ('N','n'):
+        moves = knight_moves(a, True, True)
+    elif chessman in ('R','r'):
+        moves = rook_moves(a, True, True)
+    elif chessman in ('Q','q'):
+        moves = queen_moves(a, True, True)
+    elif chessman in ('K','k'):
+        moves = king_moves(a, True, True)
+    else:
+        print("Error: could not identify piece (blank)?")
+    #Check for check for each option?
+elif selection is 4:
+    board = get_board()
+    good = valid_board(board)
+    while not good:
+        print("Sorry, that board configuration is not recognised. Please Try again.")
+        board = get_board()
+        good = valid_board(board)
+    show_board(board)
+    if white:
+        print("Showing all possible moves for WHITE")
+        #increment through board
+        #if board[i] in xwhite:
+            #call menu item 3
+    else:
+        print("Showing all possible moves for BLACK")
+        #increment through board
+        #if board[i] in xblack:
+            #call menu item 3
+elif selection is 5:
+    board = get_board()
+    good = valid_board(board)
+    while not good:
+        print("Sorry, that board configuration is not recognised. Please Try again.")
+        board = get_board()
+        good = valid_board(board)
+    show_board(board)
+    square = input("Enter piece location (square): ")
+    a = board_index(square)
+    chessman = board[a]
+    threats = attackers(a, white)
+elif selection is 6:
+    #increment through board
+    #for i in board:
+    #threats.append(attackers(i, white))
+else:
+    #check for game over
+    
 #Get Board Configuration
 board = get_board()
 good = valid_board(board)

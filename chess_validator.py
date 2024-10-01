@@ -7,7 +7,7 @@
 #       FACILITATE GAME BETWEEN TWO PLAYERS
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-09-30
+#UPDATED: 2024-10-01
 '''
 #Need to fix:
     #Pawn move not identified if capital letter is used form file
@@ -919,8 +919,7 @@ def make_move(original: str, type, start: int, end: int, castling: bool):
         castle[3] = False
     return updated
 
-'''MAIN FUNCTION'''
-#Selection Menu
+#Main Menu Selection
 print(" \
     1. VALIDATE MOVE\n \
     2. TWO PLAYER GAME\n \
@@ -931,18 +930,18 @@ print(" \
     7. IS THE GAME OVER?\n \
     ")  #Remove 7 once automatic check is implemented
 selection = input("Please select an option: ")
-if selection is 1:
-    #run main fuction already written with loop removed
-elif selection is 2:
-    #run main fuction already written
-elif selection is 3:
+board = get_board()
+good = valid_board(board)
+while not good:
+    print("Sorry, that board configuration is not recognised. Please Try again.")
     board = get_board()
     good = valid_board(board)
-    while not good:
-        print("Sorry, that board configuration is not recognised. Please Try again.")
-        board = get_board()
-        good = valid_board(board)
-    show_board(board)
+show_board(board)
+if selection is 1:  #VALIDATE MOVE
+    validate_move()
+elif selection is 2:    #TWO PLAYER GAME
+    #run main fuction already written
+elif selection is 3:    #AVAILABLE MOVES FOR PIECE
     square = input("Enter piece location (square): ")
     a = board_index(square)
     chessman = board[a]
@@ -963,51 +962,37 @@ elif selection is 3:
     else:
         print("Error: could not identify piece (blank)?")
     #Check for check for each option?
-elif selection is 4:
-    board = get_board()
-    good = valid_board(board)
-    while not good:
-        print("Sorry, that board configuration is not recognised. Please Try again.")
-        board = get_board()
-        good = valid_board(board)
-    show_board(board)
+    print("Available moves for this", chessman, "are", moves)
+elif selection is 4:    #AVAILABLE MOVES FOR COLOR
     if white:
-        print("Showing all possible moves for WHITE")
+        print("Showing all possible moves for WHITE"")
         #increment through board
         #if board[i] in xwhite:
             #call menu item 3
     else:
-        print("Showing all possible moves for BLACK")
+        print("Showing all possible moves for BLACK"")
         #increment through board
         #if board[i] in xblack:
             #call menu item 3
-elif selection is 5:
-    board = get_board()
-    good = valid_board(board)
-    while not good:
-        print("Sorry, that board configuration is not recognised. Please Try again.")
-        board = get_board()
-        good = valid_board(board)
-    show_board(board)
+elif selection is 5:    #PIECE ATTACKERS AND DEFENDERS
     square = input("Enter piece location (square): ")
     a = board_index(square)
     chessman = board[a]
+    #determin which color
     threats = attackers(a, white)
-elif selection is 6:
+    print("Attackers:", threats)
+    threats = attackers(a, not white)
+    print("Defenders for this", chessman, ":", threats)
+elif selection is 6:    #BOARD CONTROL HEATMAP
     #increment through board
     #for i in board:
     #threats.append(attackers(i, white))
 else:
     #check for game over
     
-#Get Board Configuration
-board = get_board()
-good = valid_board(board)
-while not good:
-    print("Sorry, that board configuration is not recognised. Please Try again.")
-    board = get_board()
-    good = valid_board(board)
-show_board(board)
+def validate_move():
+    '''Checks if a move is valid'''
+    global board
 while ply < 100:   #counts ply (half moves) since last capture or Pawn movement
     capture = False #reset capture
     check = False   #reset check

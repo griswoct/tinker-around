@@ -7,7 +7,7 @@
 #       FACILITATE GAME BETWEEN TWO PLAYERS
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-10-01
+#UPDATED: 2024-10-08
 '''
 #Need to fix:
     #Pawn move not identified if capital letter is used form file
@@ -919,6 +919,29 @@ def make_move(original: str, type, start: int, end: int, castling: bool):
         castle[3] = False
     return updated
 
+def get_moves(target: int):
+    '''Get available moves for piece on target square'''
+    chessman = board[a]
+    if chessman is 'P':
+        moves = pawn_moves(a, True, True)
+    elif chessman is 'p':
+        moves = pawn_moves(a, True, False)
+    elif chessman in ('B','b'):
+        moves = bishop_moves(a, True, True)
+    elif chessman in ('N','n'):
+        moves = knight_moves(a, True, True)
+    elif chessman in ('R','r'):
+        moves = rook_moves(a, True, True)
+    elif chessman in ('Q','q'):
+        moves = queen_moves(a, True, True)
+    elif chessman in ('K','k'):
+        moves = king_moves(a, True, True)
+    else:
+        print("Error: could not identify piece (blank)?")
+        return []
+    #Check for check for each option?
+    return moves
+
 #Main Menu Selection
 print(" \
     1. VALIDATE MOVE\n \
@@ -938,42 +961,50 @@ while not good:
     good = valid_board(board)
 show_board(board)
 if selection is 1:  #VALIDATE MOVE
-    validate_move()
+    good = validate_move()
+    if good:
+        print("VALID MOVE")
+    else:
+        print("NOT A VALID MOVE")
 elif selection is 2:    #TWO PLAYER GAME
-    #run main fuction already written
+    while ply < 100:   #counts ply (half moves) since last capture or Pawn movement
+        good = validate_move()
+        if not good:
+            print("Not valid, please try again")
+            continue    #loop without switching (try again)
+        #show corrected move (including check, checkmate, castling, pawn promotion)
+        #fmn. , chessman (column if Pawn), x if capture, end square (algebraic), =promotion, +/# if check/checkmate
+        show_board(board)
+        white = not white   #switch colors for next player
+        ply += 1
+        #if capture or chessman == 'p' or chessman == 'P':
+        #    ply = 0 #reset moves since capture or Pawn movement
+        if ply > 100:
+            print("DRAW by FIFTY-MOVE RULE")
+            break
+        if not white:
+            fmn += 1    #increment full move number
 elif selection is 3:    #AVAILABLE MOVES FOR PIECE
     square = input("Enter piece location (square): ")
     a = board_index(square)
-    chessman = board[a]
-    if chessman is 'P':
-        moves = pawn_moves(a, True, True)
-    elif chessman is 'p':
-        moves = pawn_moves(a, True, False)
-    elif chessman in ('B','b'):
-        moves = bishop_moves(a, True, True)
-    elif chessman in ('N','n'):
-        moves = knight_moves(a, True, True)
-    elif chessman in ('R','r'):
-        moves = rook_moves(a, True, True)
-    elif chessman in ('Q','q'):
-        moves = queen_moves(a, True, True)
-    elif chessman in ('K','k'):
-        moves = king_moves(a, True, True)
-    else:
-        print("Error: could not identify piece (blank)?")
-    #Check for check for each option?
-    print("Available moves for this", chessman, "are", moves)
+    options = get_moves(a)
+    print("Available moves for are", options)
 elif selection is 4:    #AVAILABLE MOVES FOR COLOR
+    options = []
     if white:
-        print("Showing all possible moves for WHITE"")
-        #increment through board
-        #if board[i] in xwhite:
-            #call menu item 3
+        print("Showing all possible moves for WHITE")
+        for i in board:
+            if board[i] in xwhite:
+                result = get_moves(i)
+                if result is not []:
+                    options.append(result)
     else:
-        print("Showing all possible moves for BLACK"")
-        #increment through board
-        #if board[i] in xblack:
-            #call menu item 3
+        print("Showing all possible moves for BLACK")
+        for i in board:
+            if board[i] in xblack:
+                result = get_moves(i)
+                if result is not []:
+                    options.append(result)
 elif selection is 5:    #PIECE ATTACKERS AND DEFENDERS
     square = input("Enter piece location (square): ")
     a = board_index(square)
@@ -984,16 +1015,17 @@ elif selection is 5:    #PIECE ATTACKERS AND DEFENDERS
     threats = attackers(a, not white)
     print("Defenders for this", chessman, ":", threats)
 elif selection is 6:    #BOARD CONTROL HEATMAP
-    #increment through board
-    #for i in board:
-    #threats.append(attackers(i, white))
+    bcontrol = []
+    wcontrol = []
+    for i in board:
+        wcontrol.append(attackers(i, white))
+        bcontrol.append(attackers(i, not white))
 else:
     #check for game over
     
 def validate_move():
     '''Checks if a move is valid'''
     global board
-while ply < 100:   #counts ply (half moves) since last capture or Pawn movement
     capture = False #reset capture
     check = False   #reset check
     a = ''
@@ -1059,17 +1091,5 @@ while ply < 100:   #counts ply (half moves) since last capture or Pawn movement
     if check:
         print("Invalid move: your King is in check!")
         board = OldBoard
-        continue    #loop without switching (try again)
-    #show corrected move (including check, checkmate, castling, pawn promotion)
-    #fmn. , chessman (column if Pawn), x if capture, end square (algebraic), =promotion, +/# if check/checkmate
-    show_board(board)
-    #Do not loop unless 2 player game was selected
-    white = not white   #switch colors for next player
-    ply += 1
-    if capture or chessman == 'p' or chessman == 'P':
-        ply = 0 #reset moves since capture or Pawn movement
-    if ply > 100:
-        print("DRAW by FIFTY-MOVE RULE")
-        break
-    if not white:
-        fmn += 1    #increment full move number
+        return False
+    return True

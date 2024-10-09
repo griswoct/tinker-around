@@ -7,7 +7,7 @@
 #       FACILITATE GAME BETWEEN TWO PLAYERS
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-10-08
+#UPDATED: 2024-10-09
 '''
 #Need to fix:
     #Pawn move not identified if capital letter is used form file
@@ -941,6 +941,76 @@ def get_moves(target: int):
         return []
     #Check for check for each option?
     return moves
+def validate_move():
+    '''Checks if a move is valid'''
+    global board
+    capture = False #reset capture
+    check = False   #reset check
+    a = ''
+    b = ''
+    q = get_move()
+    if q == "resign": #resign game (exit)
+        print("Resigning game...")
+        if white:
+            print("BLACK wins by RESIGNATION!")
+        else:
+            print("WHITE wins BY RESIGNATION!")
+        return True
+    else:
+        chessman = q[0]
+        b = q[1]
+        promotion = q[2]
+        castling = q[3]
+        file = q[4]
+    square = board_algebraic(b)  #get algebratic notation for user feedback (error messages)
+    #Validate Selected Square
+    if b >= len(board):    #off the board
+        print("Error: ", square, " not found on board")
+        return False    #Invalid move due to invalid square
+    #Validate Capture
+    if b == ep or board[b] != ' ': #Move attempts to capture
+        good = valid_capture(board[b])
+        if good:
+            capture = True
+        else:
+            print("Error: connot capture", board[b], "on square", square)
+            return False    #Invalid move due to invalid capture
+    options = back_track(b, chessman, white, file)
+    if len(options) == 1:
+        if castling and white and not castle[0] and not castle[1]:  #invalid castle white
+            print("Invalid Castle Option/n",castle)
+            return False    #Invalid move due to invalid castle
+        elif castling and white and not castle[2] and not castle[3]:  #invalid castle black
+            print("Invalid Castle Option/n",castle)
+            return False    #Invalid move due to invalid castle
+        a = options[0]
+    elif len(options) > 1:
+        start = input("Multiple pieces found. Please enter the location of the intended piece: ")
+        a = board_index(start)
+        good = valid_path(chessman, a, b)
+        if not good:
+            print("Error: the", chessman, "on ", start, "cannot move to", square)
+            return False    #Invalid move due to invalid path for piece
+    else:
+        print("Error: could not find a", chessman, "that can move to", square)
+        return False    #Invalid move due to invalid path for piece
+    if chessman == 'P' and b < 8 or chessman == 'p' and b > 55:   #"and" is evaluated before "or"
+        if promotion != 'p' and promotion != 'P':
+            chessman = promotion
+        else:
+            chessman = promote_pawn()
+    OldBoard = board
+    board = make_move(board, chessman, a, b, castling)
+    if white:
+        king = find_pieces('K')
+    else:
+        king = find_pieces('k')
+    check = check_check(king[0], white)
+    if check:
+        print("Invalid move: your King is in check!")
+        board = OldBoard
+        return False
+    return True
 
 #Main Menu Selection
 print(" \
@@ -952,7 +1022,7 @@ print(" \
     6. BOARD CONTROL HEATMAP\n \
     7. IS THE GAME OVER?\n \
     ")  #Remove 7 once automatic check is implemented
-selection = input("Please select an option: ")
+selection = int(input("Please select an option: "))
 board = get_board()
 good = valid_board(board)
 while not good:
@@ -1021,75 +1091,4 @@ elif selection is 6:    #BOARD CONTROL HEATMAP
         wcontrol.append(attackers(i, white))
         bcontrol.append(attackers(i, not white))
 else:
-    #check for game over
-    
-def validate_move():
-    '''Checks if a move is valid'''
-    global board
-    capture = False #reset capture
-    check = False   #reset check
-    a = ''
-    b = ''
-    q = get_move()
-    if q == "resign": #resign game (exit)
-        print("Resigning game...")
-        if white:
-            print("BLACK wins by RESIGNATION!")
-        else:
-            print("WHITE wins BY RESIGNATION!")
-        break
-    else:
-        chessman = q[0]
-        b = q[1]
-        promotion = q[2]
-        castling = q[3]
-        file = q[4]
-    square = board_algebraic(b)  #get algebratic notation for user feedback (error messages)
-    #Validate Selected Square
-    if b >= len(board):    #off the board
-        print("Error: ", square, " not found on board")
-        continue    #loop without switching (try again)
-    #Validate Capture
-    if b == ep or board[b] != ' ': #Move attempts to capture
-        good = valid_capture(board[b])
-        if good:
-            capture = True
-        else:
-            print("Error: connot capture", board[b], "on square", square)
-            continue    #loop without switching (try again)
-    options = back_track(b, chessman, white, file)
-    if len(options) == 1:
-        if castling and white and not castle[0] and not castle[1]:  #invalid castle white
-            print("Invalid Castle Option/n",castle)
-            continue
-        elif castling and white and not castle[2] and not castle[3]:  #invalid castle black
-            print("Invalid Castle Option/n",castle)
-            continue
-        a = options[0]
-    elif len(options) > 1:
-        start = input("Multiple pieces found. Please enter the location of the intended piece: ")
-        a = board_index(start)
-        good = valid_path(chessman, a, b)
-        if not good:
-            print("Error: the", chessman, "on ", start, "cannot move to", square)
-            continue    #loop without switching (try again)
-    else:
-        print("Error: could not find a", chessman, "that can move to", square)
-        continue    #loop without switching (try again)
-    if chessman == 'P' and b < 8 or chessman == 'p' and b > 55:   #"and" is evaluated before "or"
-        if promotion != 'p' and promotion != 'P':
-            chessman = promotion
-        else:
-            chessman = promote_pawn()
-    OldBoard = board
-    board = make_move(board, chessman, a, b, castling)
-    if white:
-        king = find_pieces('K')
-    else:
-        king = find_pieces('k')
-    check = check_check(king[0], white)
-    if check:
-        print("Invalid move: your King is in check!")
-        board = OldBoard
-        return False
-    return True
+    print("Error: did not recognize selection")

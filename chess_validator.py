@@ -7,10 +7,11 @@
 #       FACILITATE GAME BETWEEN TWO PLAYERS
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-10-09
+#UPDATED: 2024-10-10
 '''
 #Need to fix:
     #Pawn move not identified if capital letter is used form file
+    #Resigning doesn't end game
 #Need to add:
     #Identify checkmate
         #Identify all possible moves
@@ -46,7 +47,7 @@
         #Number of hanging pieces (no defenders)
         #Number of vulnerable pieces (equal or fewer defenders than attackers)
         #Weighted vulnerability (loss or gain of material if all attacks played out)
-    #Identifies all valid move for selected piece
+    #[X] Identifies all valid move for selected piece
     #Read PGN
         #Add to PGN as game continues
         #Generate FEN from PGN
@@ -1044,6 +1045,8 @@ elif selection is 2:    #TWO PLAYER GAME
             continue    #loop without switching (try again)
         #show corrected move (including check, checkmate, castling, pawn promotion)
         #fmn. , chessman (column if Pawn), x if capture, end square (algebraic), =promotion, +/# if check/checkmate
+        #if resign:
+            #break
         show_board(board)
         white = not white   #switch colors for next player
         ply += 1
@@ -1058,7 +1061,13 @@ elif selection is 3:    #AVAILABLE MOVES FOR PIECE
     square = input("Enter piece location (square): ")
     a = board_index(square)
     options = get_moves(a)
-    print("Available moves for are", options)
+    moves = []
+    for i in options:
+        if i == a:
+            continue    #do not include not moving
+        else:
+            moves.append(board[a] + board_algebraic(i)) #selected chessman + destination square
+    print("Available moves for are", moves)
 elif selection is 4:    #AVAILABLE MOVES FOR COLOR
     options = []
     if white:

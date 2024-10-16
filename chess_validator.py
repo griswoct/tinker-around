@@ -7,19 +7,18 @@
 #       FACILITATE GAME BETWEEN TWO PLAYERS
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-10-10
+#UPDATED: 2024-10-16
 '''
 #Need to fix:
     #Pawn move not identified if capital letter is used form file
-    #Resigning doesn't end game
 #Need to add:
     #Identify checkmate
         #Identify all possible moves
         #Try each one and check for check
         #If list of options is [], then checkmate or stalemate
         #Declare winner and end game
-    #Read PGN
-    #Generate PGN
+    #[ ] Read PGN
+    #[X] Generate PGN
     #Game Over:
         #[ ] Checkmate (winner)
         #[x] Resignation (winner)
@@ -49,10 +48,9 @@
         #Weighted vulnerability (loss or gain of material if all attacks played out)
     #[X] Identifies all valid move for selected piece
     #Read PGN
-        #Add to PGN as game continues
+        #[X] Add to PGN as game continues
         #Generate FEN from PGN
         #Recognize openings
-        #Record PGN in file
 
 #VARIABLES (GLOBAL)
 capture = False #Indicates a piece is being captured
@@ -62,9 +60,10 @@ white = None    #Playing as white? (Boolean)
 a = ''    #Board index starting location
 b = ''    #Board index ending location
 ep = '' #En passant target square
+promotion = ''
 fmn = 1  #Full move number, defaults to start of game
-pgn = ""    #Portable Game Notation string
 ply = 0 #Number of half moves since last capture or Pawn movement
+board = []    #Chess board configuration
 castle = [True,True,True,True]  #Tracks castle availibility (KQkq)
 fileA = [0,8,16,24,32,40,48,56] #Board indexes for A-file (edge of board)
 fileB = [1,9,17,25,33,41,49,57] #Board indexes for B-file
@@ -75,8 +74,8 @@ fileF = [5,13,21,29,37,45,53,61] #Board indexes for F-file
 fileG = [6,14,22,30,38,46,54,62]    #Board indexes for G-file
 fileH = [7,15,23,31,39,47,55,63]    #Board indexes for H-file (edge of board)
 history = []    #List of positions in Forsyth-Edwards Notation
+pgn = []    #Portable Game Notation array
 ranks = ['a','b','c','d','e','f','g','h']
-board = []    #Chess board configuration
 xblack = ['q','r','b','n','p']    #Capturable black pieces list (no King)
 xwhite = ['Q','R','N','B','P']    #Capturable white pieces list (no King)
 pieces = ['K', *xwhite, 'k', *xblack]    #Valid chess pieces list
@@ -283,9 +282,7 @@ def get_move():
     if piece not in ['P', 'p']:   #if  not a pawn
         promo = piece   #set promotion piece to itself (failsafe)
         col = move[1]
-    #Determine square
-    sq = move[-2:]
-    print("move is: ", move)
+    sq = move[-2:]  #Determine square
     #Validate square
     try:
         row = int(move[-1])
@@ -852,11 +849,14 @@ def attackers(target: int, color: bool):
     return threat
 
 def make_move(original: str, type, start: int, end: int, castling: bool):
-    '''Updates the board array with specified move'''
+    '''Updates board array and adds specified move to PGN'''
     updated = original
-    global ep
-    global white
+    global capture
     global castle
+    global check
+    global ep
+    global pgn
+    global white
     #Pawn Handling
     if type in {'P','p'}:
         if white and end < 8 or not white and end > 55: #Promote pawn
@@ -887,21 +887,39 @@ def make_move(original: str, type, start: int, end: int, castling: bool):
             updated[63] = ' '
             castle[0] = False
             castle[1] = False
+            move = "O-O"
         elif end == 58: #white queenside
             updated[59] = 'R'
             updated[56] = ' '
             castle[0] = False
             castle[1] = False
+            move = "O-O-O"
         elif end == 6:  #black kingside
             updated[5] = 'r'
             updated[7] = ' '
             castle[2] = False
             castle[3] = False
+            move = "O-O"
         elif end == 2:  #black queenside
             updated[3] = 'r'
             updated[0] = ' '
             castle[2] = False
             castle[3] = False
+            move = "O-O-O"
+    else:   #generate move in portable game notation
+        end = board_algebraic(end)
+        if type in ('P','p'):
+            if capture:
+                startA = board_algebraic(start)
+                move = startA[0]+'x'+end
+            else:
+                move = end
+        elif capture:
+            move = type+'x'+end
+        else:
+            move = type+end
+    if check:  #need to get check
+        move = move+'+'
     if type == 'R': #update castling ability
         if start == 63: #kingside
             castle[0] = False
@@ -918,6 +936,7 @@ def make_move(original: str, type, start: int, end: int, castling: bool):
     elif type == 'k':
         castle[2] = False
         castle[3] = False
+    pgn.append(move)
     return updated
 
 def get_moves(target: int):
@@ -945,6 +964,10 @@ def get_moves(target: int):
 def validate_move():
     '''Checks if a move is valid'''
     global board
+    global capture
+    global check
+    global chessman
+    global promotion
     capture = False #reset capture
     check = False   #reset check
     a = ''
@@ -953,9 +976,9 @@ def validate_move():
     if q == "resign": #resign game (exit)
         print("Resigning game...")
         if white:
-            print("BLACK wins by RESIGNATION!")
+            pgn.append("0-1")   #black wins by resignation
         else:
-            print("WHITE wins BY RESIGNATION!")
+            pgn.append("1-0")   #white wins by resignation
         return True
     else:
         chessman = q[0]
@@ -1043,10 +1066,17 @@ elif selection is 2:    #TWO PLAYER GAME
         if not good:
             print("Not valid, please try again")
             continue    #loop without switching (try again)
-        #show corrected move (including check, checkmate, castling, pawn promotion)
+        if white:
+            print(fmn,'. ',pgn[-1])
+            if pgn[-1] == "0-1":    #resigned
+                print("BLACK WINS by RESIGNATION!")
+                break
+        else:
+            print(fmn,'. ',pgn[-2],' ',pgn[-1])
+            if pgn[-1] == "1-0":    #resigned
+                print("WHITE WINS by RESIGNATION!")
+                break
         #fmn. , chessman (column if Pawn), x if capture, end square (algebraic), =promotion, +/# if check/checkmate
-        #if resign:
-            #break
         show_board(board)
         white = not white   #switch colors for next player
         ply += 1
@@ -1055,7 +1085,7 @@ elif selection is 2:    #TWO PLAYER GAME
         if ply > 100:
             print("DRAW by FIFTY-MOVE RULE")
             break
-        if not white:
+        if white:
             fmn += 1    #increment full move number
 elif selection is 3:    #AVAILABLE MOVES FOR PIECE
     square = input("Enter piece location (square): ")

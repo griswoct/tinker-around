@@ -7,10 +7,11 @@
 #       FACILITATE GAME BETWEEN TWO PLAYERS
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-10-16
+#UPDATED: 2024-10-21
 '''
 #Need to fix:
-    #Pawn move not identified if capital letter is used form file
+    #[X] Pawn move not identified if capital letter is used form file
+    #[ ] Issue taking modulous in board_algebraic()
 #Need to add:
     #Identify checkmate
         #Identify all possible moves
@@ -215,7 +216,7 @@ def get_move():
         else:    #black
             move = input("Black to move (enter algebraic notation): ")
     if move == "resign":    #resign game (exit)
-        return "resign" #exit module?
+        return "resign"
     if move[-1] == '+' or move [-1] == '#':    #remove '+' or '#'
         move.pop()    #Removes last character
     if move[0] in ['0','o','O']:    #castling
@@ -240,27 +241,27 @@ def get_move():
         if white:
             piece = 'K'
         else: piece = 'k'
-    elif move[0] == 'Q' or move[0] == 'q':
+    elif move[0] in {'Q','q'}:
         if white:
             piece = 'Q'
         else:
             piece = 'q'
-    elif move[0] == 'R' or move[0] == 'r':
+    elif move[0] in {'R','r'}:
         if white:
             piece = 'R'
         else:
             piece = 'r'
-    elif move[0] == 'N' or move[0] == 'n':
+    elif move[0] in {'N','n'}:
         if white:
             piece = 'N'
         else:
             piece = 'n'
-    elif move[0] == 'B' and move[1].isdigit() is False:
+    elif move[0] in {'B','b'} and move[1].isdigit() is False: #Bishop not b pawn
         if white:
             piece = 'B'
         else:
             piece = 'b'
-    elif move[0] in ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'P', 'p']: #pawn
+    elif move[0] in ['a','A','b','B','c','C','d','D','e','E','f','F','g','G','h','H','P','p']: #pawn
         if '=' in move:
             promo = move.pop()
             move.remove('=')
@@ -326,7 +327,7 @@ def board_index(sq: str):
 
 def board_algebraic(i: int):
     '''Convert Board Index to Algebraic Notation'''
-    if i % 8 == 0:
+    if i % 8 == 0:  #MODULUS/INGETER ISSUE
         spot = 'a'
     elif i % 8 == 1:
         spot = 'b'
@@ -366,6 +367,7 @@ def valid_capture(p):
     global b
     global chessman
     global board
+    square = board_algebraic(b)
     if white:
         if b == ep and chessman == 'P':
             return True

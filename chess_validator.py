@@ -7,11 +7,8 @@
 #       FACILITATE GAME BETWEEN TWO PLAYERS
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-10-21
+#UPDATED: 2024-10-22
 '''
-#Need to fix:
-    #[X] Pawn move not identified if capital letter is used form file
-    #[ ] Issue taking modulous in board_algebraic()
 #Need to add:
     #Identify checkmate
         #Identify all possible moves
@@ -58,8 +55,8 @@ capture = False #Indicates a piece is being captured
 check = False   #King is in Check
 good = False    #Boolean to control loops
 white = None    #Playing as white? (Boolean)
-a = ''    #Board index starting location
-b = ''    #Board index ending location
+a = 64    #Board index starting location
+b = 64    #Board index ending location
 ep = '' #En passant target square
 promotion = ''
 fmn = 1  #Full move number, defaults to start of game
@@ -327,6 +324,11 @@ def board_index(sq: str):
 
 def board_algebraic(i: int):
     '''Convert Board Index to Algebraic Notation'''
+    if not isinstance(i, int):
+        try:
+            i = int(i)
+        except ValueError:
+            return 'z0'
     if i % 8 == 0:  #MODULUS/INGETER ISSUE
         spot = 'a'
     elif i % 8 == 1:
@@ -944,9 +946,9 @@ def make_move(original: str, type, start: int, end: int, castling: bool):
 def get_moves(target: int):
     '''Get available moves for piece on target square'''
     chessman = board[a]
-    if chessman is 'P':
+    if chessman == 'P':
         moves = pawn_moves(a, True, True)
-    elif chessman is 'p':
+    elif chessman == 'p':
         moves = pawn_moves(a, True, False)
     elif chessman in ('B','b'):
         moves = bishop_moves(a, True, True)
@@ -965,6 +967,8 @@ def get_moves(target: int):
     return moves
 def validate_move():
     '''Checks if a move is valid'''
+    global a
+    global b
     global board
     global capture
     global check
@@ -972,8 +976,8 @@ def validate_move():
     global promotion
     capture = False #reset capture
     check = False   #reset check
-    a = ''
-    b = ''
+    a = 64
+    b = 64
     q = get_move()
     if q == "resign": #resign game (exit)
         print("Resigning game...")
@@ -1048,21 +1052,21 @@ print(" \
     6. BOARD CONTROL HEATMAP\n \
     7. IS THE GAME OVER?\n \
     ")  #Remove 7 once automatic check is implemented
-selection = int(input("Please select an option: "))
-board = get_board()
-good = valid_board(board)
+selection = 0
+while selection not in {1,2,3,4,5,6}:
+    selection = int(input("Please select an option: ")) #loop for valid input
+good = False
 while not good:
-    print("Sorry, that board configuration is not recognised. Please Try again.")
     board = get_board()
     good = valid_board(board)
 show_board(board)
-if selection is 1:  #VALIDATE MOVE
+if selection == 1:  #VALIDATE MOVE
     good = validate_move()
     if good:
         print("VALID MOVE")
     else:
         print("NOT A VALID MOVE")
-elif selection is 2:    #TWO PLAYER GAME
+elif selection == 2:    #TWO PLAYER GAME
     while ply < 100:   #counts ply (half moves) since last capture or Pawn movement
         good = validate_move()
         if not good:
@@ -1082,14 +1086,14 @@ elif selection is 2:    #TWO PLAYER GAME
         show_board(board)
         white = not white   #switch colors for next player
         ply += 1
-        #if capture or chessman == 'p' or chessman == 'P':
-        #    ply = 0 #reset moves since capture or Pawn movement
+        if capture or chessman == 'p' or chessman == 'P':
+            ply = 0 #reset moves since capture or Pawn movement
         if ply > 100:
             print("DRAW by FIFTY-MOVE RULE")
             break
         if white:
             fmn += 1    #increment full move number
-elif selection is 3:    #AVAILABLE MOVES FOR PIECE
+elif selection == 3:    #AVAILABLE MOVES FOR PIECE
     square = input("Enter piece location (square): ")
     a = board_index(square)
     options = get_moves(a)
@@ -1100,7 +1104,7 @@ elif selection is 3:    #AVAILABLE MOVES FOR PIECE
         else:
             moves.append(board[a] + board_algebraic(i)) #selected chessman + destination square
     print("Available moves for are", moves)
-elif selection is 4:    #AVAILABLE MOVES FOR COLOR
+elif selection == 4:    #AVAILABLE MOVES FOR COLOR
     options = []
     if white:
         print("Showing all possible moves for WHITE")
@@ -1116,7 +1120,7 @@ elif selection is 4:    #AVAILABLE MOVES FOR COLOR
                 result = get_moves(i)
                 if result is not []:
                     options.append(result)
-elif selection is 5:    #PIECE ATTACKERS AND DEFENDERS
+elif selection == 5:    #PIECE ATTACKERS AND DEFENDERS
     square = input("Enter piece location (square): ")
     a = board_index(square)
     chessman = board[a]
@@ -1125,7 +1129,7 @@ elif selection is 5:    #PIECE ATTACKERS AND DEFENDERS
     print("Attackers:", threats)
     threats = attackers(a, not white)
     print("Defenders for this", chessman, ":", threats)
-elif selection is 6:    #BOARD CONTROL HEATMAP
+elif selection == 6:    #BOARD CONTROL HEATMAP
     bcontrol = []
     wcontrol = []
     for i in board:

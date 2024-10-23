@@ -7,7 +7,7 @@
 #       FACILITATE GAME BETWEEN TWO PLAYERS
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-10-22
+#UPDATED: 2024-10-23
 '''
 #Need to add:
     #Identify checkmate
@@ -1039,6 +1039,7 @@ def validate_move():
     if check:
         print("Invalid move: your King is in check!")
         board = OldBoard
+        pgn.pop()   #remove last move from pgn array
         return False
     return True
 
@@ -1060,6 +1061,7 @@ while not good:
     board = get_board()
     good = valid_board(board)
 show_board(board)
+#Add check if board arrangement is game over?
 if selection == 1:  #VALIDATE MOVE
     good = validate_move()
     if good:
@@ -1070,6 +1072,8 @@ elif selection == 2:    #TWO PLAYER GAME
     while ply < 100:   #counts ply (half moves) since last capture or Pawn movement
         good = validate_move()
         if not good:
+            #if check:
+                #is the game over?
             print("Not valid, please try again")
             continue    #loop without switching (try again)
         if white:

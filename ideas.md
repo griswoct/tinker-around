@@ -1,5 +1,6 @@
 # Ideas:
 
+* Basic habit tracker with streaks and percentages
 * Sorting algorithm
 * ~~Guessing game~~ (VBA)
 * Timer

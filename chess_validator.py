@@ -7,7 +7,7 @@
 #       FACILITATE GAME BETWEEN TWO PLAYERS
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2024-10-23
+#UPDATED: 2025-01-27
 '''
 #Need to add:
     #Identify checkmate
@@ -965,6 +965,7 @@ def get_moves(target: int):
         return []
     #Check for check for each option?
     return moves
+
 def validate_move():
     '''Checks if a move is valid'''
     global a
@@ -1042,6 +1043,39 @@ def validate_move():
         pgn.pop()   #remove last move from pgn array
         return False
     return True
+ 
+def read_pgn(pgnS):
+    #Loop through pgn string
+    #Use '.' to find next full move
+    #Use ' ' to find next ply
+    while ply < 100:   #counts ply (half moves) since last capture or Pawn movement
+        good = validate_move()
+        if not good:
+            #if check:
+                #is the game over?
+            print("Not valid, please try again")
+            continue    #loop without switching (try again)
+        if white:
+            print(fmn,'. ',pgn[-1])
+            if pgn[-1] == "0-1":    #resigned
+                print("BLACK WINS by RESIGNATION!")
+                break
+        else:
+            print(fmn,'. ',pgn[-2],' ',pgn[-1])
+            if pgn[-1] == "1-0":    #resigned
+                print("WHITE WINS by RESIGNATION!")
+                break
+        #fmn. , chessman (column if Pawn), x if capture, end square (algebraic), =promotion, +/# if check/checkmate
+        show_board(board)
+        white = not white   #switch colors for next player
+        ply += 1
+        if capture or chessman == 'p' or chessman == 'P':
+            ply = 0 #reset moves since capture or Pawn movement
+        if ply > 100:
+            print("DRAW by FIFTY-MOVE RULE")
+            break
+        if white:
+            fmn += 1    #increment full move number
 
 #Main Menu Selection
 print(" \

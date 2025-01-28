@@ -44,6 +44,10 @@
 * Word scramble solver
   * Need dictionary file
   * Sort letters alphabetically and compare to dictionary entries of appropriate length
+* Frequency Analysis Rating
+  * Letter count, avoid `a sin to err`
+  * Avoid top words (google 10000)
+  * Build "resistant" thessaurus
 * Pseudo-word generator
   * Vowel consonant placement
   * Letter frequency and pairing

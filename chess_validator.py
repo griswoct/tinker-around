@@ -7,7 +7,6 @@
 #       FACILITATE GAME BETWEEN TWO PLAYERS
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
-#UPDATED: 2025-01-27
 '''
 #Need to add:
     #Identify checkmate
@@ -1043,11 +1042,33 @@ def validate_move():
         pgn.pop()   #remove last move from pgn array
         return False
     return True
- 
+
 def read_pgn(pgnS):
     #Loop through pgn string
-    #Use '.' to find next full move
-    #Use ' ' to find next ply
+    i = 0
+    while i < len(pgnS):
+        if pgnS[i] is '.':  #Use '.' to find next full move
+            j = i - 1 #first digit left of '.'
+            if j == '0':
+                continue
+            else:
+                while pgnS[j] is not ' ':   #look for space before FMN
+                    j = j - 1
+            fmn = int(pgnS[j+1:i-1])    #Set Full Move Number
+            j = i + 2 #Skip space after '.'
+            while pgnS[j] is not ' ':   #Use ' ' to find next ply
+                j = j + 1
+            wMove = pgnS[i+2:j-1]   #White move
+            i = j + 1   #Skip space between ply
+            while pgnS[i] is not ' ':   #Use ' ' to find next ply
+                i = i + 1
+            bMove = pgnS[j+1:i-1]
+    #Asume valid move?
+    #Make move
+        #Update board
+        #Update FEN
+        #Update PGN Array
+    '''
     while ply < 100:   #counts ply (half moves) since last capture or Pawn movement
         good = validate_move()
         if not good:
@@ -1076,6 +1097,7 @@ def read_pgn(pgnS):
             break
         if white:
             fmn += 1    #increment full move number
+    '''
 
 #Main Menu Selection
 print(" \

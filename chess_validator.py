@@ -1068,36 +1068,6 @@ def read_pgn(pgnS):
         #Update board
         #Update FEN
         #Update PGN Array
-    '''
-    while ply < 100:   #counts ply (half moves) since last capture or Pawn movement
-        good = validate_move()
-        if not good:
-            #if check:
-                #is the game over?
-            print("Not valid, please try again")
-            continue    #loop without switching (try again)
-        if white:
-            print(fmn,'. ',pgn[-1])
-            if pgn[-1] == "0-1":    #resigned
-                print("BLACK WINS by RESIGNATION!")
-                break
-        else:
-            print(fmn,'. ',pgn[-2],' ',pgn[-1])
-            if pgn[-1] == "1-0":    #resigned
-                print("WHITE WINS by RESIGNATION!")
-                break
-        #fmn. , chessman (column if Pawn), x if capture, end square (algebraic), =promotion, +/# if check/checkmate
-        show_board(board)
-        white = not white   #switch colors for next player
-        ply += 1
-        if capture or chessman == 'p' or chessman == 'P':
-            ply = 0 #reset moves since capture or Pawn movement
-        if ply > 100:
-            print("DRAW by FIFTY-MOVE RULE")
-            break
-        if white:
-            fmn += 1    #increment full move number
-    '''
 
 #Main Menu Selection
 print(" \

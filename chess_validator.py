@@ -1044,17 +1044,20 @@ def validate_move():
     return True
 
 def read_pgn(pgnS):
+    '''Read PGN string and return board arrangement'''
+    global board
+    tempBoard = ['r','n','b','q','k','b','n','r','p','p','p','p','p','p','p','p',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','P','P','P','P','P','P','P','P','R','N','B','Q','K','B','N','R']
     #Loop through pgn string
     i = 0
     while i < len(pgnS):
         if pgnS[i] is '.':  #Use '.' to find next full move
             j = i - 1 #first digit left of '.'
-            if j == '0':
-                continue
+            if j == 0:    #No space before move 1. (so don't look for one)
+                fmn = int(pgnS[0:1])    #Set Full Move Number to initial "1"
             else:
                 while pgnS[j] is not ' ':   #look for space before FMN
                     j = j - 1
-            fmn = int(pgnS[j+1:i-1])    #Set Full Move Number
+                fmn = int(pgnS[j+1:i-1])    #Set Full Move Number
             j = i + 2 #Skip space after '.'
             while pgnS[j] is not ' ':   #Use ' ' to find next ply
                 j = j + 1
@@ -1063,11 +1066,14 @@ def read_pgn(pgnS):
             while pgnS[i] is not ' ':   #Use ' ' to find next ply
                 i = i + 1
             bMove = pgnS[j+1:i-1]
-    #Asume valid move?
-    #Make move
-        #Update board
-        #Update FEN
-        #Update PGN Array
+            #NEED TO GET MOVE PARAMETERS, validate_board()?
+            pgn.append(wMove)   #Update PGN array with White move
+            pgn.append(bMove)   #Update PGN array with Black move
+            tempBoard = make_move(board, type, start: int, end: int, castling: bool)    #Update board
+        i = i + 1
+    board = tempBoard
+    #Update FEN
+    return
 
 #Main Menu Selection
 print(" \

@@ -1,6 +1,6 @@
 '''
 #CHESS VALIDATOR
-#PURPOSE: ACCEPT BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
+#PURPOSE: GET BOARD CONFIGURATION AND CHESS MOVE, VERIFY IF IT IS A LEGAL MOVE
 #   EXPANDED PURPOSE:
 #       VERIFY OR GENERATE LEGAL MOVES
 #       LIST ATTACKERS AND DEFENDERS
@@ -1046,9 +1046,9 @@ def validate_move():
 def read_pgn(pgnS):
     '''Read PGN string and return board arrangement'''
     global board
-    tempBoard = ['r','n','b','q','k','b','n','r','p','p','p','p','p','p','p','p',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','P','P','P','P','P','P','P','P','R','N','B','Q','K','B','N','R']
-    #Loop through pgn string
-    i = 0
+    board = ['r','n','b','q','k','b','n','r','p','p','p','p','p','p','p','p',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','P','P','P','P','P','P','P','P','R','N','B','Q','K','B','N','R']
+    #board = read_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")    #Chess starting position
+    i = 0   #Loop through pgn string
     while i < len(pgnS):
         if pgnS[i] is '.':  #Use '.' to find next full move
             j = i - 1 #first digit left of '.'
@@ -1066,12 +1066,13 @@ def read_pgn(pgnS):
             while pgnS[i] is not ' ':   #Use ' ' to find next ply
                 i = i + 1
             bMove = pgnS[j+1:i-1]
-            #NEED TO GET MOVE PARAMETERS, validate_board()?
+            #get_move(wMove) #Get white move parameters
             pgn.append(wMove)   #Update PGN array with White move
+            #board = make_move(board, type, start: int, end: int, castling: bool)    #Update board
+            #get_move(bMove)
             pgn.append(bMove)   #Update PGN array with Black move
-            tempBoard = make_move(board, type, start: int, end: int, castling: bool)    #Update board
+            #board = make_move(board, type, start: int, end: int, castling: bool)    #Update board
         i = i + 1
-    board = tempBoard
     #Update FEN
     return
 
@@ -1086,8 +1087,8 @@ print(" \
     7. IS THE GAME OVER?\n \
     ")  #Remove 7 once automatic check is implemented
 selection = 0
-while selection not in {1,2,3,4,5,6}:
-    selection = int(input("Please select an option: ")) #loop for valid input
+while selection not in {1,2,3,4,5,6,7}:
+    selection = int(input("Please select an option: ")) #loop until valid input
 good = False
 while not good:
     board = get_board()

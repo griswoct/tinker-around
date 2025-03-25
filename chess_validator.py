@@ -1045,33 +1045,40 @@ def validate_move():
 
 def read_pgn(pgnS):
     '''Read PGN string and return board arrangement'''
+    global a
+    global b
     global board
+    global chessman
     board = ['r','n','b','q','k','b','n','r','p','p','p','p','p','p','p','p',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','P','P','P','P','P','P','P','P','R','N','B','Q','K','B','N','R']
     #board = read_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")    #Chess starting position
     i = 0   #Loop through pgn string
     while i < len(pgnS):
-        if pgnS[i] is '.':  #Use '.' to find next full move
+        if pgnS[i] == '.':  #Use '.' to find next full move
             j = i - 1 #first digit left of '.'
             if j == 0:    #No space before move 1. (so don't look for one)
                 fmn = int(pgnS[0:1])    #Set Full Move Number to initial "1"
             else:
-                while pgnS[j] is not ' ':   #look for space before FMN
+                while pgnS[j] != ' ':   #look for space before FMN
                     j = j - 1
                 fmn = int(pgnS[j+1:i-1])    #Set Full Move Number
             j = i + 2 #Skip space after '.'
-            while pgnS[j] is not ' ':   #Use ' ' to find next ply
+            while pgnS[j] != ' ':   #Use ' ' to find next ply
                 j = j + 1
             wMove = pgnS[i+2:j-1]   #White move
             i = j + 1   #Skip space between ply
-            while pgnS[i] is not ' ':   #Use ' ' to find next ply
+            while pgnS[i] != ' ':   #Use ' ' to find next ply
                 i = i + 1
             bMove = pgnS[j+1:i-1]
-            #get_move(wMove) #Get white move parameters
+            if not validate_move(wMove):
+                print("Error parsing move ",fmn,": ",wMove)
             pgn.append(wMove)   #Update PGN array with White move
-            #board = make_move(board, type, start: int, end: int, castling: bool)    #Update board
-            #get_move(bMove)
+            '''NEED TO HANDLE CASTLING'''
+            board = make_move(board, chessman, a, b, False)    #Update board
+            if not validate_move(bMove):
+                print("Error parsing move ",fmn,": ",bMove)
             pgn.append(bMove)   #Update PGN array with Black move
-            #board = make_move(board, type, start: int, end: int, castling: bool)    #Update board
+            '''NEED TO HANDLE CASTLING'''
+            board = make_move(board, chessman, a, b, False)    #Update board
         i = i + 1
     #Update FEN
     return

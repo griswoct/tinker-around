@@ -6,6 +6,11 @@
 * Timer
 * ~~Autofill approved TRs (work) (VBA)~~
 * Pull temp or ticker data from the web (JavaScript)
+* Migraine prediction:
+  * Barometric forcast via API
+  * Air quality and/or pollen via API
+  * Stress/mood (from Aple Health?)
+  * Sleep time (Apple Health?)
 * Fork overload
 * Dead switch
 * Bluring/unbluring algorithm

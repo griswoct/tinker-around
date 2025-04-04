@@ -21,7 +21,7 @@ PadSize=$(($Size+$Spacing))
 C1='#'	#Fill character, possible options: #, @, $, &, 8, B, E, W, M, H, X
 C0='.'	#Empty character, possible options: _, -, .
 loop=true	#true to loop banner message
-BannerText=$(date '+%A %B %d %Y')	#Text to display (Today's date default)
+BannerText=$(date '+%A, %B %d, %Y')	#Text to display (Today's date default)
 Remainder=()	#Working banner end letter
 Output=()	#Output strings to display banner
 
@@ -218,6 +218,14 @@ whats_my_line () {
 			w=5
 			list=(false true true true false true false false false true false true true true false false false true false false false true false false false)
 			;;
+   		,)	
+     			h=5
+			w=5
+   			list=(false false false false false false false false false false false false false false false true false false false false false true false false false)
+         	.)	
+     			h=5
+			w=5
+   			list=(false false false false false false false false false false false false false false false false false false false false true false false false false)
 		*)	#Character not recognized, display block
 			h=5
 			w=5

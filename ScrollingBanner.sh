@@ -170,8 +170,7 @@ whats_my_line () {
 		0)
 			h=5
 			w=5
-			list=(false true true true false true false false true true true false true false true true true false false true false true true true false
- )
+			list=(false true true true false true false false true true true false true false true true true false false true false true true true false)
 			;;
 		1)
 			h=5
@@ -218,14 +217,16 @@ whats_my_line () {
 			w=5
 			list=(false true true true false true false false false true false true true true false false false true false false false true false false false)
 			;;
-   		,)	
-     			h=5
+  ,)	
+   h=5
 			w=5
-   			list=(false false false false false false false false false false false false false false false true false false false false false true false false false)
-         	.)	
-     			h=5
+   list=(false false false false false false false false false false false false false false false true false false false false false true false false false)
+			;;
+  .)	
+   h=5
 			w=5
-   			list=(false false false false false false false false false false false false false false false false false false false false true false false false false)
+   list=(false false false false false false false false false false false false false false false false false false false false true false false false false)
+			;;
 		*)	#Character not recognized, display block
 			h=5
 			w=5

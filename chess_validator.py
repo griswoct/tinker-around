@@ -85,12 +85,15 @@ def get_board():
     global fmn
     global ply
     global castle
+    q = input("Enter P to add board configuration by PGN, or F to add board configuration by FEN")
+    if q in ['p', 'P', 'pgn', 'PGN']:   #pgn selected
+        read_pgn
+    elif q in ['f','F','fen','FEN']:   #fen selected
+        read_fen
+    return
+
+def read_fen():
     build = []
-    #Add option to select FEN or PGN
-    #if pgn:
-        #call function to read pgn and build fen
-    #if fen:
-        #break read fen into seperate function
     fen = input("Enter D for default starting position, or board configuration in FEN notation: ")
     if fen in ['D','d']:
         fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"    #Chess starting position
@@ -1070,12 +1073,12 @@ def read_pgn(pgnS):
                 i = i + 1
             bMove = pgnS[j+1:i-1]
             if not validate_move(wMove):
-                print("Error parsing move ",fmn,": ",wMove)
+                print("Error parsing move ",fmn,". ",wMove)
             pgn.append(wMove)   #Update PGN array with White move
             '''NEED TO HANDLE CASTLING'''
             board = make_move(board, chessman, a, b, False)    #Update board
             if not validate_move(bMove):
-                print("Error parsing move ",fmn,": ",bMove)
+                print("Error parsing move ",fmn,"...",bMove)
             pgn.append(bMove)   #Update PGN array with Black move
             '''NEED TO HANDLE CASTLING'''
             board = make_move(board, chessman, a, b, False)    #Update board

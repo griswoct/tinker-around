@@ -85,7 +85,7 @@ def get_board():
     global fmn
     global ply
     global castle
-    q = input("Enter P to add board configuration by PGN, or F to add board configuration by FEN")
+    q = input("Enter P to add board configuration by PGN, or F to add board configuration by FEN: ")
     if q in ['p', 'P', 'pgn', 'PGN']:   #pgn selected
         read_pgn
     elif q in ['f','F','fen','FEN']:   #fen selected
@@ -1098,7 +1098,11 @@ print(" \
     ")  #Remove 7 once automatic check is implemented
 selection = 0
 while selection not in {1,2,3,4,5,6,7}:
-    selection = int(input("Please select an option: ")) #loop until valid input
+    selection = input("Please select an option: ") #loop until valid input
+    if isinstance(selection, int): continue
+    elif selection in {'1','2','3','4','5','6','7'}:
+        selection = int(selection)
+    else: selection = 0
 good = False
 while not good:
     board = get_board()

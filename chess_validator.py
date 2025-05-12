@@ -87,17 +87,19 @@ def get_board():
     global castle
     q = input("Enter P to add board configuration by PGN, or F to add board configuration by FEN: ")
     if q in ['p', 'P', 'pgn', 'PGN']:   #pgn selected
-        read_pgn
+        q = input("Please enter the board configuration in PGN notation: ")
+        read_pgn(q)
     elif q in ['f','F','fen','FEN']:   #fen selected
-        read_fen
+        q = input("Enter D for default starting position, or board configuration in FEN notation: ")
+        if q in ['D','d']:
+            q = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"    #Chess starting position
+            #q = "rnb1k2N/pp1p2pp/1b3n2/4p3/1pB1P3/P7/2PPNqPP/R1BQK2R w KQq - 0 11"    #for testing
+        read_fen(q)
     return
 
-def read_fen():
+def read_fen(fen):
+    global castle
     build = []
-    fen = input("Enter D for default starting position, or board configuration in FEN notation: ")
-    if fen in ['D','d']:
-        fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"    #Chess starting position
-        #fen = "rnb1k2N/pp1p2pp/1b3n2/4p3/1pB1P3/P7/2PPNqPP/R1BQK2R w KQq - 0 11"    #for testing
     i = 0    #Position in fen array
     j = 0    #Board position
     while j < 64 and i < len(fen):    #Populate board array from FEN string
@@ -1053,7 +1055,7 @@ def read_pgn(pgnS):
     global board
     global chessman
     board = ['r','n','b','q','k','b','n','r','p','p','p','p','p','p','p','p',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','P','P','P','P','P','P','P','P','R','N','B','Q','K','B','N','R']
-    #board = read_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")    #Chess starting position
+    board = read_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")    #Chess starting position
     i = 0   #Loop through pgn string
     while i < len(pgnS):
         if pgnS[i] == '.':  #Use '.' to find next full move

@@ -53,6 +53,8 @@
   * Letter count, avoid `a sin to err`
   * Avoid top words (google 10000)
   * Build "resistant" thessaurus
+  * Weigh letters by frequency (e and t are high, x and z are low)
+  * Find average weight (sum/word length) to determine how "good" a word is
 * Pseudo-word generator
   * Vowel consonant placement
   * Letter frequency and pairing

@@ -30,7 +30,7 @@
                 #King + Bishop
                 #King + Knight
                 #King + 2 Knights vs King
-                #summary: you need a major piece/Pawn or two minor pieces (except K vs K and 2N)
+                #summary: you need a major piece and/or Pawn or two minor pieces (except K vs K and 2N)
                 #If there is a Pawn, Rook, or Queen on the board, there is sufficient material
                 #Elif there is a Bishop and one other minor piece of the same color, there is sufficient material
                 #Else:
@@ -80,6 +80,7 @@ pieces = ['K', *xwhite, 'k', *xblack]    #Valid chess pieces list
 #FUNCTIONS
 def get_board():
     '''Get Chess Board Setup'''
+    global board
     global white
     global ep
     global fmn
@@ -88,17 +89,19 @@ def get_board():
     q = input("Enter P to add board configuration by PGN, or F to add board configuration by FEN: ")
     if q in ['p', 'P', 'pgn', 'PGN']:   #pgn selected
         q = input("Please enter the board configuration in PGN notation: ")
-        read_pgn(q)
+        board = read_pgn(q)
     elif q in ['f','F','fen','FEN']:   #fen selected
         q = input("Enter D for default starting position, or board configuration in FEN notation: ")
         if q in ['D','d']:
             q = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"    #Chess starting position
             #q = "rnb1k2N/pp1p2pp/1b3n2/4p3/1pB1P3/P7/2PPNqPP/R1BQK2R w KQq - 0 11"    #for testing
-        read_fen(q)
+        board = read_fen(q)
+    print("board in get_board=",board)  #for testing
     return
 
 def read_fen(fen):
     global castle
+    print("fen in read_fen=",fen)   #for testing
     build = []
     i = 0    #Position in fen array
     j = 0    #Board position
@@ -174,6 +177,7 @@ def read_fen(fen):
             i += 3  #Move to full move number
     if i < len(fen):
         fmn = int(fen[i:])   #Remaining fen string indicates full move number
+    print("build in read_fen=",build)   #for testing
     return build
 
 def valid_board(brd: str):
@@ -1054,7 +1058,7 @@ def read_pgn(pgnS):
     global b
     global board
     global chessman
-    board = ['r','n','b','q','k','b','n','r','p','p','p','p','p','p','p','p',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','P','P','P','P','P','P','P','P','R','N','B','Q','K','B','N','R']
+    #board = ['r','n','b','q','k','b','n','r','p','p','p','p','p','p','p','p',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','P','P','P','P','P','P','P','P','R','N','B','Q','K','B','N','R']
     board = read_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")    #Chess starting position
     i = 0   #Loop through pgn string
     while i < len(pgnS):
@@ -1108,6 +1112,7 @@ while selection not in {1,2,3,4,5,6,7}:
 good = False
 while not good:
     board = get_board()
+    print("board in main=",board)  #for testing
     good = valid_board(board)
 show_board(board)
 #Add check if board arrangement is game over?

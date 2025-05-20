@@ -8,7 +8,7 @@
 #LICENSE: THE UNLICENSE
 #AUTHOR: CALEB GRISWOLD
 '''
-#Need to add:
+#Need to add
     #Identify checkmate
         #Identify all possible moves
         #Try each one and check for check
@@ -96,12 +96,12 @@ def get_board():
             q = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"    #Chess starting position
             #q = "rnb1k2N/pp1p2pp/1b3n2/4p3/1pB1P3/P7/2PPNqPP/R1BQK2R w KQq - 0 11"    #for testing
         board = read_fen(q)
-    print("board in get_board=",board)  #for testing
-    return
+    #print("board in get_board=",board)  #for testing
+    return board
 
 def read_fen(fen):
     global castle
-    print("fen in read_fen=",fen)   #for testing
+    #print("fen in read_fen=",fen)   #for testing
     build = []
     i = 0    #Position in fen array
     j = 0    #Board position
@@ -177,7 +177,7 @@ def read_fen(fen):
             i += 3  #Move to full move number
     if i < len(fen):
         fmn = int(fen[i:])   #Remaining fen string indicates full move number
-    print("build in read_fen=",build)   #for testing
+    #print("build in read_fen=",build)   #for testing
     return build
 
 def valid_board(brd: str):
@@ -1071,7 +1071,9 @@ def read_pgn(pgnS):
                     j = j - 1
                 fmn = int(pgnS[j+1:i-1])    #Set Full Move Number
             j = i + 2 #Skip space after '.'
-            while pgnS[j] != ' ':   #Use ' ' to find next ply
+            print("pgnS=",pgnS," j=",j) #for testing
+            while pgnS[j] != ' ' and j < len(pgnS) - 1:   #Use ' ' to find next ply
+                print("pgnS=",pgnS," j=",j) #for testing
                 j = j + 1
             wMove = pgnS[i+2:j-1]   #White move
             i = j + 1   #Skip space between ply
@@ -1112,7 +1114,7 @@ while selection not in {1,2,3,4,5,6,7}:
 good = False
 while not good:
     board = get_board()
-    print("board in main=",board)  #for testing
+    #print("board in main=",board)  #for testing
     good = valid_board(board)
 show_board(board)
 #Add check if board arrangement is game over?

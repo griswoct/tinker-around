@@ -46,15 +46,20 @@
     * Standard: axial tilt, orbit, rotation, location, datetime
 * Generate word find (VBA)
   * Customizable bad word list
+* Generate word find
+  * Need list of words to find
+  * Need to determine grid dimentions
+  * 3D version?
 * Word scramble solver
   * Need dictionary file
   * Sort letters alphabetically and compare to dictionary entries of appropriate length
 * Frequency Analysis Rating
-  * Letter count, avoid `a sin to err`
   * Avoid top words (google 10000)
   * Build "resistant" thessaurus
+  * Letter count, avoid `a sin to err`
   * Weigh letters by frequency (e and t are high, x and z are low)
-  * Find average weight (sum/word length) to determine how "good" a word is
+    * Multiply the letter frequency by the reciprocal of the sum of squares of all letter frequencies
+    * Find average weight (sum/word length) to determine how "good" a word is
 * Pseudo-word generator
   * Vowel consonant placement
   * Letter frequency and pairing

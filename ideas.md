@@ -63,6 +63,7 @@
 * Pseudo-word generator
   * Vowel consonant placement
   * Letter frequency and pairing
+* Wordl solver
 * Neural network trained to identify specific symbols or letters (Python)
   * License plate scanner
   * "Read" pages of text

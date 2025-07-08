@@ -77,7 +77,11 @@
   * Random trip mode (random road selection at each intersection)
   * *Use JSON object for each node:*
     `K{H,1200,N;J,800,W;L,600,E;Q,1200,S}`
-* Relational Database Practice: 1 Chronicles 1-3
+* Relational Database Practice: 1 Chronicles 1-11
+  * Tribe
+  * Clan
+  * Father
+  * Son
 ***
 ## Languages of interest:
 * Python

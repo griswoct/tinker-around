@@ -64,6 +64,7 @@
   * Vowel consonant placement
   * Letter frequency and pairing
 * Wordl solver
+* Mad libs generator
 * Neural network trained to identify specific symbols or letters (Python)
   * License plate scanner
   * "Read" pages of text

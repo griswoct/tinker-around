@@ -3,14 +3,16 @@
 #PURPOSE: PARSE XML OUTPPUT FROM ALGOAPP BACKUP INTO HUMAN READABLE CSV FILE
 #AUTHOR: CALEB GRISWOLD
 #LICENSE: THE UNLICENSE
-#CREATED: 09/02/2025
+#CREATED: 09/16/2025
 '''
 
 import pandas as pd
 from io import StringIO
 
+#Get filename
+filename = input("Please enter the file name: ")
 #Open xml file
-with open('Literary  Vocabulary.xml', 'r') as file:
+with open(filename, 'r') as file:
     contents = file.read()
 
 #Remove html tags and insert commas

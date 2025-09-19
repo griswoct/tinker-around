@@ -44,5 +44,5 @@ for index, row in df.iterrows():
         df.at[index, 'Front'] = col_a[2:] #Swap and remove "F:"
         df.at[index, 'Back'] = col_b[2:]    #Swap and remove "B:"
 
-tsv_file = 'Literary Vocabulary.csv'    #Output file name
+tsv_file = filename[:-3] + 'csv'    #Output file name
 df.to_csv(tsv_file, index=False)

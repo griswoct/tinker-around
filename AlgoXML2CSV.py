@@ -29,20 +29,20 @@ contents = contents.replace("</cards></deck>", "")  #Delete "</cards></deck>" fr
 #Create csv from contents string
 contents_io = StringIO(contents)
 df = pd.read_csv(contents_io)
-print(df.head(2))   #for testing
-breakpoint()    #for testing
 
 #Sort Front and Back text to appropriate column
 for index, row in df.iterrows():
     col_a = row['Front']
     col_b = row['Back']
     if col_a.startswith("B:"):   #Back text is the Front column
-        print("Need to swap", col_b)    #for testing
         df.at[index, 'Front'] = col_b[2:] #Swap and remove "F:"
         df.at[index, 'Back'] = col_a[2:] #Swap and remove "B:"
     else:
         df.at[index, 'Front'] = col_a[2:] #Swap and remove "F:"
         df.at[index, 'Back'] = col_b[2:]    #Swap and remove "B:"
+
+#Sort Cards alphabetically by Front text
+df = df.sort_values(by=['Front'])
 
 tsv_file = filename[:-3] + 'csv'    #Output file name
 df.to_csv(tsv_file, index=False)

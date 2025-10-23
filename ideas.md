@@ -2,6 +2,9 @@
 
 * Basic habit tracker with streaks and percentages
 * Sorting algorithm
+* Cruise control algorithm
+  * Optimize time to speed (PID?)
+  * Avoid speeding (how to bias sensitivity?)
 * ~~Guessing game~~ (VBA)
 * Timer
 * ~~Autofill approved TRs (work) (VBA)~~

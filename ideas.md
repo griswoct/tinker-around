@@ -38,6 +38,9 @@
 * Play Tic-Tac-Toe
 * Play [Super Tic-Tac-Toe](https://www.youtube.com/watch?v=_Na3a1ZrX7c)
 * Play Checkers
+* Play Battleship
+  * Random
+  * Tactics?
 * Move Chess pieces in legal moves - use official Chess notation for input
 * Sun position prediction based on location and datetime (Python?)
   * *Add orbital and rotational periods for planet*

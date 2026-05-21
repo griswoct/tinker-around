@@ -40,11 +40,15 @@ edges = 'Z'
 
 def place_boats(padded, edges):
     sea = [0] * 100
-    x = random.randint(0,99)
+    #if edges is 'T':   #block middle of board
+        #set middle of sea to 1
+    #elif edges is 'F': #block edges of board
+        #set edges of board to 1
+    x = random.randint(0,99)    #NEED TO CHOOSE STRATAGY HERE
     n = 0
     while n < len(ships):
         boat = ships[n]
-        while sea[x] is not 0:  #find an unoccupied part of the sea
+        while sea[x] is not 0:  #find an available part of the sea
             x = random.randint(0,99)    #choose a random number x from 0-99
         y = random.randint(1,4)    #choose random number direction from 1 to 4
         z = 0
@@ -55,9 +59,13 @@ def place_boats(padded, edges):
             #if left, x - (size - 1) >= 0
             #if right, x + (size - 1) <= 99
         #while less than the length of the boat:
-            #increment that direction
+            #choose y
+                #if up, z = z - 10
+                #if down, z = z + 10
+                #if left, z = z - 1
+                #if right, z = z + 1
             #record locations
-            #if occupied spot
+            #if occupied spot (sea[z] is not 0 or 1):
                 #reset locations, boat length progress, direction, and starting point x
                 #try placing again
         #record value of ramaining_ships1[-1] to sea1[locations]

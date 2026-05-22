@@ -28,7 +28,7 @@ sea1 = [None] * 100
 screen1 = [None] * 100
 sea2 = [None] * 100
 screen2 = [None] * 100
-ships = ['P','S','M','B','C']
+ships = [5,4,3,3,2] #easier to place largest ships first
 remaining_ships1 = ships
 remaining_ships2 = ships
 boat_strategy1 = 0
@@ -39,37 +39,64 @@ padded = 'Z'
 edges = 'Z'
 
 def place_boats(padded, edges):
-    sea = [0] * 100
-    #if edges is 'T':   #block middle of board
-        #set middle of sea to 1
-    #elif edges is 'F': #block edges of board
-        #set edges of board to 1
-    x = random.randint(0,99)    #NEED TO CHOOSE STRATAGY HERE
+    #Set up sea and allowed placement zones
+    sea = [] * 100
+    for i in range(99): #iterate through sea
+        if i < 10 or i > 89 or i % 10 is 0 or i % 10 is 9:  #true for the edges of the sea
+            if edges is 'F':
+                sea[i] = 1  #set edges of sea to 1 (block)
+            else:
+                sea[i] = 0  #set edges of sea to 0 (allow)
+        else:   #middle of sea
+            if edges is 'T':
+                sea[i] = 1  #set middle of sea to 1 (block)
+            else:
+                sea[i] = 0  #set middle of sea to 0 (allow)
+    #Place ships in the sea
     n = 0
-    while n < len(ships):
+    while n < len(ships):   #Iterate through fleet
         boat = ships[n]
-        while sea[x] is not 0:  #find an available part of the sea
+        rejected = True
+        fails = 0
+        #Place a ship
+        while rejected and fails < 100:  #continue while placement is rejected, up to 100 attempts
             x = random.randint(0,99)    #choose a random number x from 0-99
-        y = random.randint(1,4)    #choose random number direction from 1 to 4
-        z = 0
-        #choose size based on ship type
-        #check if the boat will go off the end of the board
-            #if up, x - 10 * (size - 1) >= 0
-            #if down, x + 10 * (size - 1) <= 99
-            #if left, x - (size - 1) >= 0
-            #if right, x + (size - 1) <= 99
-        #while less than the length of the boat:
-            #choose y
-                #if up, z = z - 10
-                #if down, z = z + 10
-                #if left, z = z - 1
-                #if right, z = z + 1
-            #record locations
-            #if occupied spot (sea[z] is not 0 or 1):
-                #reset locations, boat length progress, direction, and starting point x
-                #try placing again
-        #record value of ramaining_ships1[-1] to sea1[locations]
-        #remove last element of remaining ship
+            if sea[x] is not 0:    #location not available
+                fails = fails + 1
+                continue
+            y = random.randint(1,4)    #choose random number direction from 1 to 4
+            z = 0
+            #check if the boat will go off the end of the board
+                #if up, x - 10 * (size - 1) >= 0
+                #if down, x + 10 * (size - 1) <= 99
+                #if left, x - (size - 1) >= 0
+                #if right, x + (size - 1) <= 99\
+                #else continue  #boat didn't fit, try again
+            #proposed = []
+            #loop over length of boat
+                #choose y
+                #if up, x = x - 10
+                #if down, x = x + 10
+                #if left, x = x - 1
+                #if right, x = x + 1
+                #if sea[x] > 1:    #location occupied
+                    #fails = fails + 1
+                    #break   #exit loop, ship collision
+                #check padding
+                #if not enought space
+                    #fails = fails + 1
+                    #break  #insufficient spacing
+                #else:
+                    #add x to proposed
+                    #if len(proposed) = boat:
+                        #rejected = False
+                        #fails = 0
+        #if rejected:   #too many failures
+            #print error message
+            #return None    #failed to set up sea, return None
+        #update sea with sea[proposed] = boat
+        n = n + 1
+    print(sea)
     return sea
 
 boat1 = input("Choose ship placement strategy:\n1. Random\n2. Spaced\n3. Clumped\n4. Touch Edge\n5. Avoid Edge\n6.Touch Edge Spaced\n7. Touch Edge Clumped\n8.Avoid Edge Spaced\n9. Avoid Edge Clumped\n")

@@ -40,22 +40,35 @@ edges = 'Z'
 
 def place_boats(padded, edges):
     #Set up sea and allowed placement zones
-    sea = [] * 100
-    for i in range(99): #iterate through sea
-        if i < 10 or i > 89 or i % 10 is 0 or i % 10 is 9:  #true for the edges of the sea
-            if edges is 'F':
+    sea = [0] * 100
+    for i in range(100): #iterate through sea
+        if i < 10 or i > 89 or i % 10 == 0 or i % 10 == 9:  #true for the edges of the sea
+            if edges == 'F':
                 sea[i] = 1  #set edges of sea to 1 (block)
             else:
                 sea[i] = 0  #set edges of sea to 0 (allow)
         else:   #middle of sea
-            if edges is 'T':
+            if edges == 'T':
                 sea[i] = 1  #set middle of sea to 1 (block)
             else:
                 sea[i] = 0  #set middle of sea to 0 (allow)
+    
+    #AI GENERATED VERSION
+    '''
+    if edges == 'T':
+        sea = [1 if (i // 10 in (0, 9) or i % 10 in (0, 9)) else 0 for i in range(100)]
+    elif edges == 'F':
+        sea = [1 if not (i // 10 in (0, 9) or i % 10 in (0, 9)) else 0 for i in range(100)]
+    else:
+        sea = [0] * 100
+    '''
+    #END AI GENERATED VERSION
+    
     #Place ships in the sea
     n = 0
     while n < len(ships):   #Iterate through fleet
         boat = ships[n]
+        direction = ["up", "down", "left", "right"]
         rejected = True
         fails = 0
         #Place a ship
@@ -64,15 +77,22 @@ def place_boats(padded, edges):
             if sea[x] is not 0:    #location not available
                 fails = fails + 1
                 continue
-            y = random.randint(1,4)    #choose random number direction from 1 to 4
+            y = random.choice(direction)    #choose random number direction from 1 to 4
             z = 0
-            #check if the boat will go off the end of the board
-                #if up, x - 10 * (size - 1) >= 0
-                #if down, x + 10 * (size - 1) <= 99
-                #if left, x - (size - 1) >= 0
-                #if right, x + (size - 1) <= 99\
-                #else continue  #boat didn't fit, try again
-            #proposed = []
+            #Check if too close to the edge of the board
+            if y == "up" and x - 10 * (boat - 1) < 0:
+                fails = fails + 1
+                continue    #off the top of the board, try again
+            elif y == "down" and x + 10 * (boat - 1) > 99:
+                fails = fails + 1
+                continue    #off the bottom of the board, try again
+            elif y == "left" and x % 10 < boat - 1:
+                fails = fails + 1
+                continue    #off the left side of the board, try again
+            elif y == "right" and x % 10 + boat > 10:
+                fails = fails + 1
+                continue    #off the left side of the board, try again
+            proposed = []
             #loop over length of boat
                 #choose y
                 #if up, x = x - 10

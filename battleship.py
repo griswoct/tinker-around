@@ -23,7 +23,7 @@
 #Import
 import random
 
-#initialize variables
+#Initialize variables
 board_width = 10
 board_area = board_width * board_width
 sea1 = [None] * board_area
@@ -37,6 +37,7 @@ boat_strategy1 = 0
 dart_strategy1 = 0
 boat_strategy2 = 0
 dart_strategy2 = 0
+hard_block = 0  #set to 0 to block bow or stern to touch edge, or diagonal contact between boats, 1 to allow
 max_fails = 100
 padded = 'Z'
 edges = 'Z'
@@ -65,8 +66,10 @@ def place_boats(padded, edges):
         #Place a ship
         while rejected and fails < max_fails:  #continue while placement is rejected, up to max_fails attempts
             x = random.randint(0, board_area - 1)    #choose a random number x from board indexes
-            #Add x guesses when padded == 'F'
-            if sea[x] != 0:    #location not available
+            if padded == 'F' and n > 0: #first ship placed, ramaining ships must touch
+                while sea[x] != 9:  #initial location must be in the 
+                    x = random.randit(0, board_area - 1)
+            elif sea[x] != 0:    #location not available
                 fails = fails + 1
                 continue
            #Check if too close to the edge of the board
@@ -99,7 +102,9 @@ def place_boats(padded, edges):
                 z = z + 1
             conflict = False
             for i in proposed: #Check for conflicts in proposed locations
-                if sea[i] > 1:    #location occupied
+                if padded == 'F' and sea[i] == 9:   #if clumping, allow ships placed in buffer area around ships
+                    conflict = False
+                elif sea[i] > 0 + hard_block: #location occupied
                     fails = fails + 1
                     conflict = True
                     break  #location conflict, try again
@@ -111,9 +116,12 @@ def place_boats(padded, edges):
             return None    #failed to set up sea, return None
         for i in proposed:  #update sea
             sea[i] = boat
-        #Add disallowed buffer around ship when padded == 'T'
+        #Add buffer around ship with value 9
         n = n + 1
-    print(sea)
+    j = 0
+    while j < board_width:
+        print(sea[j*board_width:(j+1)*board_width])
+        j = j + 1
     return sea
 
 boat1 = int(input("Choose ship placement strategy:\n1. Random\n2. Spaced\n3. Clumped\n4. Touch Edge\n5. Avoid Edge\n6.Touch Edge Spaced\n7. Touch Edge Clumped\n8.Avoid Edge Spaced\n9. Avoid Edge Clumped\n"))
@@ -128,8 +136,6 @@ if boat1 in [4,6,7]:
 elif boat1 in [5,8,9]:
     edges = 'F'
 sea1 = place_boats(padded, edges)
-
-#while remaining_ships1 is not None: #while remaining_ships is not None:    
 
 #loop while remaining_ships is not None and open_targets is not None:
     #if sinking is True:

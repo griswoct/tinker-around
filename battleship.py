@@ -17,7 +17,6 @@
 * Clump (no space between boats)
 * Middle (clump or padded)
 * Edges (clump or padded)
-* Parallel (all vertical or all horizontal)
 '''
 
 #Import
@@ -37,7 +36,7 @@ boat_strategy1 = 0
 dart_strategy1 = 0
 boat_strategy2 = 0
 dart_strategy2 = 0
-hard_block = 0  #set to 0 to block bow or stern to touch edge, or diagonal contact between boats, 1 to allow
+hard_block = 1  #set to 0 to block bow or stern from touching edge, 1 to allow
 max_fails = 100
 padded = 'Z'
 edges = 'Z'
@@ -67,8 +66,8 @@ def place_boats(padded, edges):
         while rejected and fails < max_fails:  #continue while placement is rejected, up to max_fails attempts
             x = random.randint(0, board_area - 1)    #choose a random number x from board indexes
             if padded == 'F' and n > 0: #first ship placed, ramaining ships must touch
-                while sea[x] != 9:  #initial location must be in the 
-                    x = random.randit(0, board_area - 1)
+                while sea[x] != 9:  #initial location must be in the padding around other ships
+                    x = random.randint(0, board_area - 1)
             elif sea[x] != 0:    #location not available
                 fails = fails + 1
                 continue
@@ -102,7 +101,7 @@ def place_boats(padded, edges):
                 z = z + 1
             conflict = False
             for i in proposed: #Check for conflicts in proposed locations
-                if padded == 'F' and sea[i] == 9:   #if clumping, allow ships placed in buffer area around ships
+                if padded != 'T' and sea[i] == 9:   #if not padded, allow ships placed in buffer area around ships
                     conflict = False
                 elif sea[i] > 0 + hard_block: #location occupied
                     fails = fails + 1
@@ -117,6 +116,20 @@ def place_boats(padded, edges):
         for i in proposed:  #update sea
             sea[i] = boat
         #Add buffer around ship with value 9
+        if padded == 'T' or padded == 'F':
+            for i in proposed:
+                if i - board_width >= 0:    #not top of board
+                    if sea[i-board_width] in [0,1,9]:   #not occupied by a ship
+                        sea[i-board_width] = 9  #buffer area
+                if i + board_width < board_area:   #not bottom of board
+                    if sea[i+board_width] in [0,1,9]:   #not occupied by a ship
+                        sea[i+board_width] = 9  #buffer area
+                if i % board_width != 0:    #not left edge
+                    if sea[i-1] in [0,1,9]: #not occupied by a ship
+                        sea[i-1] = 9    #buffer area
+                if i % board_width != board_width - 1:  #not right edge
+                    if sea[i+1] in [0,1,9]: #not occupied by a ship
+                        sea[i+1] = 9    #buffer area
         n = n + 1
     j = 0
     while j < board_width:

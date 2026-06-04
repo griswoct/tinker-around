@@ -41,6 +41,12 @@ max_fails = 100
 padded = 'Z'
 edges = 'Z'
 
+def boat_strategy(strategy):
+    """Convert boat strategy number to padded and edges parameters."""
+    padded = 'T' if strategy in [2, 6, 8] else 'F' if strategy in [3, 7, 9] else 'Z'
+    edges = 'T' if strategy in [4, 6, 7] else 'F' if strategy in [5, 8, 9] else 'Z'
+    return padded, edges
+
 def place_boats(padded, edges):
     #Set up sea and allowed placement zones
     sea = [0] * board_area
@@ -137,43 +143,51 @@ def place_boats(padded, edges):
         j = j + 1
     return sea
 
-boat1 = int(input("Choose ship placement strategy:\n1. Random\n2. Spaced\n3. Clumped\n4. Touch Edge\n5. Avoid Edge\n6.Touch Edge Spaced\n7. Touch Edge Clumped\n8.Avoid Edge Spaced\n9. Avoid Edge Clumped\n"))
-while boat1 not in [1,2,3,4,5,6,7,8,9]:
-    boat1 = int(input("Please enter a number 1 to 9: "))
-if boat1 in [2,6,8]:
-    padded = 'T'
-elif boat1 in [3,7,9]:
-    padded = 'F'
-if boat1 in [4,6,7]:
-    edges = 'T'
-elif boat1 in [5,8,9]:
-    edges = 'F'
-sea1 = place_boats(padded, edges)
+def select_target():
+    x = 0
+    return x
 
-#loop while remaining_ships is not None and open_targets is not None:
-    #if sinking is True:
-        #find target near recent hit
-    #else:
-        #choose missile stratagy
-        #find target for stratagy in open_targets
-    #fire missile at target
-    #remove target from open_targets
-    #if target is a hit:
-        #mark hit on both boards
-        #add hit to game log
-        #if not sunk:
-            #sinking = True
+def fire_dart(x: int, screen):
+    return screen
+
+def sink_ship():
+    x = 0
+    return x
+
+def main():
+    boat_strategy1 = int(input("Choose ship placement strategy:\n1. Random\n2. Spaced\n3. Clumped\n4. Touch Edge\n5. Avoid Edge\n6. Touch Edge Spaced\n7. Touch Edge Clumped\n8. Avoid Edge Spaced\n9. Avoid Edge Clumped\n"))
+    while boat_strategy1 not in range(1, 10):
+        boat_strategy1 = int(input("Please enter a number 1 to 9: "))
+    padded, edges = boat_strategy(boat_strategy1)
+    sea1 = place_boats(padded, edges)
+    boat_strategy2 = random.randint(1, 9)    #randomly select computer boat strategy
+    padded, edges = boat_strategy(boat_strategy2)
+    sea2 = place_boats(padded, edges)
+    #loop while remaining_ships is not None and open_targets is not None:
+        #if sinking is True:
+            #find target near recent hit
         #else:
-            #sinking = False
-            #announce ship was sunk
-            #remove ship from remainin_ships
-            #add sunk ship to game log
-            #if hits is 17  #all ships sunk
-                #declare winner
-                #add to game history
-                #return winner
-    #else:
-        #mark as miss on both boards
-        #add miss to game log
-    #switch player
-#something went wrong...
+            #choose dart stratagy
+            #find target for stratagy in open_targets
+        #fire dart at target
+        #remove target from open_targets
+        #if target is a hit:
+            #mark hit on both boards
+            #add hit to game log
+            #if not sunk:
+                #sinking = True
+            #else:
+                #sinking = False
+                #announce ship was sunk
+                #remove ship from remainin_ships
+                #add sunk ship to game log
+                #if hits is 17  #all ships sunk
+                    #declare winner
+                    #add to game history
+                    #return winner
+        #else:
+            #mark as miss on both boards
+            #add miss to game log
+        #switch player
+    #something went wrong...
+    return

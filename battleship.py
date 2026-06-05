@@ -42,12 +42,13 @@ padded = 'Z'
 edges = 'Z'
 
 def boat_strategy(strategy):
-    """Convert boat strategy number to padded and edges parameters."""
+    'Ger padding and edge strategy from boat strategy selection'
     padded = 'T' if strategy in [2, 6, 8] else 'F' if strategy in [3, 7, 9] else 'Z'
     edges = 'T' if strategy in [4, 6, 7] else 'F' if strategy in [5, 8, 9] else 'Z'
     return padded, edges
 
 def place_boats(padded, edges):
+    'Place boats on the sea according to the selected strategy'
     #Set up sea and allowed placement zones
     sea = [0] * board_area
     for i in range(board_area): #iterate through sea
@@ -144,20 +145,32 @@ def place_boats(padded, edges):
     return sea
 
 def select_target():
+    'Select target according to selected stratety'
+    x = 0
+    return x
+
+def sink_ship():
+    'Continue attack on hit ship'
     x = 0
     return x
 
 def fire_dart(x: int, screen):
+    'Fire dart, report results, and update the screen'
     return screen
 
-def sink_ship():
-    x = 0
-    return x
-
 def main():
-    boat_strategy1 = int(input("Choose ship placement strategy:\n1. Random\n2. Spaced\n3. Clumped\n4. Touch Edge\n5. Avoid Edge\n6. Touch Edge Spaced\n7. Touch Edge Clumped\n8. Avoid Edge Spaced\n9. Avoid Edge Clumped\n"))
+    'Main function to run battleship game'
+    bs1 = input("Choose ship placement strategy:\n1. Random\n2. Spaced\n3. Clumped\n4. Touch Edge\n5. Avoid Edge\n6. Touch Edge Spaced\n7. Touch Edge Clumped\n8. Avoid Edge Spaced\n9. Avoid Edge Clumped\n")
+    if not bs1 or not bs1.isdigit():
+        boat_strategy1 = 0
+    else:
+        boat_strategy1 = int(bs1)
     while boat_strategy1 not in range(1, 10):
-        boat_strategy1 = int(input("Please enter a number 1 to 9: "))
+        bs1 = input("Please enter a number 1 to 9: ")
+        if bs1 and bs1.isdigit():
+            boat_strategy1 = int(bs1)
+        else:
+            boat_strategy1 = 0
     padded, edges = boat_strategy(boat_strategy1)
     sea1 = place_boats(padded, edges)
     boat_strategy2 = random.randint(1, 9)    #randomly select computer boat strategy
@@ -191,3 +204,6 @@ def main():
         #switch player
     #something went wrong...
     return
+
+if __name__ == "__main__":
+    main()

@@ -23,26 +23,34 @@
 import random
 
 #Initialize variables
-board_width = 10
-board_area = board_width * board_width
-sea1 = [None] * board_area
-screen1 = [None] * board_area
-sea2 = [None] * board_area
-screen2 = [None] * board_area
+board_width = 10    #length of board edge
+board_area = board_width * board_width  #number of spaces on the board
+player = 1  #which player's turn is it?
+sea1 = [None] * board_area  #blank sea for player
+screen1 = [None] * board_area   #blank screen for player
+sea2 = [None] * board_area  #blank sea for computer
+screen2 = [None] * board_area   #blank screen for computer
 ships = [5,4,3,3,2] #easier to place largest ships first
-remaining_ships1 = ships
-remaining_ships2 = ships
-boat_strategy1 = 0
-dart_strategy1 = 0
-boat_strategy2 = 0
-dart_strategy2 = 0
+remaining_ships1 = ships    #start with all ships remaining
+remaining_ships2 = ships    #start with all ships remaining
+boat_strategy1 = 0  #player defaults to invalid boat strategy
+dart_strategy1 = 0  #player defaults to invalid dart strategy
+boat_strategy2 = 1  #computer defaults to random boat strategy
+dart_strategy2 = 1  #computer defaults to random dart strategy
+target_list2 = []    #default blank target list
 hard_block = 1  #set to 0 to block bow or stern from touching edge, 1 to allow
-max_fails = 100
-padded = 'Z'
-edges = 'Z'
+max_fails = 100 #maximum failed iterations for setup or targeting before exiting
+padded = 'Z'    #not true or false (irgnored)
+edges = 'Z'   #not true or false (irgnored)
+sinking1 = False #player actively sinking ship
+sinking2 = False #computer actively sinking ship
+hit1 = None    #location of recent hit for player
+hit2 = None    #location of recent hit for computer
+target = None  #target space
+impact = False   #dart strike defaults to miss
 
 def boat_strategy(strategy):
-    'Ger padding and edge strategy from boat strategy selection'
+    'Get padding and edge strategy from boat strategy selection'
     padded = 'T' if strategy in [2, 6, 8] else 'F' if strategy in [3, 7, 9] else 'Z'
     edges = 'T' if strategy in [4, 6, 7] else 'F' if strategy in [5, 8, 9] else 'Z'
     return padded, edges
@@ -144,19 +152,29 @@ def place_boats(padded, edges):
         j = j + 1
     return sea
 
-def select_target():
+def dart_strategy(strategy):
+    'Get dart strategy from dart strategy selection'
+    target_list = []    #default blank target list
+    return target_list
+
+def select_target(open_tarrgets):
     'Select target according to selected stratety'
     x = 0
     return x
 
-def sink_ship():
+def sink_ship(hit: int):
     'Continue attack on hit ship'
     x = 0
     return x
 
-def fire_dart(x: int, screen):
-    'Fire dart, report results, and update the screen'
-    return screen
+def fire_dart(x: int, screen, sea):
+    'Fire dart and report result'
+    impact = False   #default to miss
+    if screen[x] is not None:    #space already targeted
+        return None    #invalid target
+    if sea[x] > 1:
+        impact = True
+    return impact
 
 def main():
     'Main function to run battleship game'
@@ -176,32 +194,49 @@ def main():
     boat_strategy2 = random.randint(1, 9)    #randomly select computer boat strategy
     padded, edges = boat_strategy(boat_strategy2)
     sea2 = place_boats(padded, edges)
-    #loop while remaining_ships is not None and open_targets is not None:
-        #if sinking is True:
-            #find target near recent hit
-        #else:
-            #choose dart stratagy
-            #find target for stratagy in open_targets
-        #fire dart at target
-        #remove target from open_targets
-        #if target is a hit:
-            #mark hit on both boards
-            #add hit to game log
-            #if not sunk:
-                #sinking = True
+    dart_strategy2 = random.randint(1, 5)    #randomly select computer dart strategy
+    while remaining_ships1 and remaining_ships2:    #while both players have ships remaining
+        if player == 1:
+            valid_selection = False
+            selection = input("Please select a target: ")    #get target from player 1
+            while not valid_selection:
+                if selection[0].upper() in "ABCDEFGHIJ" and selection[1] in "1234567890":    #validate target format
+                    target = (ord(selection[0].upper()) - 65) * board_width + int(selection[1:]) - 1    #convert target to index
+                    if target < board_area:    #validate target is on the board
+                        valid_selection = True
+                    else:
+                        print("Target is off the board, please try again.")
+                        selection = input("Please select a target: ")
+                else:
+                    print("Invalid target, please try again.")
+                    selection = input("Please select a target: ")
+        elif player == 2:
+            if sinking2:
+                target = sink_ship(hit2)    #find target near recent hit
+                impact = fire_dart(target, screen2, sea1)    #fire dart at target space and return result
+            else:
+                #choose dart stratagy
+                #find target for stratagy in open_targets
+            #fire dart at target
+            #remove target from open_targets
+            #if target is a hit:
+                #mark hit on both boards
+                #add hit to game log
+                #if not sunk:
+                    #sinking = True
+                #else:
+                    #sinking = False
+                    #announce ship was sunk
+                    #remove ship from remainin_ships
+                    #add sunk ship to game log
+                    #if hits is 17  #all ships sunk
+                        #declare winner
+                        #add to game history
+                        #return winner
             #else:
-                #sinking = False
-                #announce ship was sunk
-                #remove ship from remainin_ships
-                #add sunk ship to game log
-                #if hits is 17  #all ships sunk
-                    #declare winner
-                    #add to game history
-                    #return winner
-        #else:
-            #mark as miss on both boards
-            #add miss to game log
-        #switch player
+                #mark as miss on both boards
+                #add miss to game log
+            #switch player
     #something went wrong...
     return
 

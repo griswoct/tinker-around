@@ -6,11 +6,11 @@
 ## Strategy
 '''
 ### Missile Stratagy
-* Dumb Random
-* Random
-* Grid
-* Straif (diagonal lines)
-* Padded (random, but with buffer space)
+1. Dumb Random
+2. Random
+3. Grid
+4. Straif (diagonal lines)
+5. Padded (random, but with buffer space)
 ### Vessel Stratagy
 * Random
 * Padded (space between boats)
@@ -49,14 +49,29 @@ hit2 = None    #location of recent hit for computer
 target = None  #target space
 impact = False   #dart strike defaults to miss
 
+def get_boat_strategy():
+    '''Prompt player to select a boat placement stragety'''
+    bs1 = input("Choose ship placement strategy:\n1. Random\n2. Spaced\n3. Clumped\n4. Touch Edge\n5. Avoid Edge\n6. Touch Edge Spaced\n7. Touch Edge Clumped\n8. Avoid Edge Spaced\n9. Avoid Edge Clumped\n")
+    if not bs1 or not bs1.isdigit():
+        boat_strategy = 0
+    else:
+        boat_strategy = int(bs1)
+    while boat_strategy not in range(1, 10):
+        bs1 = input("Please enter a number 1 to 9: ")
+        if bs1 and bs1.isdigit():
+            boat_strategy = int(bs1)
+        else:
+            boat_strategy = 0
+    return boat_strategy
+
 def boat_strategy(strategy):
-    'Get padding and edge strategy from boat strategy selection'
+    '''Get padding and edge strategy from boat strategy selection'''
     padded = 'T' if strategy in [2, 6, 8] else 'F' if strategy in [3, 7, 9] else 'Z'
     edges = 'T' if strategy in [4, 6, 7] else 'F' if strategy in [5, 8, 9] else 'Z'
     return padded, edges
 
 def place_boats(padded, edges):
-    'Place boats on the sea according to the selected strategy'
+    '''Place boats on the sea according to the selected strategy'''
     #Set up sea and allowed placement zones
     sea = [0] * board_area
     for i in range(board_area): #iterate through sea
@@ -152,23 +167,79 @@ def place_boats(padded, edges):
         j = j + 1
     return sea
 
+def get_dart_strategy():
+    '''Prompt player to select a boat placement stragety'''
+    ds = input("Choose dart targeting strategy:\n1. Dumb Random\n2. Random\n3. Grid\n4. Straif (diagonal lines)\n5. Padded (spaced from previous targets)\n")
+    if not ds or not ds.isdigit():
+        boat_strategy = 0
+    else:
+        boat_strategy = int(ds)
+    while boat_strategy not in range(1, 10):
+        ds = input("Please enter a number 1 to 9: ")
+        if ds and ds.isdigit():
+            boat_strategy = int(ds)
+        else:
+            dart_strategy = 0
+    return dart_strategy
+
 def dart_strategy(strategy):
-    'Get dart strategy from dart strategy selection'
+    '''Get dart strategy from dart strategy selection'''
     target_list = []    #default blank target list
+    gap = int(sum(ships) / len(ships))   #average boat length rounded down
+    start = random.randint(0, gap - 1)  #randomize grid alignment
+    i = start
+    if strategy == 3: #form a grid
+        while i < board_area:
+            j = i % board_width #j tracks the board column
+            while j < board_width:
+                target_list.append(i)
+                i = i + gap
+                j = j + gap
+            row = int(i / board_width)
+            i = (row + gap) * board_width + start  #move down gap rows and back to start column
+    elif strategy == 4: #form diagonal lines
+        while i < board_area:
+            j = i % board_width #j tracks the board column
+            while j < board_width:
+                target_list.append(i)
+                i = i + gap
+                j = j + gap
+            row = int(i / board_width)
+            offset = start + row    #diagonal starting point
+            while offset > gap - 1: #keep starting poing within gap of the left edge
+                offset = offset - gap
+            i = row * board_width + offset   #move to the beginning of the next row
+    else:   #defaults to random, use entire board as target list (includes options 1 and 2)
+        target_list = list(range(0, board_area))    #array from 0 to board area - 1
     return target_list
 
-def select_target(open_tarrgets):
-    'Select target according to selected stratety'
+def sink_ship(hit: int):
+    '''Continue attack on hit ship'''
     x = 0
     return x
 
-def sink_ship(hit: int):
-    'Continue attack on hit ship'
-    x = 0
-    return x
+def get_target(screen):
+    valid_selection = False
+    selection = input("Please select a target: ")    #get target from player
+    while not valid_selection:
+        if selection[0].upper() in "ABCDEFGHIJ" and selection[1] in "1234567890":    #validate target format
+            target = (ord(selection[0].upper()) - 65) * board_width + int(selection[1:]) - 1    #convert target to index
+            if target < board_area:    #validate target is on the board
+                valid_selection = True
+            else:
+                print("Target is off the board, please try again.")
+                selection = input("Please select a target: ")
+        else:
+            print("Invalid target, please try again.")
+            selection = input("Please select a target: ")
+        if screen[target] != ' ':   #target already used
+            print("This location has already been targeted, with result: ", screen[target])
+            valid_selection = False
+            selection = input("Please select a target: ")
+    return target
 
 def fire_dart(x: int, screen, sea):
-    'Fire dart and report result'
+    '''Fire dart and report result'''
     impact = False   #default to miss
     if screen[x] is not None:    #space already targeted
         return None    #invalid target
@@ -177,54 +248,38 @@ def fire_dart(x: int, screen, sea):
     return impact
 
 def main():
-    'Main function to run battleship game'
-    bs1 = input("Choose ship placement strategy:\n1. Random\n2. Spaced\n3. Clumped\n4. Touch Edge\n5. Avoid Edge\n6. Touch Edge Spaced\n7. Touch Edge Clumped\n8. Avoid Edge Spaced\n9. Avoid Edge Clumped\n")
-    if not bs1 or not bs1.isdigit():
-        boat_strategy1 = 0
-    else:
-        boat_strategy1 = int(bs1)
-    while boat_strategy1 not in range(1, 10):
-        bs1 = input("Please enter a number 1 to 9: ")
-        if bs1 and bs1.isdigit():
-            boat_strategy1 = int(bs1)
-        else:
-            boat_strategy1 = 0
+    '''Main function to run battleship game'''
+    boat_strategy1 = get_boat_strategy()
     padded, edges = boat_strategy(boat_strategy1)
     sea1 = place_boats(padded, edges)
     boat_strategy2 = random.randint(1, 9)    #randomly select computer boat strategy
     padded, edges = boat_strategy(boat_strategy2)
     sea2 = place_boats(padded, edges)
     dart_strategy2 = random.randint(1, 5)    #randomly select computer dart strategy
+    target_list2 = dart_strategy(dart_strategy2)
     while remaining_ships1 and remaining_ships2:    #while both players have ships remaining
         if player == 1:
-            valid_selection = False
-            selection = input("Please select a target: ")    #get target from player 1
-            while not valid_selection:
-                if selection[0].upper() in "ABCDEFGHIJ" and selection[1] in "1234567890":    #validate target format
-                    target = (ord(selection[0].upper()) - 65) * board_width + int(selection[1:]) - 1    #convert target to index
-                    if target < board_area:    #validate target is on the board
-                        valid_selection = True
-                    else:
-                        print("Target is off the board, please try again.")
-                        selection = input("Please select a target: ")
-                else:
-                    print("Invalid target, please try again.")
-                    selection = input("Please select a target: ")
+            screen = screen1
+            sea = sea2
+            target = get_target(screen)
         elif player == 2:
-            if sinking2:
+            screen = screen2
+            sea = sea1
+            if sinking2 and dart_strategy != 1: #actively sinking a ship
                 target = sink_ship(hit2)    #find target near recent hit
-                impact = fire_dart(target, screen2, sea1)    #fire dart at target space and return result
-            else:
-                #choose dart stratagy
-                #find target for stratagy in open_targets
-            #fire dart at target
+            else:   #default to choosing from target list
+                target = random.choice(target_list2)    #choose random target from target list
+        impact = fire_dart(target, screen, sea)    #fire dart at target space and return result
             #remove target from open_targets
+                #if target list is empty
+                    #populate with remaining spaces
+                    #if target list is still empty
+                        #error message
+                        #return
             #if target is a hit:
                 #mark hit on both boards
                 #add hit to game log
-                #if not sunk:
-                    #sinking = True
-                #else:
+                #if sunk:
                     #sinking = False
                     #announce ship was sunk
                     #remove ship from remainin_ships
@@ -233,6 +288,8 @@ def main():
                         #declare winner
                         #add to game history
                         #return winner
+                #else:
+                    #sinking = True
             #else:
                 #mark as miss on both boards
                 #add miss to game log

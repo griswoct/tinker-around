@@ -40,8 +40,10 @@ dart_strategy2 = 1  #computer defaults to random dart strategy
 target_list2 = []    #default blank target list
 hard_block = 1  #set to 0 to block bow or stern from touching edge, 1 to allow
 max_fails = 100 #maximum failed iterations for setup or targeting before exiting
-padded = 'Z'    #not true or false (irgnored)
-edges = 'Z'   #not true or false (irgnored)
+padded1 = 'Z'    #not true or false (irgnored)
+padded2 = 'Z'    #not true or false (irgnored)
+edges1 = 'Z'   #not true or false (irgnored)
+edges2 = 'Z'   #not true or false (irgnored)
 sinking1 = False #player actively sinking ship
 sinking2 = False #computer actively sinking ship
 hit1 = None    #location of recent hit for player
@@ -51,18 +53,18 @@ impact = False   #dart strike defaults to miss
 
 def get_boat_strategy():
     '''Prompt player to select a boat placement stragety'''
-    bs1 = input("Choose ship placement strategy:\n1. Random\n2. Spaced\n3. Clumped\n4. Touch Edge\n5. Avoid Edge\n6. Touch Edge Spaced\n7. Touch Edge Clumped\n8. Avoid Edge Spaced\n9. Avoid Edge Clumped\n")
-    if not bs1 or not bs1.isdigit():
-        boat_strategy = 0
+    strategy = input("Choose ship placement strategy:\n1. Random\n2. Spaced\n3. Clumped\n4. Touch Edge\n5. Avoid Edge\n6. Touch Edge Spaced\n7. Touch Edge Clumped\n8. Avoid Edge Spaced\n9. Avoid Edge Clumped\n")
+    if not strategy or not strategy.isdigit():
+        strategy = 0
     else:
-        boat_strategy = int(bs1)
-    while boat_strategy not in range(1, 10):
-        bs1 = input("Please enter a number 1 to 9: ")
-        if bs1 and bs1.isdigit():
-            boat_strategy = int(bs1)
+        strategy = int(strategy)
+    while strategy not in range(1, 10):
+        strategy = input("Please enter a number 1 to 9: ")
+        if strategy and bs1.isdigit():
+            strategy = int(strategy)
         else:
-            boat_strategy = 0
-    return boat_strategy
+            strategy = 0
+    return strategy
 
 def boat_strategy(strategy):
     '''Get padding and edge strategy from boat strategy selection'''
@@ -250,11 +252,11 @@ def fire_dart(x: int, screen, sea):
 def main():
     '''Main function to run battleship game'''
     boat_strategy1 = get_boat_strategy()
-    padded, edges = boat_strategy(boat_strategy1)
-    sea1 = place_boats(padded, edges)
+    padded1, edges1 = boat_strategy(boat_strategy1)
+    sea1 = place_boats(padded1, edges1)
     boat_strategy2 = random.randint(1, 9)    #randomly select computer boat strategy
-    padded, edges = boat_strategy(boat_strategy2)
-    sea2 = place_boats(padded, edges)
+    padded2, edges2 = boat_strategy(boat_strategy2)
+    sea2 = place_boats(padded2, edges2)
     dart_strategy2 = random.randint(1, 5)    #randomly select computer dart strategy
     target_list2 = dart_strategy(dart_strategy2)
     while remaining_ships1 and remaining_ships2:    #while both players have ships remaining

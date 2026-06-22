@@ -22,24 +22,26 @@
 #Import
 import random
 
+#Initialize CONSTANTS
+HARDBLOCK = 1  #set to 0 to block bow or stern from touching edge, 1 to allow
+WIDTH = 10    #length of board edge
+AREA = WIDTH * WIDTH  #number of spaces on the board
+MAXFAILS = 100 #maximum failed iterations for setup or targeting before exiting
+SHIPS= [5,4,3,3,2] #easier to place largest SHIPSfirst
+
 #Initialize variables
-board_width = 10    #length of board edge
-board_area = board_width * board_width  #number of spaces on the board
 player = 1  #which player's turn is it?
-sea1 = [None] * board_area  #blank sea for player
-screen1 = [None] * board_area   #blank screen for player
-sea2 = [None] * board_area  #blank sea for computer
-screen2 = [None] * board_area   #blank screen for computer
-ships = [5,4,3,3,2] #easier to place largest ships first
-remaining_ships1 = ships    #start with all ships remaining
-remaining_ships2 = ships    #start with all ships remaining
+screen1 = [None] * AREA   #blank screen for player
+screen2 = [None] * AREA   #blank screen for computer
+sea1 = [None] * AREA  #blank sea for player
+sea2 = [None] * AREA  #blank sea for computer
+remaining_ships1 = SHIPS   #start with all ships remaining
+remaining_ships2 = SHIPS   #start with all ships remaining
 boat_strategy1 = 0  #player defaults to invalid boat strategy
-dart_strategy1 = 0  #player defaults to invalid dart strategy
 boat_strategy2 = 1  #computer defaults to random boat strategy
+dart_strategy1 = 0  #player defaults to invalid dart strategy
 dart_strategy2 = 1  #computer defaults to random dart strategy
 target_list2 = []    #default blank target list
-hard_block = 1  #set to 0 to block bow or stern from touching edge, 1 to allow
-max_fails = 100 #maximum failed iterations for setup or targeting before exiting
 padded1 = 'Z'    #not true or false (irgnored)
 padded2 = 'Z'    #not true or false (irgnored)
 edges1 = 'Z'   #not true or false (irgnored)
@@ -75,9 +77,9 @@ def boat_strategy(strategy):
 def place_boats(padded, edges):
     '''Place boats on the sea according to the selected strategy'''
     #Set up sea and allowed placement zones
-    sea = [0] * board_area
-    for i in range(board_area): #iterate through sea
-        if i < board_width or i > board_area - board_width - 1 or i % board_width == 0 or i % board_width == board_width - 1:  #true for the edges of the sea
+    sea = [0] * AREA
+    for i in range(AREA): #iterate through sea
+        if i < WIDTH or i > AREA - WIDTH - 1 or i % WIDTH == 0 or i % WIDTH == WIDTH - 1:  #true for the edges of the sea
             if edges == 'F':
                 sea[i] = 1  #set edges of sea to 1 (block)
             else:
@@ -89,32 +91,32 @@ def place_boats(padded, edges):
                 sea[i] = 0  #set middle of sea to 0 (allow)
     #Place ships in the sea
     n = 0
-    while n < len(ships):   #Iterate through fleet
-        boat = ships[n]
+    while n < len(SHIPS):   #Iterate through fleet
+        boat = SHIPS[n]
         direction = ["up", "down", "left", "right"]
         rejected = True
         fails = 0
         #Place a ship
-        while rejected and fails < max_fails:  #continue while placement is rejected, up to max_fails attempts
-            x = random.randint(0, board_area - 1)    #choose a random number x from board indexes
+        while rejected and fails < MAXFAILS:  #continue while placement is rejected, up to MAXFAILS attempts
+            x = random.randint(0, AREA - 1)    #choose a random number x from board indexes
             if padded == 'F' and n > 0: #first ship placed, ramaining ships must touch
                 while sea[x] != 9:  #initial location must be in the padding around other ships
-                    x = random.randint(0, board_area - 1)
+                    x = random.randint(0, AREA - 1)
             elif sea[x] != 0:    #location not available
                 fails = fails + 1
                 continue
            #Check if too close to the edge of the board
             y = random.choice(direction)    #choose random number direction from 1 to 4
-            if y == "up" and x - board_width * (boat - 1) < 0:
+            if y == "up" and x - WIDTH * (boat - 1) < 0:
                 fails = fails + 1
                 continue    #off the top of the board, try again
-            elif y == "down" and x + board_width * (boat - 1) > board_area - 1:
+            elif y == "down" and x + WIDTH * (boat - 1) > AREA - 1:
                 fails = fails + 1
                 continue    #off the bottom of the board, try again
-            elif y == "left" and x % board_width < boat - 1:
+            elif y == "left" and x % WIDTH < boat - 1:
                 fails = fails + 1
                 continue    #off the left side of the board, try again
-            elif y == "right" and x % board_width > board_width - boat:
+            elif y == "right" and x % WIDTH > WIDTH - boat:
                 fails = fails + 1
                 continue    #off the left side of the board, try again
             #Get proposed locations to be occupied by ship
@@ -122,9 +124,9 @@ def place_boats(padded, edges):
             proposed = [x]
             while z < boat: #loop over length of boat
                 if y == "up":
-                    x = x - board_width
+                    x = x - WIDTH
                 elif y == "down":
-                    x = x + board_width
+                    x = x + WIDTH
                 elif y == "left":
                     x = x - 1
                 elif y == "right":
@@ -135,7 +137,7 @@ def place_boats(padded, edges):
             for i in proposed: #Check for conflicts in proposed locations
                 if padded != 'T' and sea[i] == 9:   #if not padded, allow ships placed in buffer area around ships
                     conflict = False
-                elif sea[i] > 0 + hard_block: #location occupied
+                elif sea[i] > 0 + HARDBLOCK: #location occupied
                     fails = fails + 1
                     conflict = True
                     break  #location conflict, try again
@@ -150,22 +152,22 @@ def place_boats(padded, edges):
         #Add buffer around ship with value 9
         if padded == 'T' or padded == 'F':
             for i in proposed:
-                if i - board_width >= 0:    #not top of board
-                    if sea[i-board_width] in [0,1,9]:   #not occupied by a ship
-                        sea[i-board_width] = 9  #buffer area
-                if i + board_width < board_area:   #not bottom of board
-                    if sea[i+board_width] in [0,1,9]:   #not occupied by a ship
-                        sea[i+board_width] = 9  #buffer area
-                if i % board_width != 0:    #not left edge
+                if i - WIDTH >= 0:    #not top of board
+                    if sea[i-WIDTH] in [0,1,9]:   #not occupied by a ship
+                        sea[i-WIDTH] = 9  #buffer area
+                if i + WIDTH < AREA:   #not bottom of board
+                    if sea[i+WIDTH] in [0,1,9]:   #not occupied by a ship
+                        sea[i+WIDTH] = 9  #buffer area
+                if i % WIDTH != 0:    #not left edge
                     if sea[i-1] in [0,1,9]: #not occupied by a ship
                         sea[i-1] = 9    #buffer area
-                if i % board_width != board_width - 1:  #not right edge
+                if i % WIDTH != WIDTH - 1:  #not right edge
                     if sea[i+1] in [0,1,9]: #not occupied by a ship
                         sea[i+1] = 9    #buffer area
         n = n + 1
     j = 0
-    while j < board_width:
-        print(sea[j*board_width:(j+1)*board_width])
+    while j < WIDTH:
+        print(sea[j*WIDTH:(j+1)*WIDTH])
         j = j + 1
     return sea
 
@@ -187,32 +189,32 @@ def get_dart_strategy():
 def dart_strategy(strategy):
     '''Get dart strategy from dart strategy selection'''
     target_list = []    #default blank target list
-    gap = int(sum(ships) / len(ships))   #average boat length rounded down
+    gap = int(sum(SHIPS) / len(SHIPS))   #average boat length rounded down
     start = random.randint(0, gap - 1)  #randomize grid alignment
     i = start
     if strategy == 3: #form a grid
-        while i < board_area:
-            j = i % board_width #j tracks the board column
-            while j < board_width:
+        while i < AREA:
+            j = i % WIDTH #j tracks the board column
+            while j < WIDTH:
                 target_list.append(i)
                 i = i + gap
                 j = j + gap
-            row = int(i / board_width)
-            i = (row + gap) * board_width + start  #move down gap rows and back to start column
+            row = int(i / WIDTH)
+            i = (row + gap) * WIDTH + start  #move down gap rows and back to start column
     elif strategy == 4: #form diagonal lines
-        while i < board_area:
-            j = i % board_width #j tracks the board column
-            while j < board_width:
+        while i < AREA:
+            j = i % WIDTH #j tracks the board column
+            while j < WIDTH:
                 target_list.append(i)
                 i = i + gap
                 j = j + gap
-            row = int(i / board_width)
+            row = int(i / WIDTH)
             offset = start + row    #diagonal starting point
             while offset > gap - 1: #keep starting poing within gap of the left edge
                 offset = offset - gap
-            i = row * board_width + offset   #move to the beginning of the next row
+            i = row * WIDTH + offset   #move to the beginning of the next row
     else:   #defaults to random, use entire board as target list (includes options 1 and 2)
-        target_list = list(range(0, board_area))    #array from 0 to board area - 1
+        target_list = list(range(0, AREA))    #array from 0 to board area - 1
     return target_list
 
 def sink_ship(hit: int):
@@ -225,8 +227,8 @@ def get_target(screen):
     selection = input("Please select a target: ")    #get target from player
     while not valid_selection:
         if selection[0].upper() in "ABCDEFGHIJ" and selection[1] in "1234567890":    #validate target format
-            target = (ord(selection[0].upper()) - 65) * board_width + int(selection[1:]) - 1    #convert target to index
-            if target < board_area:    #validate target is on the board
+            target = (ord(selection[0].upper()) - 65) * WIDTH + int(selection[1:]) - 1    #convert target to index
+            if target < AREA:    #validate target is on the board
                 valid_selection = True
             else:
                 print("Target is off the board, please try again.")

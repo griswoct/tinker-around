@@ -1,22 +1,9 @@
-# Battleship
 '''
-1. Computer vs human
-2. Computer vs Computer
-'''
-## Strategy
-'''
-### Missile Stratagy
-1. Dumb Random
-2. Random
-3. Grid
-4. Straif (diagonal lines)
-5. Padded (random, but with buffer space)
-### Vessel Stratagy
-* Random
-* Padded (space between boats)
-* Clump (no space between boats)
-* Middle (clump or padded)
-* Edges (clump or padded)
+#battleship.py
+#PURPOSE: Play Battleship
+#AUTHOR: CALEB GRISWOLD
+#LICENSE: THE UNLICENSE
+#CREATED: 2026-03-24
 '''
 
 #Import
@@ -55,7 +42,17 @@ impact = False   #dart strike defaults to miss
 
 def get_boat_strategy():
     '''Prompt player to select a boat placement stragety'''
-    strategy = input("Choose ship placement strategy:\n1. Random\n2. Spaced\n3. Clumped\n4. Touch Edge\n5. Avoid Edge\n6. Touch Edge Spaced\n7. Touch Edge Clumped\n8. Avoid Edge Spaced\n9. Avoid Edge Clumped\n")
+    strategy = input("""Choose ship placement strategy:
+                     1. Random
+                     2. Spaced
+                     3. Clumped
+                     4. Touch Edge
+                     5. Avoid Edge
+                     6. Touch Edge Spaced
+                     7. Touch Edge Clumped
+                     8. Avoid Edge Spaced
+                     9. Avoid Edge Clumped
+                     """)
     if not strategy or not strategy.isdigit():
         strategy = 0
     else:
@@ -79,7 +76,8 @@ def place_boats(padded, edges):
     #Set up sea and allowed placement zones
     sea = [0] * AREA
     for i in range(AREA): #iterate through sea
-        if i < WIDTH or i > AREA - WIDTH - 1 or i % WIDTH == 0 or i % WIDTH == WIDTH - 1:  #true for the edges of the sea
+        #Find the sea edges
+        if i < WIDTH or i > AREA - WIDTH - 1 or i % WIDTH == 0 or i % WIDTH == WIDTH - 1:
             if edges == 'F':
                 sea[i] = 1  #set edges of sea to 1 (block)
             else:
@@ -97,7 +95,7 @@ def place_boats(padded, edges):
         rejected = True
         fails = 0
         #Place a ship
-        while rejected and fails < MAXFAILS:  #continue while placement is rejected, up to MAXFAILS attempts
+        while rejected and fails < MAXFAILS:
             x = random.randint(0, AREA - 1)    #choose a random number x from board indexes
             if padded == 'F' and n > 0: #first ship placed, ramaining ships must touch
                 while sea[x] != 9:  #initial location must be in the padding around other ships
@@ -135,7 +133,7 @@ def place_boats(padded, edges):
                 z = z + 1
             conflict = False
             for i in proposed: #Check for conflicts in proposed locations
-                if padded != 'T' and sea[i] == 9:   #if not padded, allow ships placed in buffer area around ships
+                if padded != 'T' and sea[i] == 9:   #if not padded, allow placement in buffer zones
                     conflict = False
                 elif sea[i] > 0 + HARDBLOCK: #location occupied
                     fails = fails + 1
@@ -173,7 +171,13 @@ def place_boats(padded, edges):
 
 def get_dart_strategy():
     '''Prompt player to select a boat placement stragety'''
-    ds = input("Choose dart targeting strategy:\n1. Dumb Random\n2. Random\n3. Grid\n4. Straif (diagonal lines)\n5. Padded (spaced from previous targets)\n")
+    ds = input("""Choose dart targeting strategy:
+               1. Dumb Random
+               2. Random
+               3. Grid
+               4. Straif (diagonal lines)
+               5. Padded (spaced from previous targets)
+               """)
     if not ds or not ds.isdigit():
         boat_strategy = 0
     else:
@@ -226,8 +230,8 @@ def get_target(screen):
     valid_selection = False
     selection = input("Please select a target: ")    #get target from player
     while not valid_selection:
-        if selection[0].upper() in "ABCDEFGHIJ" and selection[1] in "1234567890":    #validate target format
-            target = (ord(selection[0].upper()) - 65) * WIDTH + int(selection[1:]) - 1    #convert target to index
+        if selection[0].upper() in "ABCDEFGHIJ" and selection[1] in "1234567890":   #check format
+            target = (ord(selection[0].upper()) - 65) * WIDTH + int(selection[1:]) - 1  #get index
             if target < AREA:    #validate target is on the board
                 valid_selection = True
             else:

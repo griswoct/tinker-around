@@ -63,6 +63,8 @@
   * Avoid top words (google 10000)
   * Build "resistant" thessaurus
   * Letter count, avoid `a sin to err`
+  * Avoid common letter pairs and triples (th, st, nd, nt, ng, ch, sh)
+  * Avoid letter doubles (ll, ss, tt, ff)
   * Weigh letters by frequency (e and t are high, x and z are low)
     * Multiply the letter frequency by the reciprocal of the sum of squares of all letter frequencies
     * Find average weight (sum/word length) to determine how "good" a word is
